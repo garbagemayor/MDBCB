@@ -1,7 +1,11 @@
 bin/*
 obj/*
+SourceCode/filesystem/Debug/*
+
 *.old
 *.o
 *.exe
 *.layout
 *.depend
+
+DoNot*
