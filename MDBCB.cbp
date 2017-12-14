@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="MDBCB" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/MDBCB" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="SourceCode/tablesystem/Page" />
+					<Add directory="SourceCode/tablesystem/Table" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/MDBCB" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="SourceCode/tablesystem/Page" />
+					<Add directory="SourceCode/tablesystem/Table" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="SourceCode/DatabaseManager.cpp" />
+		<Unit filename="SourceCode/filesystem/ByteBufBase.h" />
+		<Unit filename="SourceCode/filesystem/OneFileManager.h" />
+		<Unit filename="SourceCode/filesystem/TestFileSystem.h" />
+		<Unit filename="SourceCode/filesystem/bufmanager/BufPageManager.h" />
+		<Unit filename="SourceCode/filesystem/bufmanager/FindReplace.h" />
+		<Unit filename="SourceCode/filesystem/fileio/FileManager.h" />
+		<Unit filename="SourceCode/filesystem/fileio/FileTable.h" />
+		<Unit filename="SourceCode/filesystem/utils/MyBitMap.h" />
+		<Unit filename="SourceCode/filesystem/utils/MyHashMap.h" />
+		<Unit filename="SourceCode/filesystem/utils/MyLinkList.h" />
+		<Unit filename="SourceCode/filesystem/utils/compare.h" />
+		<Unit filename="SourceCode/filesystem/utils/pagedef.h" />
+		<Unit filename="SourceCode/indexsystem/BaseIndex/BaseIndex.h" />
+		<Unit filename="SourceCode/indexsystem/IndexManager.h" />
+		<Unit filename="SourceCode/indexsystem/TreeIndex/Tree.h" />
+		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeIndex.h" />
+		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeNode.h" />
+		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeNode/TreeNodeBase.h" />
+		<Unit filename="SourceCode/indexsystem/testindexsystem.cpp" />
+		<Unit filename="SourceCode/shellsystem/ShellManager.h" />
+		<Unit filename="SourceCode/tablesystem/Page/TablePage.h" />
+		<Unit filename="SourceCode/tablesystem/Page/TablePageFooter.h" />
+		<Unit filename="SourceCode/tablesystem/Page/TablePageHeader.h" />
+		<Unit filename="SourceCode/tablesystem/TableManager.h" />
+		<Unit filename="SourceCode/tablesystem/Table/Table.h" />
+		<Unit filename="SourceCode/tablesystem/Table/TableColumn.h" />
+		<Unit filename="SourceCode/tablesystem/Table/TableDataType.h" />
+		<Unit filename="SourceCode/tablesystem/Table/TableHeader.h" />
+		<Unit filename="SourceCode/tablesystem/TestTableSystem.h" />
+		<Extensions>
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project output_language="" />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
