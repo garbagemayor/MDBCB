@@ -16,7 +16,7 @@
  */
 class OneFileManager {
     
-public:
+private:
     //文件名
     std::string fileName;
     //文件编号
@@ -42,10 +42,10 @@ public:
             pageCnt = bufPageManager -> fileManager -> getFileSize(fileName.c_str()) / PAGE_SIZE;
         }
         if (bufPageManager -> fileManager -> openFile(fileName.c_str(), fileId) == false) {
-            std::cout << "OneFileManager() error" << std::endl;
+            std::cout << "OneFileManager(bufPageManager, " << fileName_ << ", " << isNewFile << ") error" << std::endl;
             return;
         }
-        std::cout << "OneFileManager() fildId = " << fileId << std::endl;
+        //std::cout << "OneFileManager() fileId = " << fileId << std::endl;
     }
     
 protected:
@@ -64,7 +64,12 @@ protected:
     }
     
 public:
-    ///对文件内的页进行操作
+    ///对文件内的页进行操作的函数
+    //获取页数
+    int getPageCount() {
+        return pageCnt;
+    }
+    
     //由页编号获取页数据
     ByteBufType getPage(int pageId) {
         int index;

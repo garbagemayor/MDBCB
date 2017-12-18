@@ -26,7 +26,7 @@
 /*
  *  数据表的名字、列的名字的长度限制
  */
-#define MAX_NAME_LENGTH 256
+#define MAX_NAME_LENGTH 128
 /*
  * 缓存中页面个数上限
  */

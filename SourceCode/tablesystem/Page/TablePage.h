@@ -69,7 +69,7 @@ public:
         oneFileManager = oneFileManager_;
         pageId = pageId_;
         //这一页是否存在
-        if (pageId < 0 || pageId >= oneFileManager -> pageCnt) {
+        if (pageId < 0 || pageId >= oneFileManager -> getPageCount()) {
             std::cout << "TablePage() error" << std::endl;
             return;
         }
@@ -146,6 +146,7 @@ public:
         header -> freeData += slotLen;
         header -> freeCnt -= slotLen + 2;
         header -> writeBackToBuffer();
+        return header -> slotCnt;
     }
     
     ///TODO 其他的各种功能的函数

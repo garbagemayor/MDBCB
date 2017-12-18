@@ -63,7 +63,10 @@
 		<Unit filename="SourceCode/tablesystem/Table/Table.h" />
 		<Unit filename="SourceCode/tablesystem/Table/TableColumn.h" />
 		<Unit filename="SourceCode/tablesystem/Table/TableDataType.h" />
+		<Unit filename="SourceCode/tablesystem/Table/TableGrid.h" />
+		<Unit filename="SourceCode/tablesystem/Table/TableHeader.cpp" />
 		<Unit filename="SourceCode/tablesystem/Table/TableHeader.h" />
+		<Unit filename="SourceCode/tablesystem/Table/TableRow.h" />
 		<Unit filename="SourceCode/tablesystem/TestTableSystem.h" />
 		<Extensions>
 			<DoxyBlocks>
