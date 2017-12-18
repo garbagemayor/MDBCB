@@ -4,6 +4,7 @@
 #include "../../filesystem/OneFileManager.h"
 #include "../Page/TablePage.h"
 #include "TableHeader.h"
+#include "TableRow.h"
 
 /**
  *  单个数据表，由数据表管理器TableManager管理。
@@ -59,8 +60,16 @@ public:
         return tableHeader -> getName();
     }
     
-    
-    
+    /*
+     *  @函数名:addRow
+     *  @参数tableRow:要加入的行，它会被复制之后加入，所以在哪里定义的就在哪里释放内存
+     *  @参数pageId:用于返回插入位置的页编号
+     *  @参数slotId:用于返回插入位置的槽编号
+     *  功能:添加一行数据，去每一页里面找一个能加入的位置把它加进去
+     */
+    int addRow(TableRow * tableRow, int & pageId, int & slotId) {
+        
+    }
     
     
     

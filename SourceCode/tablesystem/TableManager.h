@@ -32,6 +32,12 @@ public:/*
      *  功能:新建一个数据表，如果有同名的数据表就报错
      */
     void createTable(TableHeader * tableHeader) {
+        //表头仍然可修改报错
+        if (tableHeader -> isModifiable()) {
+            std::cout << "TableManager.createTable(" << tableHeader -> getName() << "_ error" << std::endl;
+            return;
+        }
+        //同名数据表报错
         for (int i = 0; i < (int) tableList.size(); i ++) {
             if (tableList[i] -> getName() == tableHeader -> getName()) {
                 std::cout << "TableManager.createTable(" << tableHeader -> getName() << "_ error" << std::endl;

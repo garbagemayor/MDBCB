@@ -12,7 +12,7 @@
  */
 class TablePageFooter {
     
-public:
+private:
     ///基本信息
     //单文件管理器
     OneFileManager * oneFileManager;
@@ -21,14 +21,14 @@ public:
     //是否脏（与缓存页管理器中的页面相比）
     bool isDirty;
     
-public:
+private:
     ///从页头抄来的信息
     //页编号
     int pageId;
     //槽数量
     int slotCnt;
     
-public:
+private:
     ///页脚内存储的信息
     //行偏移数组
     std::vector<short> slotOffset;
@@ -137,7 +137,8 @@ public:
     
     
     
-    
+    friend class TablePageHeader;
+    friend class TablePage;
 };
 
 #endif // TABLE_PAGE_FOOTER_H_

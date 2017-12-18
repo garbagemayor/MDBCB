@@ -10,11 +10,11 @@
  */
 class TablePageHeader {
     
-public:
+private:
     //页头大小，单位字节
     static const int SIZE = PAGE_HEADER_SIZE;
     
-public:
+private:
     ///基本信息
     //单文件管理器
     OneFileManager * oneFileManager;
@@ -23,7 +23,7 @@ public:
     //是否脏（与缓存页管理器中的页面相比）
     bool isDirty;
     
-public:
+private:
     ///页头内存储的信息
     //[0]: 这一页在当前文件中的页号
     int pageId;
@@ -166,7 +166,8 @@ public:
     
     
     
-    
+    friend class TablePageFooter;
+    friend class TablePage;
 };
 
 #endif // TABLE_PAGE_HEADER_H_
