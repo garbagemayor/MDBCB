@@ -61,6 +61,14 @@ public:
 public:
     ///基本get函数
     /*
+     *  @函数名:getName
+     *  功能:获取数据表名字
+     */
+    std::string getName() {
+        return name;
+    }
+    
+    /*
      *  @函数名:getNRow
      *  功能:获取行数
      */
@@ -99,19 +107,12 @@ public:
     }
     
     /*
-     *  @函数名:getName
-     *  功能:获取数据表名字
-     */
-    std::string getName() {
-        return name;
-    }
-    
-    /*
      *  @函数名:getColumnById
+     *  @参数id:列的逻辑位置
      *  功能:用列的逻辑位置获取列信息，如果不存在就报错
      */
     TableColumn * getColumnById(int id) {
-        if (id < 0 || id > (int) colList.size()) {
+        if (id < 0 || id >= (int) colList.size()) {
             std::cout << "TableHeader.getColumnById(" << id << ") error" << std::endl;
             return NULL;
         }
@@ -120,6 +121,7 @@ public:
     
     /*
      *  @函数名:getColumnByName
+     *  @参数columnName:数据列的名称
      *  功能:用列的名字位置获取列信息，如果不存在就报错
      */
     TableColumn * getColumnByName(std::string columnName) {
@@ -131,6 +133,23 @@ public:
         if (true) {
             std::cout << "TableHeader.getColumnByName(" << columnName << ") error" << std::endl;
             return NULL;
+        }
+    }
+    
+    /*
+     *  @函数名:getColumnIdByName
+     *  @参数columnName:数据列的名称
+     *  功能:用列的名字位置获取列编号，如果不存在就报错
+     */
+    int getColumnIdByName(std::string columnName) {
+        for (int i = 0; i < (int) colList.size(); i ++) {
+            if (colList[i] -> getName() == columnName) {
+                return i;
+            }
+        }
+        if (true) {
+            std::cout << "TableHeader.getColumnIdByName(" << columnName << ") error" << std::endl;
+            return -1;
         }
     }
     
@@ -282,6 +301,7 @@ public:
     ByteBufType toByteBuffer() {
         int sz = getSizeInSlot();
         static Byte buf[PAGE_SIZE];
+        memset(buf, 0, sizeof(Byte) * PAGE_SIZE);
         ByteBufType curBuf = buf;
         if (sz > PAGE_SIZE - PAGE_HEADER_SIZE) {
             std::cout << "TableHeader.toByteBuffer() error" << std::endl;
@@ -320,7 +340,7 @@ public:
         }
         //长度纠错
         if (slotData - slotData_ != sz) {
-            std::cout << "TableHeader.readFromByteBuffer() error" << endl;
+            std::cout << "TableHeader.readFromByteBuffer() error" << std::endl;
             return;
         }
     }

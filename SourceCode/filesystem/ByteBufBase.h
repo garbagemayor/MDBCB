@@ -1,6 +1,7 @@
 #ifndef BYTE_BUF_BASE_H_
 #define BYTE_BUF_BASE_H_
 
+#include "utils/pagedef.h"
 #include <iostream>
 
 typedef unsigned char Byte;

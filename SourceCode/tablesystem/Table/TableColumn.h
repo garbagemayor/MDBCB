@@ -4,6 +4,7 @@
 #include "../../filesystem/ByteBufBase.h"
 #include "TableDataType.h"
 
+#include <cstring>
 #include <string>
 
 /**
@@ -43,7 +44,7 @@ private:
 public:
     /*
      *  @构造函数
-     *  功能:新建一个空的列信息，但是列不能为空
+     *  功能:新建一个空的列信息，但是列不能为空，默认flag全是0
      */
     TableColumn() {
         name = "";
@@ -281,6 +282,19 @@ public:
     }
     
     /*
+     *  @函数名:setNotUnique
+     *  功能:设置为必须互不相同
+     */
+    void setNotUnique() {
+        //不可修改报错
+        if (!modifiable) {
+            std::cout << "TableColumn.setNotUnique() error" << std::endl;
+            return;
+        }
+        flag &= ~f_isUnique;
+    }
+    
+    /*
      *  @函数名:setAllowNull
      *  功能:设置为允许NULL
      */
@@ -291,6 +305,19 @@ public:
             return;
         }
         flag |= f_allowNull;
+    }
+    
+    /*
+     *  @函数名:setNotAllowNull
+     *  功能:设置为允许NULL
+     */
+    void setNotAllowNull() {
+        //不可修改报错
+        if (!modifiable) {
+            std::cout << "TableColumn.setNotAllowNull() error" << std::endl;
+            return;
+        }
+        flag &= ~f_allowNull;
     }
     
 public:
@@ -319,7 +346,7 @@ public:
         type = (TableDataType) readByteToNumber(colData, 1);
         int nameLen = readByteToNumber(colData, 1);
         static char name_[MAX_NAME_LENGTH + 4];
-        memset(name_, 0, sizeof(name_));
+        memset(name_, 0, sizeof(char) * (MAX_NAME_LENGTH + 4));
         readByteToArray(colData, nameLen, (ByteBufType) name_, MAX_NAME_LENGTH);
         name = name_;
         //长度纠错

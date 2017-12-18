@@ -283,7 +283,7 @@ public:
      *  @函数名:isGreaterThan
      *  功能:判断是否大于另一个格子里的数据，其实是反向调用isLessThan
      */
-    void isGreaterThan(TableGrid * grid) {
+    bool isGreaterThan(TableGrid * grid) {
         return grid -> isLessThan(this);
     }
 };

@@ -14,7 +14,7 @@
  */
 class Table {
     
-public:
+private:
     //单文件管理器
     OneFileManager * oneFileManager;
     //表头和表的基本信息
@@ -52,6 +52,23 @@ public:
     }
     
 public:
+    ///基本get函数
+    /*
+     *  @函数名:getOneFileManager
+     *  功能:获取数据表的单文件管理器
+     */
+    OneFileManager * getOneFileManager() {
+        return oneFileManager;
+    }
+    
+    /*
+     *  @函数名:getTableHeader
+     *  功能:获取数据表的表头
+     */
+    TableHeader * getTableHeader() {
+        return tableHeader;
+    }
+    
     /*
      *  @函数名:getName
      *  功能:获取数据表名称
@@ -61,15 +78,69 @@ public:
     }
     
     /*
-     *  @函数名:addRow
+     *  @函数名:getNCol
+     *  功能:获取数据表列数
+     */
+    int getNCol() {
+        return tableHeader -> getNCol();
+    }
+    
+    /*
+     *  @函数名:getNRow
+     *  功能:获取数据表行数
+     */
+    int getNRow() {
+        return tableHeader -> getNRow();
+    }
+    
+public:
+    /*
+     *  @函数名:insertRow
      *  @参数tableRow:要加入的行，它会被复制之后加入，所以在哪里定义的就在哪里释放内存
      *  @参数pageId:用于返回插入位置的页编号
      *  @参数slotId:用于返回插入位置的槽编号
      *  功能:添加一行数据，去每一页里面找一个能加入的位置把它加进去
      */
-    int addRow(TableRow * tableRow, int & pageId, int & slotId) {
+    int insertRow(TableRow * tableRow, int & pageId, int & slotId) {
+        
+        
+        
+        
+        
+        
+        
+        
         
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
