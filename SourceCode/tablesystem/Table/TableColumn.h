@@ -21,6 +21,7 @@ private:
     static const int f_allowNull = 1 << 2;
     static const int f_hasDefault = 1 << 3;
     static const int f_isAutomatic = 1 << 4;
+    static const int f_isPrimaryKey = 1 << 5;
 
 private:
     //列名称
@@ -36,6 +37,7 @@ private:
      *  flag >> 2 & 1:      allowNull           是否允许空值NULL
      *  flag >> 3 & 1:      hasDefault          是否有默认值
      *  flag >> 4 & 1:      isAutomatic         是否自动填入数值
+     *  flag >> 5 & 1:      isPrimaryKey        是否是主键
      */
     int flag;
     //是否可以修改
@@ -141,6 +143,14 @@ public:
      */
     bool isAutomatic() {
         return (flag & f_isAutomatic) != 0;
+    }
+    
+    /*
+     *  @函数名:isPrimaryKey
+     *  功能:返回是否可以自动赋值
+     */
+    bool isPrimaryKey() {
+        return (flag & f_isPrimaryKey) != 0;
     }
     
     /*
@@ -318,6 +328,34 @@ public:
             return;
         }
         flag &= ~f_allowNull;
+    }
+    
+    /*
+     *  @函数名:setPrimaryKey
+     *  功能:设置为主键，主键不能NULL而且还要互不相同
+     */
+    void setPrimaryKey() {
+        //不可修改报错
+        if (!modifiable) {
+            std::cout << "TableColumn.setPrimaryKey() error" << std::endl;
+            return;
+        }
+        flag |= f_isPrimaryKey;
+        flag &= ~f_allowNull;
+        flag |= f_isUnique;
+    }
+    
+    /*
+     *  @函数名:setNotPrimaryKey
+     *  功能:设置为非主键
+     */
+    void setNotPrimaryKey() {
+        //不可修改报错
+        if (!modifiable) {
+            std::cout << "TableColumn.setNotPrimaryKey() error" << std::endl;
+            return;
+        }
+        flag &= ~f_isPrimaryKey;
     }
     
 public:

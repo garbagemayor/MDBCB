@@ -166,7 +166,7 @@ public:
      *  功能:检查每格的NULL情况是否符合表头的要求，
      */
     bool canMeetNullRequirement() {
-        for (int i = 0; i < (int) gridList; i ++) {
+        for (int i = 0; i < (int) gridList.size(); i ++) {
             if (gridList[i] -> isNull() && !tableHeader -> getColumnById(i) -> allowNull()) {
                 return false;
             }

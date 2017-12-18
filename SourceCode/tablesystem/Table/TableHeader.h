@@ -208,6 +208,18 @@ public:
             std::cout << "TableHeader.setConstant() error" << std::endl;
             return;
         }
+        //没有主键、多个主键报错
+        int primaryKeyCnt = 0;
+        for (int i = 0; i < (int) colList.size(); i ++) {
+            if (colList[i] -> isPrimaryKey()) {
+                primaryKeyCnt ++;
+            }
+        }
+        if (primaryKeyCnt != 1) {
+            std::cout << "TableHeader.setConstant() error" << std::endl;
+            return;
+        }
+        //真的修改
         modifiable = false;
     }
     
@@ -271,6 +283,16 @@ public:
         for (int i = 0; i < (int) colList.size(); i ++) {
             if (colList[i] -> getName() == tableColumn -> getName()) {
                 std::cout << "TableHeader.addColumn(...) error 4" << std::endl;
+                return;
+            }
+        }
+        //多个主键报错
+        if (tableColumn -> isPrimaryKey()) {
+            for (int i = 0; i < (int) colList.size(); i ++) {
+                if (colList[i] -> isPrimaryKey()) {
+                    std::cout << "TableHeader.addColumn(...) error 5" << std::endl;
+                    return;
+                }
             }
         }
         //复制再添加
