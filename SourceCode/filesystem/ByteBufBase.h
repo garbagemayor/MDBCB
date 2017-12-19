@@ -1,4 +1,4 @@
-#ifndef BYTE_BUF_BASE_H_
+ï»¿#ifndef BYTE_BUF_BASE_H_
 #define BYTE_BUF_BASE_H_
 
 #include "utils/pagedef.h"
@@ -8,14 +8,14 @@ typedef unsigned char Byte;
 typedef unsigned char * ByteBufType;
 typedef unsigned long long uint64;
 
-///°ÑÊý¾ÝÒÔ¶þ½øÖÆµÄ·½Ê½Ð´ÈëByteBufTypeÖÐ£¬²¢°ÑÖ¸ÕëÇ°ÒÆ
+///æŠŠæ•°æ®ä»¥äºŒè¿›åˆ¶çš„æ–¹å¼å†™å…¥ByteBufTypeä¸­ï¼Œå¹¶æŠŠæŒ‡é’ˆå‰ç§»
 /*
- *  @º¯ÊýÃû:writeArrayToByte
- *  @²ÎÊýbuf:Ð´ÈëµÄµØ·½
- *  @²ÎÊýwriteLen:Ð´ÈëµÄ³¤¶È
- *  @²ÎÊýdata:ÐèÒªÐ´ÈëµÄÊý¾ÝÖ¸Õë
- *  @²ÎÊýdataLen:Êý¾ÝÓÐÐ§²¿·ÖµÄ³¤¶È£¬Ä¬ÈÏ2^31 - 1
- *  ¹¦ÄÜ:½«dataµÄÇ°min(writeLen, dataLen)×Ö½ÚÐ´Èëbuf£¬Èç¹ûwriteLen > dataLen¾ÍÓÃ0À´Ìî³ä£¬²¢½«bufÇ°ÒÆwriteLen×Ö½Ú
+ *  @å‡½æ•°å:writeArrayToByte
+ *  @å‚æ•°buf:å†™å…¥çš„åœ°æ–¹
+ *  @å‚æ•°writeLen:å†™å…¥çš„é•¿åº¦
+ *  @å‚æ•°data:éœ€è¦å†™å…¥çš„æ•°æ®æŒ‡é’ˆ
+ *  @å‚æ•°dataLen:æ•°æ®æœ‰æ•ˆéƒ¨åˆ†çš„é•¿åº¦ï¼Œé»˜è®¤2^31 - 1
+ *  åŠŸèƒ½:å°†dataçš„å‰min(writeLen, dataLen)å­—èŠ‚å†™å…¥bufï¼Œå¦‚æžœwriteLen > dataLenå°±ç”¨0æ¥å¡«å……ï¼Œå¹¶å°†bufå‰ç§»writeLenå­—èŠ‚
  */
 void writeArrayToByte(ByteBufType & buf, int writeLen, ByteBufType data, int dataLen = (~0u >> 1)) {
     for (int i = 0; i < writeLen; i ++) {
@@ -25,12 +25,12 @@ void writeArrayToByte(ByteBufType & buf, int writeLen, ByteBufType data, int dat
 }
 
 /*
- *  @º¯ÊýÃû:writeNumberToByte
- *  @²ÎÊýbuf:Ð´ÈëµÄµØ·½
- *  @²ÎÊýlength:Ð´ÈëµÄ³¤¶È£¬¿ÉÒÔÊÇ1,2,4,8
- *  @²ÎÊýnum:ÐèÒªÐ´ÈëµÄÊý¾Ý
- *  ¹¦ÄÜ:ÕûÊýnumÒÔ¶þ½øÖÆµÄÐÎÊ½Ð´Èëbuf
- *  ×¢Òâ:¸ºÊýÒªÏÈ×ª»»ÎªÏàÍ¬¾«¶ÈµÄÎÞ·ûºÅÊýÔÙ´«
+ *  @å‡½æ•°å:writeNumberToByte
+ *  @å‚æ•°buf:å†™å…¥çš„åœ°æ–¹
+ *  @å‚æ•°length:å†™å…¥çš„é•¿åº¦ï¼Œå¯ä»¥æ˜¯1,2,4,8
+ *  @å‚æ•°num:éœ€è¦å†™å…¥çš„æ•°æ®
+ *  åŠŸèƒ½:æ•´æ•°numä»¥äºŒè¿›åˆ¶çš„å½¢å¼å†™å…¥buf
+ *  æ³¨æ„:è´Ÿæ•°è¦å…ˆè½¬æ¢ä¸ºç›¸åŒç²¾åº¦çš„æ— ç¬¦å·æ•°å†ä¼ 
  */
 void writeNumberToByte(ByteBufType & buf, int length, uint64 num) {
     for (int i = 0; i < length; i ++) {
@@ -40,11 +40,11 @@ void writeNumberToByte(ByteBufType & buf, int length, uint64 num) {
 }
 
 /*
- *  @º¯ÊýÃû:writeFloatToByte
- *  @²ÎÊýbuf:Ð´ÈëµÄµØ·½
- *  @²ÎÊýlength:Ð´ÈëµÄ³¤¶È£¬¿ÉÒÔÊÇ4,8
- *  @²ÎÊýnum:ÐèÒªÐ´ÈëµÄÊý¾Ý
- *  ¹¦ÄÜ:¸¡µãÊýnumÒÔ¶þ½øÖÆµÄÐÎÊ½Ð´Èëbuf
+ *  @å‡½æ•°å:writeFloatToByte
+ *  @å‚æ•°buf:å†™å…¥çš„åœ°æ–¹
+ *  @å‚æ•°length:å†™å…¥çš„é•¿åº¦ï¼Œå¯ä»¥æ˜¯4,8
+ *  @å‚æ•°num:éœ€è¦å†™å…¥çš„æ•°æ®
+ *  åŠŸèƒ½:æµ®ç‚¹æ•°numä»¥äºŒè¿›åˆ¶çš„å½¢å¼å†™å…¥buf
  */
 void writeFloatToByte(ByteBufType & buf, int length, double num) {
     if (length == 4) {
@@ -57,14 +57,14 @@ void writeFloatToByte(ByteBufType & buf, int length, double num) {
     }
 }
 
-///°ÑÊý¾ÝÒÔ¶þ½øÖÆµÄ·½Ê½´ÓByteBufTypeÖÐ¶Á³öÀ´£¬²¢°ÑÖ¸ÕëÇ°ÒÆ
+///æŠŠæ•°æ®ä»¥äºŒè¿›åˆ¶çš„æ–¹å¼ä»ŽByteBufTypeä¸­è¯»å‡ºæ¥ï¼Œå¹¶æŠŠæŒ‡é’ˆå‰ç§»
 /*
- *  @º¯ÊýÃû:readByteToArray
- *  @²ÎÊýbuf:¶ÁÊý¾ÝµÄµØ·½
- *  @²ÎÊýreadLen:¶ÁÈ¡µÄ³¤¶È
- *  @²ÎÊýdata:¶ÁÈ¡ºóÐ´ÈëµÄµØ·½
- *  &²ÎÊýdataLen:Ð´ÈëÎ»ÖÃÓÐÐ§²¿·ÖµÄ³¤¶È£¬Ä¬ÈÏ2^31 - 1
- *  ¹¦ÄÜ:´Óbuf¶ÁÈ¡min(readLen, dataLen)×Ö½ÚÐ´Èëdata£¬²¢°ÑbufÇ°ÒÆreadLen¸ö×Ö½Ú
+ *  @å‡½æ•°å:readByteToArray
+ *  @å‚æ•°buf:è¯»æ•°æ®çš„åœ°æ–¹
+ *  @å‚æ•°readLen:è¯»å–çš„é•¿åº¦
+ *  @å‚æ•°data:è¯»å–åŽå†™å…¥çš„åœ°æ–¹
+ *  &å‚æ•°dataLen:å†™å…¥ä½ç½®æœ‰æ•ˆéƒ¨åˆ†çš„é•¿åº¦ï¼Œé»˜è®¤2^31 - 1
+ *  åŠŸèƒ½:ä»Žbufè¯»å–min(readLen, dataLen)å­—èŠ‚å†™å…¥dataï¼Œå¹¶æŠŠbufå‰ç§»readLenä¸ªå­—èŠ‚
  */
 void readByteToArray(ByteBufType & buf, int readLen, ByteBufType data, int dataLen) {
     for (int i = 0; i < readLen; i ++) {
@@ -76,11 +76,11 @@ void readByteToArray(ByteBufType & buf, int readLen, ByteBufType data, int dataL
 }
 
 /*
- *  @º¯ÊýÃû:readByteToNumber
- *  @²ÎÊýbuf:¶ÁÊý¾ÝµÄµØ·½
- *  @²ÎÊýlength:¶ÁÈ¡µÄ³¤¶È£¬¿ÉÒÔÊÇ1,2,4,8
- *  @·µ»ØÖµ:¶ÁÈ¡µÄ½á¹û
- *  ¹¦ÄÜ:¶ÁÈ¡length¸öByte£¬×ª»¯ÎªÕûÊýÀàÐÍ£¬²¢°ÑbufÇ°ÒÆlength¸ö×Ö½Ú
+ *  @å‡½æ•°å:readByteToNumber
+ *  @å‚æ•°buf:è¯»æ•°æ®çš„åœ°æ–¹
+ *  @å‚æ•°length:è¯»å–çš„é•¿åº¦ï¼Œå¯ä»¥æ˜¯1,2,4,8
+ *  @è¿”å›žå€¼:è¯»å–çš„ç»“æžœ
+ *  åŠŸèƒ½:è¯»å–lengthä¸ªByteï¼Œè½¬åŒ–ä¸ºæ•´æ•°ç±»åž‹ï¼Œå¹¶æŠŠbufå‰ç§»lengthä¸ªå­—èŠ‚
  */
 uint64 readByteToNumber(ByteBufType & buf, int length) {
     uint64 num = 0;
@@ -92,11 +92,11 @@ uint64 readByteToNumber(ByteBufType & buf, int length) {
 }
 
 /*
- *  @º¯ÊýÃû:readByteToFloat
- *  @²ÎÊýbuf:¶ÁÊý¾ÝµÄµØ·½
- *  @²ÎÊýlength:¶ÁÈ¡µÄ³¤¶È£¬¿ÉÒÔÊÇ4,8
- *  @·µ»ØÖµ:¶ÁÈ¡µÄ½á¹û
- *  ¹¦ÄÜ:¶ÁÈ¡length¸öByte£¬×ª»¯Îª¸¡µãÊýÀàÐÍ£¬²¢°ÑbufÇ°ÒÆlength¸ö×Ö½Ú
+ *  @å‡½æ•°å:readByteToFloat
+ *  @å‚æ•°buf:è¯»æ•°æ®çš„åœ°æ–¹
+ *  @å‚æ•°length:è¯»å–çš„é•¿åº¦ï¼Œå¯ä»¥æ˜¯4,8
+ *  @è¿”å›žå€¼:è¯»å–çš„ç»“æžœ
+ *  åŠŸèƒ½:è¯»å–lengthä¸ªByteï¼Œè½¬åŒ–ä¸ºæµ®ç‚¹æ•°ç±»åž‹ï¼Œå¹¶æŠŠbufå‰ç§»lengthä¸ªå­—èŠ‚
  */
 double readByteToFloat(ByteBufType & buf, int length) {
     static char tmp_buf[8 + 4];

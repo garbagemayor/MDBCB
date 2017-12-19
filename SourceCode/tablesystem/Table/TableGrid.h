@@ -1,35 +1,35 @@
-#ifndef TABLE_GRID_H
+ï»¿#ifndef TABLE_GRID_H
 #define TABLE_GRID_H
 
 #include "../../filesystem/ByteBufBase.h"
 #include "TableColumn.h"
 
 /**
- *  Êı¾İ¸ñÀà£¬ÔÚÄÚ´æÖĞ´æ´¢Ò»¸ö¸ñ×ÓµÄÊı¾İ£¬ÓÉTableRowÀ´µ÷ÓÃ
- *  ±£³ÖÓÀÔ¶¿ÉĞŞ¸Ä£¬µ«Òª¼ÇÂ¼ÊÇ·ñÔà
+ *  æ•°æ®æ ¼ç±»ï¼Œåœ¨å†…å­˜ä¸­å­˜å‚¨ä¸€ä¸ªæ ¼å­çš„æ•°æ®ï¼Œç”±TableRowæ¥è°ƒç”¨
+ *  ä¿æŒæ°¸è¿œå¯ä¿®æ”¹ï¼Œä½†è¦è®°å½•æ˜¯å¦è„
  */
 class TableGrid {
 
 private:
-    //ÕâÒ»¸ñËùÔÚµÄÁĞµÄĞÅÏ¢
+    //è¿™ä¸€æ ¼æ‰€åœ¨çš„åˆ—çš„ä¿¡æ¯
     TableColumn * tableColumn;
-    //ÊÇ·ñÊÇNULL
+    //æ˜¯å¦æ˜¯NULL
     bool nullFlag;
-    //¶ş½øÖÆĞÎÊ½ÏÂÊı¾İµÄ³¤¶È£¬¶¨³¤ÀàĞÍ²»¹ÜÊÇ²»ÊÇNULL¶¼ÊÇ¹Ì¶¨³¤¶È£¬±ä³¤Êı¾İ¾ÍÊÇÊı¾İ±¾ÉíµÄ³¤¶È£¬NULLÊ±ÊÇ-1
+    //äºŒè¿›åˆ¶å½¢å¼ä¸‹æ•°æ®çš„é•¿åº¦ï¼Œå®šé•¿ç±»å‹ä¸ç®¡æ˜¯ä¸æ˜¯NULLéƒ½æ˜¯å›ºå®šé•¿åº¦ï¼Œå˜é•¿æ•°æ®å°±æ˜¯æ•°æ®æœ¬èº«çš„é•¿åº¦ï¼ŒNULLæ—¶æ˜¯-1
     int length;
-    //¶ş½øÖÆĞÎÊ½ÏÂµÄÊı¾İÄÚÈİ
+    //äºŒè¿›åˆ¶å½¢å¼ä¸‹çš„æ•°æ®å†…å®¹
     ByteBufType data;
-    //ÊÇ·ñÔà
+    //æ˜¯å¦è„
     bool dirtyFlag;
 
 public:
     /*
-     *  @¹¹Ôìº¯Êı
-     *  @²ÎÊıtableColumn_:ËùÔÚÁĞµÄĞÅÏ¢
-     *  ¹¦ÄÜ:ĞÂ½¨Ò»¸ö¿ÕµÄ¸ñ×Ó£¬ÀïÃæÊÇNULL
+     *  @æ„é€ å‡½æ•°
+     *  @å‚æ•°tableColumn_:æ‰€åœ¨åˆ—çš„ä¿¡æ¯
+     *  åŠŸèƒ½:æ–°å»ºä¸€ä¸ªç©ºçš„æ ¼å­ï¼Œé‡Œé¢æ˜¯NULL
      */
     TableGrid(TableColumn * tableColumn_) {
-        //¿ÕÖ¸Õë±¨´í
+        //ç©ºæŒ‡é’ˆæŠ¥é”™
         if (tableColumn_ == NULL) {
             std::cout << "TableGrid(NULL) error" << std::endl;
             return;
@@ -51,52 +51,52 @@ public:
     }
 
 public:
-    ///»ù±¾getº¯Êı
+    ///åŸºæœ¬getå‡½æ•°
     /*
-     *  @º¯ÊıÃû:getTableColumn
-     *  ¹¦ÄÜ:·µ»ØÁĞĞÅÏ¢Ö¸Õë
+     *  @å‡½æ•°å:getTableColumn
+     *  åŠŸèƒ½:è¿”å›åˆ—ä¿¡æ¯æŒ‡é’ˆ
      */
     TableColumn * getTableColumn() {
         return tableColumn;
     }
     
     /*
-     *  @º¯ÊıÃû:isNull
-     *  ¹¦ÄÜ:·µ»ØÊÇ·ñÊÇ¿ÕÖµ
+     *  @å‡½æ•°å:isNull
+     *  åŠŸèƒ½:è¿”å›æ˜¯å¦æ˜¯ç©ºå€¼
      */
     bool isNull() {
         return nullFlag;
     }
     
     /*
-     *  @º¯ÊıÃû:getDataLength
-     *  ¹¦ÄÜ:·µ»ØÊı¾İ³¤¶È
+     *  @å‡½æ•°å:getDataLength
+     *  åŠŸèƒ½:è¿”å›æ•°æ®é•¿åº¦
      */
     int getDataLength() {
         return length;
     }
     
     /*
-     *  @º¯ÊıÃû:getDataPointer
-     *  ¹¦ÄÜ:·µ»ØÖ¸ÏòÊı¾İ¸ñÄÚµÄÊı¾İµÄÖ¸Õë
+     *  @å‡½æ•°å:getDataPointer
+     *  åŠŸèƒ½:è¿”å›æŒ‡å‘æ•°æ®æ ¼å†…çš„æ•°æ®çš„æŒ‡é’ˆ
      */
     ByteBufType getDataPointer() {
         return data;
     }
     
     /*
-     *  @º¯ÊıÃû:isDirty
-     *  ¹¦ÄÜ:·µ»ØÊÇ·ñÔà
+     *  @å‡½æ•°å:isDirty
+     *  åŠŸèƒ½:è¿”å›æ˜¯å¦è„
      */
     bool isDirty() {
         return dirtyFlag;
     }
     
 public:
-    ///»ù±¾setº¯Êı    
+    ///åŸºæœ¬setå‡½æ•°    
     /*
-     *  @º¯ÊıÃû:setNull
-     *  ¹¦ÄÜ:ÉèÖÃÎªNULL£¬±ê¼ÇÔà
+     *  @å‡½æ•°å:setNull
+     *  åŠŸèƒ½:è®¾ç½®ä¸ºNULLï¼Œæ ‡è®°è„
      */
     void setNull() {
         dirtyFlag = true;
@@ -104,13 +104,13 @@ public:
     }
     
     /*
-     *  @º¯ÊıÃû:setDataValueNumber
-     *  @²ÎÊıdata_:ÒªĞ´ÈëµÄÊıÖµ
-     *  @²ÎÊılength_:ÒªĞ´ÈëÊıÖµµÄ³¤¶È
-     *  ¹¦ÄÜ:ÉèÖÃbool, char, short, int, longÒÔ¼°¶ÔÓ¦µÄunsigned£¬»¹ÓĞlobÀàĞÍµÄ¸ñ×ÓµÄÖµ£¬²¢±ê¼ÇÔà
+     *  @å‡½æ•°å:setDataValueNumber
+     *  @å‚æ•°data_:è¦å†™å…¥çš„æ•°å€¼
+     *  @å‚æ•°length_:è¦å†™å…¥æ•°å€¼çš„é•¿åº¦
+     *  åŠŸèƒ½:è®¾ç½®bool, char, short, int, longä»¥åŠå¯¹åº”çš„unsignedï¼Œè¿˜æœ‰lobç±»å‹çš„æ ¼å­çš„å€¼ï¼Œå¹¶æ ‡è®°è„
      */
     void setDataValueNumber(uint64 num, int length_) {
-        //Êı¾İÀàĞÍ´íÎó±¨´í
+        //æ•°æ®ç±»å‹é”™è¯¯æŠ¥é”™
         if (tableColumn -> getDataType() != TableDataType::t_bool &&
             tableColumn -> getDataType() != TableDataType::t_char &&
             tableColumn -> getDataType() != TableDataType::t_short &&
@@ -120,7 +120,7 @@ public:
             std::cout << "TableGrid.setDataValueNumber(" << num << ", " << length_ << ") error" << std::endl;
             return;
         }
-        //Êı¾İ³¤¶È±¨´í
+        //æ•°æ®é•¿åº¦æŠ¥é”™
         if (tableColumn -> getDataLength() != length_) {
             std::cout << "TableGrid.setDataValueNumber(" << num << ", " << length_ << ") error" << std::endl;
             return;
@@ -137,19 +137,19 @@ public:
     }
     
     /*
-     *  @º¯ÊıÃû:setDataValueFloat
-     *  @²ÎÊıdata_:ÒªĞ´ÈëµÄÊıÖµ
-     *  @²ÎÊılength_:ÒªĞ´ÈëÊıÖµµÄ³¤¶È
-     *  ¹¦ÄÜ:ÉèÖÃfloat, doubleÀàĞÍµÄ¸ñ×ÓµÄÖµ£¬²¢±ê¼ÇÔà
+     *  @å‡½æ•°å:setDataValueFloat
+     *  @å‚æ•°data_:è¦å†™å…¥çš„æ•°å€¼
+     *  @å‚æ•°length_:è¦å†™å…¥æ•°å€¼çš„é•¿åº¦
+     *  åŠŸèƒ½:è®¾ç½®float, doubleç±»å‹çš„æ ¼å­çš„å€¼ï¼Œå¹¶æ ‡è®°è„
      */
     void setDataValueFloat(double num, int length_) {
-        //Êı¾İÀàĞÍ´íÎó±¨´í
+        //æ•°æ®ç±»å‹é”™è¯¯æŠ¥é”™
         if (tableColumn -> getDataType() != TableDataType::t_float &&
             tableColumn -> getDataType() != TableDataType::t_double) {
             std::cout << "TableGrid.setDataValueFloat(" << num << ", " << length_ << ") error" << std::endl;
             return;
         }
-        //Êı¾İ³¤¶È±¨´í
+        //æ•°æ®é•¿åº¦æŠ¥é”™
         if (tableColumn -> getDataLength() != length_) {
             std::cout << "TableGrid.setDataValueFloat(" << num << ", " << length_ << ") error" << std::endl;
             return;
@@ -166,16 +166,16 @@ public:
     }
     
     /*
-     *  @º¯ÊıÃû:setDataValueArray
-     *  ¹¦ÄÜ:ÉèÖÃstring¸ñ×ÓµÄÖµ£¬±ê¼ÇÔà
+     *  @å‡½æ•°å:setDataValueArray
+     *  åŠŸèƒ½:è®¾ç½®stringæ ¼å­çš„å€¼ï¼Œæ ‡è®°è„
      */
     void setDataValueArray(ByteBufType string_, int length_) {
-        //Êı¾İÀàĞÍ´íÎó±¨´í
+        //æ•°æ®ç±»å‹é”™è¯¯æŠ¥é”™
         if (tableColumn -> getDataType() != TableDataType::t_string) {
             std::cout << "TableGrid.setDataValueArray(..., " << length_ << ") error" << std::endl;
             return;
         }
-        //Êı¾İ³¤¶È±¨´í
+        //æ•°æ®é•¿åº¦æŠ¥é”™
         if (length_ < 0 || length >= MAX_STRING_LENGTH) {
             std::cout << "TableGrid.setDataValueArray(..., " << length_ << ") error" << std::endl;
             return;
@@ -192,18 +192,18 @@ public:
     }
     
 public:
-    ///ÆÕÍ¨º¯Êı
+    ///æ™®é€šå‡½æ•°
     /*
-     *  @º¯ÊıÃû:readFromByte
-     *  ¹¦ÄÜ:´Ó¶ş½øÖÆÊı¾İÖĞÖ±½Ó¶ÁÈ¡£¬½öÏŞ¶¨³¤ÀàĞÍ
+     *  @å‡½æ•°å:readFromByte
+     *  åŠŸèƒ½:ä»äºŒè¿›åˆ¶æ•°æ®ä¸­ç›´æ¥è¯»å–ï¼Œä»…é™å®šé•¿ç±»å‹
      */
     void readFromByte(ByteBufType & buf) {
-        //±ä³¤ÁĞ±¨´í
+        //å˜é•¿åˆ—æŠ¥é”™
         if (tableColumn -> hasVariableLength()) {
             std::cout << "TableGrid.reafFromByte(...) error" << std::endl;
             return;
         }
-        //Ö±½Ó¶Á
+        //ç›´æ¥è¯»
         dirtyFlag = true;
         nullFlag = false;
         if (data == NULL) {
@@ -213,16 +213,16 @@ public:
     }
     
     /*
-     *  @º¯ÊıÃû:readFromByte
-     *  ¹¦ÄÜ:´Ó¶ş½øÖÆÊı¾İÖĞÖ±½Ó¶ÁÈ¡£¬½öÏŞ±ä³¤ÀàĞÍ
+     *  @å‡½æ•°å:readFromByte
+     *  åŠŸèƒ½:ä»äºŒè¿›åˆ¶æ•°æ®ä¸­ç›´æ¥è¯»å–ï¼Œä»…é™å˜é•¿ç±»å‹
      */
     void readFromByte(ByteBufType & buf, int length_) {
-        //¶¨³¤ÁĞ±¨´í
+        //å®šé•¿åˆ—æŠ¥é”™
         if (!tableColumn -> hasVariableLength()) {
             std::cout << "TableGrid.reafFromByte(..., " << length_ << ") error" << std::endl;
             return;
         }
-        //Ö±½Ó¶Á
+        //ç›´æ¥è¯»
         dirtyFlag = true;
         nullFlag = false;
         length = length_;
@@ -233,26 +233,26 @@ public:
     }
     
     /*
-     *  @º¯ÊıÃû:isEqualTo
-     *  ¹¦ÄÜ:ÅĞ¶ÏÁ½¸ö¸ñ×ÓÀïµÄÊı¾İÏàµÈ
-     *       ÌØ±ğµÄ£¬µ±Á½¸ö¸ñ×ÓµÄÁĞÀàĞÍ²»Í¬Ê±±¨´í·µ»Øfalse£¬µ±Á½¸ö¸ñ×Ó¶¼ÊÇNULLÊ±·µ»Øtrue£¬Ò»¸öÊÇNULLÁíÒ»¸ö²»ÊÇÊ±·µ»Øfalse
-     *       lob²»ÄÜ±È´óĞ¡£¬±¨´í
+     *  @å‡½æ•°å:isEqualTo
+     *  åŠŸèƒ½:åˆ¤æ–­ä¸¤ä¸ªæ ¼å­é‡Œçš„æ•°æ®ç›¸ç­‰
+     *       ç‰¹åˆ«çš„ï¼Œå½“ä¸¤ä¸ªæ ¼å­çš„åˆ—ç±»å‹ä¸åŒæ—¶æŠ¥é”™è¿”å›falseï¼Œå½“ä¸¤ä¸ªæ ¼å­éƒ½æ˜¯NULLæ—¶è¿”å›trueï¼Œä¸€ä¸ªæ˜¯NULLå¦ä¸€ä¸ªä¸æ˜¯æ—¶è¿”å›false
+     *       lobä¸èƒ½æ¯”å¤§å°ï¼ŒæŠ¥é”™
      */
     bool isEqualTo(TableGrid * grid) {
-        //ÀàĞÍ²»Í¬¡¢LOBÀàĞÍ±¨´í
+        //ç±»å‹ä¸åŒã€LOBç±»å‹æŠ¥é”™
         if (tableColumn -> getDataType() != grid -> tableColumn -> getDataType() ||
             tableColumn -> getDataType() == TableDataType::t_lob) {
             std::cout << "TableGrid.isEqualTo(...) error" << std::endl;
             return false;
         }
-        //NULLÇé¿ö
+        //NULLæƒ…å†µ
         if (nullFlag && grid -> nullFlag) {
             return true;
         }
         if (nullFlag || grid -> nullFlag) {
             return false;
         }
-        //Ò»°ãÇé¿ö
+        //ä¸€èˆ¬æƒ…å†µ
         for (int i = 0; i < length; i ++) {
             if (data[i] != grid -> data[i]) {
                 return false;
@@ -262,33 +262,33 @@ public:
     }
     
     /*
-     *  @º¯ÊıÃû:isLessThan
-     *  ¹¦ÄÜ:ÅĞ¶ÏÊÇ·ñĞ¡ÓÚÁíÒ»¸ö¸ñ×ÓÀïµÄÊı¾İ
-     *       ÌØ±ğµÄ£¬µ±Á½¸ö¸ñ×ÓµÄÁĞÀàĞÍ²»Í¬Ê±±¨´í·µ»Øfalse£¬NULLĞ¡ÓÚÈÎºÎÊıÖµ£¬ÏàÍ¬ÀàĞÍµÄÁ½¸öNULLÏàµÈ
-     *       bool, char, short, int, long, float, double¶ÁÈ¡ºóÖ±½Ó±È´óĞ¡£¬ÕûÊıÓÃuint64£¬¸¡µãÊıÓÃdouble
-     *       string°´×Ö½Ú´Ó×óµ½ÓÒ±È´óĞ¡£¬lob²»ÄÜ±È´óĞ¡£¬±¨´í
-     *  ×¢Òâ:ËùÓĞµÄÕûÊı±È´óĞ¡¶¼ÊÇÎŞ·ûºÅ±È´óĞ¡£¬¿ÓµÄÒ»Æ¥
+     *  @å‡½æ•°å:isLessThan
+     *  åŠŸèƒ½:åˆ¤æ–­æ˜¯å¦å°äºå¦ä¸€ä¸ªæ ¼å­é‡Œçš„æ•°æ®
+     *       ç‰¹åˆ«çš„ï¼Œå½“ä¸¤ä¸ªæ ¼å­çš„åˆ—ç±»å‹ä¸åŒæ—¶æŠ¥é”™è¿”å›falseï¼ŒNULLå°äºä»»ä½•æ•°å€¼ï¼Œç›¸åŒç±»å‹çš„ä¸¤ä¸ªNULLç›¸ç­‰
+     *       bool, char, short, int, long, float, doubleè¯»å–åç›´æ¥æ¯”å¤§å°ï¼Œæ•´æ•°ç”¨uint64ï¼Œæµ®ç‚¹æ•°ç”¨double
+     *       stringæŒ‰å­—èŠ‚ä»å·¦åˆ°å³æ¯”å¤§å°ï¼Œlobä¸èƒ½æ¯”å¤§å°ï¼ŒæŠ¥é”™
+     *  æ³¨æ„:æ‰€æœ‰çš„æ•´æ•°æ¯”å¤§å°éƒ½æ˜¯æ— ç¬¦å·æ¯”å¤§å°ï¼Œå‘çš„ä¸€åŒ¹
      */
     bool isLessThan(TableGrid * grid) {
-        //ÀàĞÍ²»Í¬¡¢LOBÀàĞÍ±¨´í
+        //ç±»å‹ä¸åŒã€LOBç±»å‹æŠ¥é”™
         if (tableColumn -> getDataType() != grid -> tableColumn -> getDataType() ||
             tableColumn -> getDataType() == TableDataType::t_lob) {
             std::cout << "TableGrid.isLessThan(...) error" << std::endl;
             return false;
         }
-        //NULLÇé¿ö
+        //NULLæƒ…å†µ
         if (nullFlag && grid -> nullFlag) {
             return false;
         }
         if (nullFlag || grid -> nullFlag) {
             return nullFlag;
         }
-        //ÈÔÈ»NULL±¨´í
+        //ä»ç„¶NULLæŠ¥é”™
         if (data == NULL || grid -> data == NULL) {
             std::cout << "TableGrid.isLessThan(...) error" << std::endl;
             return false;
         }
-        //ÕûÊıÇé¿ö
+        //æ•´æ•°æƒ…å†µ
         if (tableColumn -> getDataType() == TableDataType::t_bool ||
             tableColumn -> getDataType() == TableDataType::t_char ||
             tableColumn -> getDataType() == TableDataType::t_short ||
@@ -299,7 +299,7 @@ public:
             uint64 num_2 = readByteToNumber(data_ = data, grid -> tableColumn -> getDataLength());
             return num_1 < num_2;
         }
-        //¸¡µãÊıÇé¿ö
+        //æµ®ç‚¹æ•°æƒ…å†µ
         if (tableColumn -> getDataType() == TableDataType::t_float ||
             tableColumn -> getDataType() == TableDataType::t_double) {
             ByteBufType data_;
@@ -307,7 +307,7 @@ public:
             double num_2 = readByteToNumber(data_ = data, grid -> tableColumn -> getDataLength());
             return num_1 < num_2;
         }
-        //×Ö·û´®Çé¿ö
+        //å­—ç¬¦ä¸²æƒ…å†µ
         if (tableColumn -> getDataType() == TableDataType::t_string) {
             for (int i = 0; i < length && i < grid -> length; i ++) {
                 if (data[i] != grid -> data[i]) {
@@ -319,8 +319,8 @@ public:
     }
     
     /*
-     *  @º¯ÊıÃû:isGreaterThan
-     *  ¹¦ÄÜ:ÅĞ¶ÏÊÇ·ñ´óÓÚÁíÒ»¸ö¸ñ×ÓÀïµÄÊı¾İ£¬ÆäÊµÊÇ·´Ïòµ÷ÓÃisLessThan
+     *  @å‡½æ•°å:isGreaterThan
+     *  åŠŸèƒ½:åˆ¤æ–­æ˜¯å¦å¤§äºå¦ä¸€ä¸ªæ ¼å­é‡Œçš„æ•°æ®ï¼Œå…¶å®æ˜¯åå‘è°ƒç”¨isLessThan
      */
     bool isGreaterThan(TableGrid * grid) {
         return grid -> isLessThan(this);

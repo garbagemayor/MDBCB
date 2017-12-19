@@ -1,4 +1,4 @@
-#ifndef TABLE_PAGE_ASSISTANT_H
+ï»¿#ifndef TABLE_PAGE_ASSISTANT_H
 #define TABLE_PAGE_ASSISTANT_H
 
 #include "../../filesystem/ByteBufBase.h"
@@ -9,23 +9,23 @@
 #include <vector>
 
 /**
- *  ±íÒ³ÖúÊÖ£¬ÓÃ±íÎÄ¼şµÄÒ»Ğ©Ò³¼¯ÖĞ´æ·ÅÃ¿Ò»Ò³µÄ¿ÕÏĞ×Ö½ÚÊı£¬±ãÓÚ²åÈëÊ±Ìø×ªµ½Ç¡µ±µÄÒ³Ãæ
- *  ´ÓµÚ0Ò³¿ªÊ¼£¬²»¹»ÓÃÖ®ºóÔÙ¿ªĞÂµÄÒ³
+ *  è¡¨é¡µåŠ©æ‰‹ï¼Œç”¨è¡¨æ–‡ä»¶çš„ä¸€äº›é¡µé›†ä¸­å­˜æ”¾æ¯ä¸€é¡µçš„ç©ºé—²å­—èŠ‚æ•°ï¼Œä¾¿äºæ’å…¥æ—¶è·³è½¬åˆ°æ°å½“çš„é¡µé¢
+ *  ä»ç¬¬0é¡µå¼€å§‹ï¼Œä¸å¤Ÿç”¨ä¹‹åå†å¼€æ–°çš„é¡µ
  */
 class TablePageAssistant {
     
 private:
-    //µ¥ÎÄ¼ş¹ÜÀíÆ÷
+    //å•æ–‡ä»¶ç®¡ç†å™¨
     OneFileManager * oneFileManager;
-    //ÖúÊÖÒ³ÁĞ±í
+    //åŠ©æ‰‹é¡µåˆ—è¡¨
     std::vector<TablePageAssistantItem *> assiList;
-    //µ±Ç°µÄ×î´óÈİÁ¿
+    //å½“å‰çš„æœ€å¤§å®¹é‡
     int capacity;
     
 public:
     /*
-     *  @¹¹Ôìº¯Êı
-     *  ¹¦ÄÜ:´´½¨Ò»¸ö±íÒ³ÖúÊÖ£¬¶ÁÈ¡»ò´´½¨µÚ0Ò³µÄ±íÒ³ÖúÊÖÆğÊ¼Î»ÖÃ
+     *  @æ„é€ å‡½æ•°
+     *  åŠŸèƒ½:åˆ›å»ºä¸€ä¸ªè¡¨é¡µåŠ©æ‰‹ï¼Œè¯»å–æˆ–åˆ›å»ºç¬¬0é¡µçš„è¡¨é¡µåŠ©æ‰‹èµ·å§‹ä½ç½®
      */
     TablePageAssistant(OneFileManager * oneFileManager_) {
         oneFileManager = oneFileManager_;
@@ -43,19 +43,19 @@ public:
     }
     
 public:
-    ///»ù±¾getº¯Êı
+    ///åŸºæœ¬getå‡½æ•°
     /*
-     *  @º¯ÊıÃû:getFreeCnt
-     *  @²ÎÊıpageId:Ò³±àºÅ
-     *  ¹¦ÄÜ:»ñÈ¡Ò»Ò³µÄ¿ÕÏĞ×Ö½ÚÊı£¬Èç¹ûÒ³±àºÅ³¬³ö·¶Î§¾Í±¨´í²¢·µ»Ø-1
+     *  @å‡½æ•°å:getFreeCnt
+     *  @å‚æ•°pageId:é¡µç¼–å·
+     *  åŠŸèƒ½:è·å–ä¸€é¡µçš„ç©ºé—²å­—èŠ‚æ•°ï¼Œå¦‚æœé¡µç¼–å·è¶…å‡ºèŒƒå›´å°±æŠ¥é”™å¹¶è¿”å›-1
      */
     int getFreeCnt(int pageId) {
-        //Ò³±àºÅ³¬³ö·¶Î§±¨´í
+        //é¡µç¼–å·è¶…å‡ºèŒƒå›´æŠ¥é”™
         if (pageId < 0 || pageId >= oneFileManager -> getPageCnt()) {
             std::cout << "TablePageAssistant.getFreeCnt(" << pageId << ") error" << std::endl;
             return -1;
         }
-        //×Ô¶¯µÄÕÒÖúÊÖÒ³£¬ÖªµÀ·¶Î§´ï±ê
+        //è‡ªåŠ¨çš„æ‰¾åŠ©æ‰‹é¡µï¼ŒçŸ¥é“èŒƒå›´è¾¾æ ‡
         while (capacity <= pageId) {
             __getNextAssiItem();
         }
@@ -64,7 +64,7 @@ public:
                 return assiList[i] -> getFreeCnt(pageId);
             }
         }
-        //ÕÒ²»µ½±¨´í
+        //æ‰¾ä¸åˆ°æŠ¥é”™
         if (true) {
             std::cout << "TablePageAssistant.getFreeCnt(" << pageId << ") error" << std::endl;
             return -1;
@@ -72,18 +72,18 @@ public:
     }
     
 public:
-    ///»ù±¾setº¯Êı
+    ///åŸºæœ¬setå‡½æ•°
     /*
-     *  @º¯ÊıÃû:setFreeCnt
-     *  ¹¦ÄÜ:ÉèÖÃÄ³Ò»Ò³µÄ¿ÕÏĞ×Ö½ÚÊıÂğ£¬Èç¹ûÒ³±àºÅ³¬³ö·¶Î§¾Í±¨´í
+     *  @å‡½æ•°å:setFreeCnt
+     *  åŠŸèƒ½:è®¾ç½®æŸä¸€é¡µçš„ç©ºé—²å­—èŠ‚æ•°å—ï¼Œå¦‚æœé¡µç¼–å·è¶…å‡ºèŒƒå›´å°±æŠ¥é”™
      */
     void setFreeCnt(int pageId, int pageFreeCnt) {
-        //Ò³±àºÅ³¬³ö·¶Î§±¨´í
+        //é¡µç¼–å·è¶…å‡ºèŒƒå›´æŠ¥é”™
         if (pageId < 0 || pageId >= oneFileManager -> getPageCnt()) {
             std::cout << "TablePageAssistant.setFreeCnt(" << pageId << ", " << pageFreeCnt << ") error" << std::endl;
             return;
         }
-        //×Ô¶¯µÄÕÒÖúÊÖÒ³£¬ÖªµÀ·¶Î§´ï±ê
+        //è‡ªåŠ¨çš„æ‰¾åŠ©æ‰‹é¡µï¼ŒçŸ¥é“èŒƒå›´è¾¾æ ‡
         while (capacity <= pageId) {
             __getNextAssiItem();
         }
@@ -93,7 +93,7 @@ public:
                 return;
             }
         }
-        //ÕÒ²»µ½±¨´í
+        //æ‰¾ä¸åˆ°æŠ¥é”™
         if (true) {
             std::cout << "TablePageAssistant.setFreeCnt(" << pageId << ", " << pageFreeCnt << ") error" << std::endl;
             return;
@@ -101,9 +101,9 @@ public:
     }
     
     /*
-     *  @º¯ÊıÃû:findPageForSlot
-     *  @²ÎÊıslotLen:ĞÂ²ÛµÄ³¤¶È
-     *  ¹¦ÄÜ:¸øĞÂ²ÛÕÒÒ»¸öºÏÊÊµÄÒ³Ãæ£¬·µ»ØÒ³±àºÅ
+     *  @å‡½æ•°å:findPageForSlot
+     *  @å‚æ•°slotLen:æ–°æ§½çš„é•¿åº¦
+     *  åŠŸèƒ½:ç»™æ–°æ§½æ‰¾ä¸€ä¸ªåˆé€‚çš„é¡µé¢ï¼Œè¿”å›é¡µç¼–å·
      */
     int findPageForSlot(int slotLen) {
         for (int i = 1; i < oneFileManager -> getPageCnt() ; i ++) {
@@ -115,21 +115,21 @@ public:
     }
     
 private:
-    ///ÆÕÍ¨º¯Êı
+    ///æ™®é€šå‡½æ•°
     /*
-     *  @º¯ÊıÃû:__getNextAssiItem
-     *  ¹¦ÄÜ:¶ÁÈ¡»ò´´½¨ÏÂÒ»¸öÖúÊÖÒ³
+     *  @å‡½æ•°å:__getNextAssiItem
+     *  åŠŸèƒ½:è¯»å–æˆ–åˆ›å»ºä¸‹ä¸€ä¸ªåŠ©æ‰‹é¡µ
      */
     void __getNextAssiItem(){
         int nextAssistantPageId = assiList[assiList.size() - 1] -> getNextPageId();
         if (nextAssistantPageId == -1) {
-            //ÎÄ¼şÖĞÃ»ÓĞÏÂÒ»¸öÖúÊÖÒ³£¬×Ô¼º´´½¨Ò»¸ö
+            //æ–‡ä»¶ä¸­æ²¡æœ‰ä¸‹ä¸€ä¸ªåŠ©æ‰‹é¡µï¼Œè‡ªå·±åˆ›å»ºä¸€ä¸ª
             TablePageAssistantItem * assiItem = new TablePageAssistantItem(assiList[assiList.size() - 1]);
             assiList.push_back(assiItem);
             capacity = assiItem -> getAssiEnd();
             this -> setFreeCnt(assiItem -> getPageId(), 0);
         } else {
-            //ÎÄ¼şÖĞÒÑ¾­ÓĞÏÂÒ»¸öÖúÊÖÒ³£¬¶ÁÈ¡
+            //æ–‡ä»¶ä¸­å·²ç»æœ‰ä¸‹ä¸€ä¸ªåŠ©æ‰‹é¡µï¼Œè¯»å–
             TablePageAssistantItem * assiItem = new TablePageAssistantItem(oneFileManager, nextAssistantPageId);
             assiList.push_back(assiItem);
             capacity = assiItem -> getAssiEnd();

@@ -35,7 +35,7 @@ public:
         for (int i = 0; i < (int) tableList.size(); i ++) {
             delete tableList[i];
         }
-        tableList.clear()
+        tableList.clear();
     }
     
 public:

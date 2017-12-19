@@ -1,4 +1,4 @@
-#ifndef TABLE_PAGE_ASSISTANT_ITEM_H
+ï»¿#ifndef TABLE_PAGE_ASSISTANT_ITEM_H
 #define TABLE_PAGE_ASSISTANT_ITEM_H
 
 #include "../../filesystem/ByteBufBase.h"
@@ -6,42 +6,42 @@
 #include "TablePage.h"
 
 /**
- *  ±íÒ³ÖúÊÖµÄÃ¿Ò»Ò³£¬·½±ã±íÒ³ÖúÊÖÊ¹ÓÃ
- *  ´æ´¢¸ñÊ½£ºslotLen(2B) assiOffset(4B) ...(assiSize*2B)
+ *  è¡¨é¡µåŠ©æ‰‹çš„æ¯ä¸€é¡µï¼Œæ–¹ä¾¿è¡¨é¡µåŠ©æ‰‹ä½¿ç”¨
+ *  å­˜å‚¨æ ¼å¼ï¼šslotLen(2B) assiOffset(4B) ...(assiSize*2B)
  */
 class TablePageAssistantItem {
     
 private:
-    //µ¥ÎÄ¼ş¹ÜÀíÆ÷
+    //å•æ–‡ä»¶ç®¡ç†å™¨
     OneFileManager * oneFileManager;
-    //ÕâÒ»Ò³µÄÒ³¹ÜÀíÆ÷
+    //è¿™ä¸€é¡µçš„é¡µç®¡ç†å™¨
     TablePage * curPage;
-    //Æ«ÒÆÁ¿
+    //åç§»é‡
     int assiOffset;
-    //ÈİÁ¿£¬ÊÇ³¤¶ÈµÄÒ»°ë
+    //å®¹é‡ï¼Œæ˜¯é•¿åº¦çš„ä¸€åŠ
     int assiSize;
-    //Æ«ÒÆÁ¿´æ´¢µÄÊı¾İÄÚÈİ
+    //åç§»é‡å­˜å‚¨çš„æ•°æ®å†…å®¹
     ByteBufType assiData;
     
 public:
     /*
-     *  @¹¹Ôìº¯Êı
-     *  @²ÎÊıoneFileManager:µ¥ÎÄ¼ş¹ÜÀíÆ÷
-     *  ¹¦ÄÜ:´´½¨µÚÒ»¸öÖúÊÖÒ³£¬Õ¼¾İ±íµÄµÚ0Ò³µÄËùÓĞÊ£Óà¿Õ¼ä
+     *  @æ„é€ å‡½æ•°
+     *  @å‚æ•°oneFileManager:å•æ–‡ä»¶ç®¡ç†å™¨
+     *  åŠŸèƒ½:åˆ›å»ºç¬¬ä¸€ä¸ªåŠ©æ‰‹é¡µï¼Œå æ®è¡¨çš„ç¬¬0é¡µçš„æ‰€æœ‰å‰©ä½™ç©ºé—´
     TablePageAssistantItem(TablePage * curPage_) {
-        //¿ÕÖ¸Õë±¨´í
+        //ç©ºæŒ‡é’ˆæŠ¥é”™
         if (curPage_ == NULL) {
             std::cout << "TablePageAssistantItem(NULL) error 1" << std::endl;
             return;
         }
-        //»ù±¾ĞÅÏ¢ÃÇ
+        //åŸºæœ¬ä¿¡æ¯ä»¬
         oneFileManager = curPage -> getOneFileManager();
         curPage = curPage_;
         curPage -> markDirty();
         assiOffset = 0;
         int assiSlotLen = curPage -> getPageHeader() -> getFreeCnt() - 2;
         assiSize = (assiSlotLen - 6) / 2;
-        //Ò³ÖĞµÄÊÂÇé
+        //é¡µä¸­çš„äº‹æƒ…
         int assiSlotId = curPage -> createSlot(assiSlotLen);
         assiData = curPage -> getSlot(assiSlotId);
         memset(assiData, 0, sizeof(Byte) * assiSlotLen);
@@ -52,17 +52,17 @@ public:
      */
     
     /*
-     *  @¹¹Ôìº¯Êı
-     *  @lastAssistant:ÉÏÒ»¸öÖúÊÖÒ³
-     *  ¹¦ÄÜ:´´½¨ÏÂÒ»¸öÖúÊÖÒ³
+     *  @æ„é€ å‡½æ•°
+     *  @lastAssistant:ä¸Šä¸€ä¸ªåŠ©æ‰‹é¡µ
+     *  åŠŸèƒ½:åˆ›å»ºä¸‹ä¸€ä¸ªåŠ©æ‰‹é¡µ
      */
     TablePageAssistantItem(TablePageAssistantItem * lastAssistant) {
-        //¿ÕÖ¸Õë±¨´í
+        //ç©ºæŒ‡é’ˆæŠ¥é”™
         if (lastAssistant == NULL) {
             std::cout << "TablePageAssistantItem(NULL) error 2" << std::endl;
             return;
         }
-        //»ù±¾ĞÅÏ¢£¬´ÓÉÏÒ»¸öÖúÊÖÒ³¼ÆËã³öÀ´£¬²¢°ÑÁ½Ò³ÔÚÒ³Í·Á¬½ÓÆğÀ´
+        //åŸºæœ¬ä¿¡æ¯ï¼Œä»ä¸Šä¸€ä¸ªåŠ©æ‰‹é¡µè®¡ç®—å‡ºæ¥ï¼Œå¹¶æŠŠä¸¤é¡µåœ¨é¡µå¤´è¿æ¥èµ·æ¥
         oneFileManager = lastAssistant -> oneFileManager;
         curPage = new TablePage(oneFileManager);
         lastAssistant -> curPage -> markDirty();
@@ -72,7 +72,7 @@ public:
         assiOffset = lastAssistant -> assiOffset + lastAssistant -> assiSize;
         int assiSlotLen = curPage -> getPageHeader() -> getFreeCnt() - 2;
         assiSize = (assiSlotLen - 6) / 2;
-        //Ò³ÖĞµÄÊÂÇé
+        //é¡µä¸­çš„äº‹æƒ…
         int assiSlotId = curPage -> createSlot(assiSlotLen);
         assiData = curPage -> getSlot(assiSlotId);
         memset(assiData, 0, sizeof(Byte) * assiSlotLen);
@@ -82,22 +82,22 @@ public:
     }
     
     /*
-     *  @¹¹Ôìº¯Êı
-     *  @²ÎÊıoneFileManager_:µ¥ÎÄ¼ş¹ÜÀíÆ÷
-     *  @²ÎÊıpageId_:Ò³±àºÅ
-     *  ¹¦ÄÜ:´´½¨µÚ0Ò³µÄÖúÊÖÒ³£¬»òÕß¶ÁÈ¡µÚpageId_Ò³µÄÖúÊÖÒ³
+     *  @æ„é€ å‡½æ•°
+     *  @å‚æ•°oneFileManager_:å•æ–‡ä»¶ç®¡ç†å™¨
+     *  @å‚æ•°pageId_:é¡µç¼–å·
+     *  åŠŸèƒ½:åˆ›å»ºç¬¬0é¡µçš„åŠ©æ‰‹é¡µï¼Œæˆ–è€…è¯»å–ç¬¬pageId_é¡µçš„åŠ©æ‰‹é¡µ
      */
     TablePageAssistantItem(OneFileManager * oneFileManager_, int pageId_) {
-        //¿ÕÖ¸Õë±¨´í
+        //ç©ºæŒ‡é’ˆæŠ¥é”™
         if (oneFileManager_ == NULL) {
             std::cout << "TablePageAssistantItem(NULL) error 3" << std::endl;
             return;
         }
-        //»ù±¾ĞÅÏ¢£¬´ÓÉÏÒ»¸öÖúÊÖÒ³¼ÆËã³öÀ´£¬²¢°ÑÁ½Ò³ÔÚÒ³Í·Á¬½ÓÆğÀ´
+        //åŸºæœ¬ä¿¡æ¯ï¼Œä»ä¸Šä¸€ä¸ªåŠ©æ‰‹é¡µè®¡ç®—å‡ºæ¥ï¼Œå¹¶æŠŠä¸¤é¡µåœ¨é¡µå¤´è¿æ¥èµ·æ¥
         oneFileManager = oneFileManager_;
         curPage = new TablePage(oneFileManager, pageId_);
         if (pageId_ == 0 && curPage -> getPageHeader() -> getFreeCnt() > 6) {
-            //µÚ0Ò³Ã»ÓĞ½¨Á¢¹ı±íÒ³ÖúÊÖ£¬¾ÍÔÚµÚ0Ò³ĞÂ½¨ÖúÊÖ
+            //ç¬¬0é¡µæ²¡æœ‰å»ºç«‹è¿‡è¡¨é¡µåŠ©æ‰‹ï¼Œå°±åœ¨ç¬¬0é¡µæ–°å»ºåŠ©æ‰‹
             curPage -> markDirty();
             assiOffset = 0;
             int assiSlotLen = curPage -> getPageHeader() -> getFreeCnt() - 2;
@@ -109,7 +109,7 @@ public:
             writeNumberToByte(assiData_, 2, assiSlotLen);
             writeNumberToByte(assiData_, 4, assiOffset);
         } else {
-            //ÕâÒ»Ò³ÒÑ¾­½¨Á¢¹ı±íÒ³ÖúÊÖ£¬¾Í¶ÁÈ¡ÖúÊÖ
+            //è¿™ä¸€é¡µå·²ç»å»ºç«‹è¿‡è¡¨é¡µåŠ©æ‰‹ï¼Œå°±è¯»å–åŠ©æ‰‹
             int assiSlotId = pageId_ == 0 ? 1 : 0;
             assiData = curPage -> getSlot(assiSlotId);
             ByteBufType assiData_ = assiData;
@@ -124,71 +124,71 @@ public:
     }
     
 public:
-    ///»ù±¾getº¯Êı
+    ///åŸºæœ¬getå‡½æ•°
     /*
-     *  @º¯ÊıÃû:getPageId
-     *  ¹¦ÄÜ:·µ»ØÕâ¸öÖúÊÖËùÔÚµÄÒ³±àºÅ
+     *  @å‡½æ•°å:getPageId
+     *  åŠŸèƒ½:è¿”å›è¿™ä¸ªåŠ©æ‰‹æ‰€åœ¨çš„é¡µç¼–å·
      */
     int getPageId() {
         return curPage -> getPageId();
     }
     
     /*
-     *  @º¯ÊıÃû:getAssiBegin
-     *  ¹¦ÄÜ:·µ»ØÕâ¸öÖúÊÖ¹ÜÀíµÄÆğÊ¼Ò³±àºÅ
+     *  @å‡½æ•°å:getAssiBegin
+     *  åŠŸèƒ½:è¿”å›è¿™ä¸ªåŠ©æ‰‹ç®¡ç†çš„èµ·å§‹é¡µç¼–å·
      */
     int getAssiBegin() {
         return assiOffset;
     }
     
     /*
-     *  @º¯ÊıÃû:getAssiEnd
-     *  ¹¦ÄÜ:·µ»ØÕâ¸öÖúÊÖ¹ÜÀíµÄ×îºóÒ»Ò³µÄÏÂÒ»Ò³±àºÅ
+     *  @å‡½æ•°å:getAssiEnd
+     *  åŠŸèƒ½:è¿”å›è¿™ä¸ªåŠ©æ‰‹ç®¡ç†çš„æœ€åä¸€é¡µçš„ä¸‹ä¸€é¡µç¼–å·
      */
     int getAssiEnd() {
         return assiOffset + assiSize;
     }
     
     /*
-     *  @º¯ÊıÃû:getFreeCnt
-     *  @²ÎÊıpageId:²éÑ¯µÄÒ³±àºÅ
-     *  ¹¦ÄÜ:²éÑ¯Ò»Ò³µÄ¿ÕÏĞ¿Õ¼ä£¬²é²»µ½¾Í±¨´í²¢·µ»Ø-1
+     *  @å‡½æ•°å:getFreeCnt
+     *  @å‚æ•°pageId:æŸ¥è¯¢çš„é¡µç¼–å·
+     *  åŠŸèƒ½:æŸ¥è¯¢ä¸€é¡µçš„ç©ºé—²ç©ºé—´ï¼ŒæŸ¥ä¸åˆ°å°±æŠ¥é”™å¹¶è¿”å›-1
      */
     int getFreeCnt(int pageId) {
-        //²é²»µ½±¨´í
+        //æŸ¥ä¸åˆ°æŠ¥é”™
         if (pageId < assiOffset || assiOffset + assiSize <= pageId) {
             std::cout << "TablePageAssistantItem.getFreeCnt(" << pageId << ") error" << std::endl;
             return -1;
         }
-        //²éÑ¯
+        //æŸ¥è¯¢
         ByteBufType tmpBuf = assiData + 6 + (pageId - assiOffset);
         int tmpCnt = readByteToNumber(tmpBuf, 2);
         return tmpCnt;
     }
     
     /*
-     *  @º¯ÊıÃû:getNextPageId
-     *  ¹¦ÄÜ:²éÑ¯ÏÂÒ»¸öÖúÊÖµÄÒ³±àºÅ
+     *  @å‡½æ•°å:getNextPageId
+     *  åŠŸèƒ½:æŸ¥è¯¢ä¸‹ä¸€ä¸ªåŠ©æ‰‹çš„é¡µç¼–å·
      */
     int getNextPageId() {
         return curPage -> getPageHeader() -> getNextPageId(); 
     }
     
 public:
-    ///»ù±¾setº¯Êı
+    ///åŸºæœ¬setå‡½æ•°
     /*
-     *  @º¯ÊıÃû:setFreeCnt
-     *  @²ÎÊıpageId:ĞŞ¸ÄµÄÒ³±àºÅ
-     *  @²ÎÊıpageFreeCnt:ĞŞ¸ÄºóµÄ¿ÕÏĞ¿Õ¼ä
-     *  ¹¦ÄÜ:ĞŞ¸ÄÒ»Ò³µÄ¿ÕÏĞ¿Õ¼ä£¬²»ÄÜĞŞ¸Ä¾Í±¨´í£¬²»¼ì²éĞŞ¸ÄºóµÄÖµ
+     *  @å‡½æ•°å:setFreeCnt
+     *  @å‚æ•°pageId:ä¿®æ”¹çš„é¡µç¼–å·
+     *  @å‚æ•°pageFreeCnt:ä¿®æ”¹åçš„ç©ºé—²ç©ºé—´
+     *  åŠŸèƒ½:ä¿®æ”¹ä¸€é¡µçš„ç©ºé—²ç©ºé—´ï¼Œä¸èƒ½ä¿®æ”¹å°±æŠ¥é”™ï¼Œä¸æ£€æŸ¥ä¿®æ”¹åçš„å€¼
      */
     void setFreeCnt(int pageId, int pageFreeCnt) {
-        //²é²»µ½±¨´í
+        //æŸ¥ä¸åˆ°æŠ¥é”™
         if (pageId < assiOffset || assiOffset + assiSize <= pageId) {
             std::cout << "TablePageAssistantItem.setFreeCnt(" << pageId << ", " << pageFreeCnt << ") error" << std::endl;
             return ;
         }
-        //ĞŞ¸Ä
+        //ä¿®æ”¹
         curPage -> markDirty();
         ByteBufType tmpBuf = assiData + 6 + (pageId - assiOffset);
         writeNumberToByte(tmpBuf, 2, pageFreeCnt);

@@ -1,4 +1,4 @@
-#ifndef INDEX_MANAGER_H_
+ï»¿#ifndef INDEX_MANAGER_H_
 #define INDEX_MANAGER_H_
 
 #include <iostream>
@@ -7,33 +7,33 @@
 #include "IndexTree/IndexTree.h"
 
 /*
- *  Ë÷Òı»ùÀà¡£
- *  Ò»¸öË÷Òı´æÔÚÓÚÒ»¸öÎÄ¼şÀïÃæ¡£
+ *  ç´¢å¼•åŸºç±»ã€‚
+ *  ä¸€ä¸ªç´¢å¼•å­˜åœ¨äºä¸€ä¸ªæ–‡ä»¶é‡Œé¢ã€‚
  */
 class IndexBase {
 
 protected:
-    //ÎÄ¼ş±àºÅ
+    //æ–‡ä»¶ç¼–å·
     int fileId;
-    //Ò³ÊıÍ³¼Æ
+    //é¡µæ•°ç»Ÿè®¡
     int pageCount;
 
-    //±í
+    //è¡¨
     TableManager * table;
-    //ÁĞÃû
+    //åˆ—å
     char * colName;
 
 public:
-    //Ğé¹¹Ôìº¯Êı
+    //è™šæ„é€ å‡½æ•°
     virtual IndexBase(TableManager * table_, char * colName_) {
         table = table_;
         colName = colName_;
-        //´´½¨ÎÄ¼ş
+        //åˆ›å»ºæ–‡ä»¶
         static char fileName[256];
         sprintf(fileName, "%s__%s.ind", table->getName(), colName);
         FileManager * fileManager = new FileManager();
-        fileManager.createFile(fileName);   //TODO Òì³£´¦Àí
-        fileManager.openFile(fileName, fileId); //TODO Òì³£´¦Àí
+        fileManager.createFile(fileName);   //TODO å¼‚å¸¸å¤„ç†
+        fileManager.openFile(fileName, fileId); //TODO å¼‚å¸¸å¤„ç†
         pageCount = 0;
     }
 
@@ -41,7 +41,7 @@ public:
 
 
 /*
- *  B+Ê÷Ë÷Òı¡£
+ *  B+æ ‘ç´¢å¼•ã€‚
  */
 template <typename KeyType>
 class IndexTree
@@ -67,16 +67,16 @@ public:
 
 
 /*
- *  Ò»¸ö±íÖ»ÓĞÒ»¸öË÷Òı¹ÜÀíÆ÷£¬Ò»¸öË÷Òı¹ÜÀíÆ÷¿ÉÒÔ¹ÜÀí¶à¸öÁĞµÄË÷Òı¡£
+ *  ä¸€ä¸ªè¡¨åªæœ‰ä¸€ä¸ªç´¢å¼•ç®¡ç†å™¨ï¼Œä¸€ä¸ªç´¢å¼•ç®¡ç†å™¨å¯ä»¥ç®¡ç†å¤šä¸ªåˆ—çš„ç´¢å¼•ã€‚
  */
 class IndexManager {
 
 private:
-    //Ë÷ÒıÕë¶ÔµÄ±í
+    //ç´¢å¼•é’ˆå¯¹çš„è¡¨
     TableManager * table;
-    //Ë÷ÒıÊıÁ¿
+    //ç´¢å¼•æ•°é‡
     int n;
-    //Ë÷ÒıÁĞ±í
+    //ç´¢å¼•åˆ—è¡¨
     IndexBase * index;
 
 public:

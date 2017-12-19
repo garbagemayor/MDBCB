@@ -1,4 +1,4 @@
-#ifndef MY_BIT_MAP
+﻿#ifndef MY_BIT_MAP
 #define MY_BIT_MAP
 typedef unsigned int uint;
 /*
