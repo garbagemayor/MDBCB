@@ -8,21 +8,21 @@
 #include <cstring>
 
 /**
- *  数据表的一页，由单个数据表类OneTableManager调用。
+ *  数据表的一页，到处都在调用
  *  
  */
 class TablePage {
     
-public:
+private:
     ///基本信息
     //单文件管理器
     OneFileManager * oneFileManager;
     //页编号
     int pageId;
     //是否脏（与缓存页管理器中的页面相比）
-    bool isDirty;
+    bool dirtyFlag;
     
-public:
+private:
     ///读取的信息
     //页内数据
     ByteBufType pageData;
@@ -41,7 +41,7 @@ public:
         oneFileManager = oneFileManager_;
         header = NULL;
         footer = NULL;
-        isDirty = true;
+        dirtyFlag = true;
         //新建一个页面
         int pageId;
         pageData = oneFileManager -> getNewPage(pageId);
@@ -74,7 +74,7 @@ public:
             return;
         }
         //读取这一页的页头页脚
-        isDirty = false;
+        dirtyFlag = false;
         pageData = oneFileManager -> getPage(pageId);
         header = new TablePageHeader(oneFileManager, pageData);
         footer = new TablePageFooter(oneFileManager, pageData, header -> pageId, header -> slotCnt);
@@ -82,6 +82,7 @@ public:
     
     /*
      *  @析构函数
+     *  功能:写回到文件并释放
      */
     ~TablePage() {
         writeBackToFile();
@@ -92,19 +93,80 @@ public:
             delete footer;
         }
     }
+    
+public:
+    ///基本get函数
+    /*
+     *  @函数名:getOneFileManager
+     *  功能:获取单文件管理器的指针
+     */
+    OneFileManager * getOneFileManager() {
+        return oneFileManager;
+    }
+    
+    /*
+     *  @函数名:getPageId
+     *  功能:获取页编号
+     */
+    int getPageId() {
+        return pageId;
+    }
+    
+    /*
+     *  @函数名:isDirty
+     *  功能:返回是否脏
+     */
+    bool isDirty() {
+        return dirtyFlag;
+    }
+    
+    /*
+     *  @函数名:getPageHeader
+     *  功能:返回页头类的指针
+     */
+    TablePageHeader * getPageHeader() {
+        return header;
+    }
+    
+    /*
+     *  @函数名:getPageFooter
+     *  功能:返回页脚类的指针
+     */
+    TablePageFooter * getPageFooter() {
+        return footer;
+    }
+    
+public:
+    ///基本set函数
+    /*
+     *  @函数名:markDirty
+     *  功能:标记脏
+     */
+    void markDirty() {
+        dirtyFlag = true;
+    }
+    
 
 public:
-    ///各种功能的函数
+    ///普通函数
     /*
      *  @函数名:writeBackToFile
      *  功能:如果脏，就写回到文件中去
      */
     void writeBackToFile() {
-        if (isDirty) {
+        if (header -> isDirty()) {
+            dirtyFlag = true;
+            header -> writeBackToBuffer();
+        }
+        if (footer -> isDirty()) {
+            dirtyFlag = true;
+            footer -> writeBackToBuffer();
+        }
+        if (dirtyFlag) {
             oneFileManager -> markDirty(pageId);
         }
         oneFileManager -> writeBack(pageId);
-        isDirty = false;
+        dirtyFlag = false;
     }
     
     /*
@@ -123,57 +185,27 @@ public:
     }
     
     /*
-     *  @函数名:addSlot
+     *  @函数名:createSlot
      *  @参数slotLen:待写入的数据长度
-     *  @参数slotData:待写入的数据内容，必须保证开头2字节等于slotLen
-     *  功能:新建一个槽，把数据写进去。
-     *  返回值:成功范围槽编号，失败报错并返回-1
+     *  功能:新建一个固定大小的槽，并返回槽编号，失败返回-1
      */
-    int addSlot(int slotLen, ByteBufType slotData) {
+    int createSlot(int slotLen) {
         if (header -> freeCnt < slotLen + 2) {
-            std::cout << "TablePage::addNewSlot(" << slotLen << ", <" << (int) slotData << ">) error" << std::endl;
+            std::cout << "TablePage::createSlot(" << slotLen << ") error" << std::endl;
             return -1;
         }
-        isDirty = true;
-        ByteBufType freeStart = pageData + header -> freeData;
-        memcpy(freeStart, slotData, slotLen);
-        footer -> isDirty = true;
+        dirtyFlag = true;
+        footer -> markDirty();
         footer -> slotCnt ++;
         footer -> slotOffset.push_back(header -> freeData);
         footer -> writeBackToBuffer();
-        header -> isDirty = true;
+        header -> markDirty();
         header -> slotCnt ++;
         header -> freeData += slotLen;
         header -> freeCnt -= slotLen + 2;
         header -> writeBackToBuffer();
-        return header -> slotCnt;
+        return header -> slotCnt - 1;
     }
-    
-    ///TODO 其他的各种功能的函数
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 };
 
 #endif // TABLE_PAGE_H

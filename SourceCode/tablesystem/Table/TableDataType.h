@@ -21,5 +21,58 @@ enum TableDataType {
     t_lob = 9,
 };
 
+/*
+ *  @函数名:getDataTypeLength
+ *  功能:定长类型返回类型的长度，变长类型返回0。
+ */
+int getDataTypeLength(TableDataType type) {
+    switch (type) {
+    case t_error:
+    case t_string:
+        return 0;
+    case t_bool:
+    case t_char:
+        return 1;
+    case t_short:
+        return 2;
+    case t_int:
+    case t_float:
+        return 4;
+    case t_long:
+    case t_double:
+    case t_lob:
+        return 8;
+    default:
+        return 0;
+    }
+}
+
+/*
+ *  @函数名:getDataTypeMaxLength
+ *  功能:定长类型返回类型的长度，变长类型返回最大长度。
+ */
+int getDataTypeMaxLength(TableDataType type) {
+    switch (type) {
+    case t_error:
+        return 0;
+    case t_bool:
+    case t_char:
+        return 1;
+    case t_short:
+        return 2;
+    case t_int:
+    case t_float:
+        return 4;
+    case t_long:
+    case t_double:
+    case t_lob:
+        return 8;
+    case t_string:
+        return 256;
+    default:
+        return 0;
+    }
+}
+
 #endif // TABLE_DATA_TYPE_H_
 

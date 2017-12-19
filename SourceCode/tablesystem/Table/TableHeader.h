@@ -44,7 +44,7 @@ public:
      *  功能:从槽中读取数据表的表头
      */
     TableHeader(ByteBufType slotData_) {
-        readFromByteBuffer(slotData_);
+        readFromByte(slotData_);
         modifiable = false;
     }
     
@@ -60,6 +60,14 @@ public:
     
 public:
     ///基本get函数
+    /*
+     *  @函数名:getName
+     *  功能:获取数据表名字
+     */
+    std::string getName() {
+        return name;
+    }
+    
     /*
      *  @函数名:getNRow
      *  功能:获取行数
@@ -99,19 +107,12 @@ public:
     }
     
     /*
-     *  @函数名:getName
-     *  功能:获取数据表名字
-     */
-    std::string getName() {
-        return name;
-    }
-    
-    /*
      *  @函数名:getColumnById
+     *  @参数id:列的逻辑位置
      *  功能:用列的逻辑位置获取列信息，如果不存在就报错
      */
     TableColumn * getColumnById(int id) {
-        if (id < 0 || id > (int) colList.size()) {
+        if (id < 0 || id >= (int) colList.size()) {
             std::cout << "TableHeader.getColumnById(" << id << ") error" << std::endl;
             return NULL;
         }
@@ -120,6 +121,7 @@ public:
     
     /*
      *  @函数名:getColumnByName
+     *  @参数columnName:数据列的名称
      *  功能:用列的名字位置获取列信息，如果不存在就报错
      */
     TableColumn * getColumnByName(std::string columnName) {
@@ -131,6 +133,23 @@ public:
         if (true) {
             std::cout << "TableHeader.getColumnByName(" << columnName << ") error" << std::endl;
             return NULL;
+        }
+    }
+    
+    /*
+     *  @函数名:getColumnIdByName
+     *  @参数columnName:数据列的名称
+     *  功能:用列的名字位置获取列编号，如果不存在就报错
+     */
+    int getColumnIdByName(std::string columnName) {
+        for (int i = 0; i < (int) colList.size(); i ++) {
+            if (colList[i] -> getName() == columnName) {
+                return i;
+            }
+        }
+        if (true) {
+            std::cout << "TableHeader.getColumnIdByName(" << columnName << ") error" << std::endl;
+            return -1;
         }
     }
     
@@ -189,6 +208,18 @@ public:
             std::cout << "TableHeader.setConstant() error" << std::endl;
             return;
         }
+        //没有主键、多个主键报错
+        int primaryKeyCnt = 0;
+        for (int i = 0; i < (int) colList.size(); i ++) {
+            if (colList[i] -> isPrimaryKey()) {
+                primaryKeyCnt ++;
+            }
+        }
+        if (primaryKeyCnt != 1) {
+            std::cout << "TableHeader.setConstant() error" << std::endl;
+            return;
+        }
+        //真的修改
         modifiable = false;
     }
     
@@ -252,6 +283,16 @@ public:
         for (int i = 0; i < (int) colList.size(); i ++) {
             if (colList[i] -> getName() == tableColumn -> getName()) {
                 std::cout << "TableHeader.addColumn(...) error 4" << std::endl;
+                return;
+            }
+        }
+        //多个主键报错
+        if (tableColumn -> isPrimaryKey()) {
+            for (int i = 0; i < (int) colList.size(); i ++) {
+                if (colList[i] -> isPrimaryKey()) {
+                    std::cout << "TableHeader.addColumn(...) error 5" << std::endl;
+                    return;
+                }
             }
         }
         //复制再添加
@@ -272,21 +313,18 @@ public:
     }
     
 public:
-    ///普通函数   
+    ///普通函数
     /*
      *  @函数名:toByteBuffer
-     *  功能:把表头信息转化为可以写入的二进制数据，表头大小如果超过一页就会报错
-     *  返回值:成功转化后的数据指针，失败返回NULL
-     *  注意:不要去闲的蛋疼去清理这片内存，这个数组是static的，程序结束时自动清理。
+     *  功能:把表头信息转化为可以写入的二进制数据，表头大小如果超过一页就会报错，然后写入
      */
-    ByteBufType toByteBuffer() {
+    void writeAsByte(ByteBufType & buf) {
         int sz = getSizeInSlot();
-        static Byte buf[PAGE_SIZE];
-        ByteBufType curBuf = buf;
         if (sz > PAGE_SIZE - PAGE_HEADER_SIZE) {
             std::cout << "TableHeader.toByteBuffer() error" << std::endl;
-            return NULL;
+            return;
         }
+        ByteBufType curBuf = buf;
         writeNumberToByte(curBuf, 2, sz);
         writeNumberToByte(curBuf, 4, nRow);
         writeNumberToByte(curBuf, 4, getNCol());
@@ -295,15 +333,19 @@ public:
         for (int i = 0; i < (int) colList.size(); i ++) {
             colList[i] -> writeAsByte(curBuf);
         }
-        return buf;
+        if (curBuf - buf != sz) {
+            std::cout << "TableHeader.writeAsByte(...) error" << std::endl;
+            return;
+        }
+        buf = curBuf;
     }
     
     /*
-     *  @函数名:readFromByteBuffer
+     *  @函数名:readFromByte
      *  @参数slotData:读取来源
      *  功能:从槽中的二进制数据读取得到完整的表头信息
      */
-    void readFromByteBuffer(ByteBufType slotData) {
+    void readFromByte(ByteBufType & slotData) {
         ByteBufType slotData_ = slotData;
         int sz = readByteToNumber(slotData, 2);
         nRow = readByteToNumber(slotData, 4);
@@ -316,37 +358,34 @@ public:
         colList.clear();
         colList.resize(nCol);
         for (int i = 0; i < nCol; i ++) {
-            colList[i] -> readFromByteBuffer(slotData);
+            colList[i] -> readFromByte(slotData);
         }
-        //长度纠错
+        //长度纠错，记得把指针退回去
         if (slotData - slotData_ != sz) {
-            std::cout << "TableHeader.readFromByteBuffer() error" << endl;
+            std::cout << "TableHeader.readFromByteBuffer() error" << std::endl;
+            slotData = slotData_;
             return;
         }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    /*
+     *  @函数名:isEqualTo
+     *  功能:判断两个表头是相同的
+     */
+    bool isEqualTo(TableHeader * tableHeader) {
+        if (name != tableHeader -> name) {
+            return false;
+        }
+        if (colList.size() != tableHeader -> colList.size()) {
+            return false;
+        }
+        for (int i = 0; i < (int) colList.size(); i ++) {
+            if (!colList[i] -> isEqualTo(tableHeader -> colList[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
 #endif // TABLEHEADER_H

@@ -15,7 +15,7 @@ private:
     TableColumn * tableColumn;
     //是否是NULL
     bool nullFlag;
-    //二进制形式下数据的长度
+    //二进制形式下数据的长度，定长类型不管是不是NULL都是固定长度，变长数据就是数据本身的长度，NULL时是-1
     int length;
     //二进制形式下的数据内容
     ByteBufType data;
@@ -36,7 +36,7 @@ public:
         }
         tableColumn = tableColumn_;
         nullFlag = true;
-        length = 0;
+        length = getDataTypeLength(tableColumn -> getDataType());
         data = NULL;
         dirtyFlag = true;
     }
@@ -194,6 +194,45 @@ public:
 public:
     ///普通函数
     /*
+     *  @函数名:readFromByte
+     *  功能:从二进制数据中直接读取，仅限定长类型
+     */
+    void readFromByte(ByteBufType & buf) {
+        //变长列报错
+        if (tableColumn -> hasVariableLength()) {
+            std::cout << "TableGrid.reafFromByte(...) error" << std::endl;
+            return;
+        }
+        //直接读
+        dirtyFlag = true;
+        nullFlag = false;
+        if (data == NULL) {
+            data = new Byte [length];
+        }
+        readByteToArray(buf, length, data, length);
+    }
+    
+    /*
+     *  @函数名:readFromByte
+     *  功能:从二进制数据中直接读取，仅限变长类型
+     */
+    void readFromByte(ByteBufType & buf, int length_) {
+        //定长列报错
+        if (!tableColumn -> hasVariableLength()) {
+            std::cout << "TableGrid.reafFromByte(..., " << length_ << ") error" << std::endl;
+            return;
+        }
+        //直接读
+        dirtyFlag = true;
+        nullFlag = false;
+        length = length_;
+        if (data == NULL) {
+            data = new Byte [length];
+        }
+        readByteToArray(buf, length, data, length);
+    }
+    
+    /*
      *  @函数名:isEqualTo
      *  功能:判断两个格子里的数据相等
      *       特别的，当两个格子的列类型不同时报错返回false，当两个格子都是NULL时返回true，一个是NULL另一个不是时返回false
@@ -283,7 +322,7 @@ public:
      *  @函数名:isGreaterThan
      *  功能:判断是否大于另一个格子里的数据，其实是反向调用isLessThan
      */
-    void isGreaterThan(TableGrid * grid) {
+    bool isGreaterThan(TableGrid * grid) {
         return grid -> isLessThan(this);
     }
 };

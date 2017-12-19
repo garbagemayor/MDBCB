@@ -1,3 +1,6 @@
+#ifndef TEST_FILE_SYSTEM_H_
+#define TEST_FILE_SYSTEM_H_
+
 /*
  * testfilesystem.cpp
  *
@@ -69,9 +72,5 @@ int runTestFileSystem() {
 	//具体的函数大家可以看看ppt或者程序的注释
 	return 0;
 }
-/*
-int runTestFileSystem() {
-    return 0;
-}
-*/
 
+#endif // TEST_FILE_SYSTEM_H_

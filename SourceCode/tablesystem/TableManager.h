@@ -2,7 +2,7 @@
 #define TABLE_MANAGER_H_
 
 #include "../filesystem/bufmanager/BufPageManager.h"
-#include "Table.h"
+#include "Table/Table.h"
 
 /**
  *  数据表管理器，管理所有数据表
@@ -16,7 +16,8 @@ public:
     //数据表列表
     std::vector<Table *> tableList;
     
-public:/*
+public:
+    /*
      *  @构造函数
      *  @参数bufPageManager_:缓存页管理器
      *  功能:新建一个数据表管理器
@@ -26,6 +27,19 @@ public:/*
         tableList.clear();
     }
     
+    /*
+     *  @析构函数
+     *  功能:释放每一个数据表
+     */
+    ~TableManager() {
+        for (int i = 0; i < (int) tableList.size(); i ++) {
+            delete tableList[i];
+        }
+        tableList.clear()
+    }
+    
+public:
+    ///普通函数
     /*
      *  @函数名:createTable
      *  @参数tableHeader:新数据表的名称
@@ -94,29 +108,6 @@ public:/*
         std::cout << "TableManager.closeTable(" << tableName << ") error" << std::endl;
         return;
     }
-    
-    
-public:
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 };
 
 

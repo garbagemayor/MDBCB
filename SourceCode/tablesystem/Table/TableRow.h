@@ -9,149 +9,352 @@
 #include <vector>
 
 /**
- *  Êı¾İĞĞÀà£¬ÔÚÄÚ´æÖĞ´æ´¢Ò»ĞĞµÄÊı¾İ£¬ÓÉµ¥¸öÊı¾İ±íÀàTableµ÷ÓÃ
- *  ±£³ÖÓÀÔ¶¿ÉĞŞ¸Ä£¬µ«Òª¼ÇÂ¼ÊÇ·ñÔà
- *  ÔÚÎÄ¼şÖĞµÄ´æ´¢°´ÕÕÈçÏÂ¸ñÊ½£º
- *  ²Û³¤¶ÈslotLen(2B) ×´Ì¬Î»tagAB(2B) 
- *  ¶¨³¤²¿·Ö´óĞ¡fSize(2B) ¶¨³¤²¿·ÖÁĞÊıfNCol(2B) ¶¨³¤Êı¾İ(fsize-4B) NULLÎ»Í¼(ceil(fNCol/8)B)
- *  ±ä³¤ÁĞÊıvNCol(2B) Æ«ÒÆÊı×évOffset(vNCol*2B) ±ä³¤Êı¾İ(Èô¸ÉB)
+ *  æ•°æ®è¡Œç±»ï¼Œåœ¨å†…å­˜ä¸­å­˜å‚¨ä¸€è¡Œçš„æ•°æ®ï¼Œç”±å•ä¸ªæ•°æ®è¡¨ç±»Tableè°ƒç”¨
+ *  ä¿æŒæ°¸è¿œå¯ä¿®æ”¹ï¼Œä½†è¦è®°å½•æ˜¯å¦è„
+ *  åœ¨æ–‡ä»¶ä¸­çš„å­˜å‚¨æŒ‰ç…§å¦‚ä¸‹æ ¼å¼ï¼š
+ *  æ§½é•¿åº¦slotLen(2B) çŠ¶æ€ä½flagAB(2B) 
+ *  å®šé•¿éƒ¨åˆ†å¤§å°fSize(2B) å®šé•¿éƒ¨åˆ†åˆ—æ•°fNCol(2B) å®šé•¿æ•°æ®(fsizeB) NULLä½å›¾(ceil(fNCol/8)B)
+ *  å˜é•¿åˆ—æ•°vNCol(2B) åç§»æ•°ç»„vOffset(vNCol*2B) å˜é•¿æ•°æ®(vSizeB)
+ *  å˜é•¿æ•°æ®çš„NULLä½å›¾æ˜¯vOffsetçš„å€¼ä¸º0ï¼Œå˜é•¿åˆ—åç§»æ•°ç»„æ˜¯åŸºäºæ§½èµ·ç‚¹è®¡ç®—
  */
 class TableRow {
     
-public:
-    //±íÍ·¸ñÊ½
+private:
+    //è¡¨å¤´æ ¼å¼
     TableHeader * tableHeader;
-    //×´Ì¬Î»flagAB
+    //çŠ¶æ€ä½flagAB
     int flagAB;
-    //Êı¾İÄÚÈİ
+    //æ•°æ®å†…å®¹
     std::vector<TableGrid *> gridList;
-    //ÊÇ·ñÔà
+    //æ˜¯å¦è„
     bool dirtyFlag;
     
 public:
     /*
-     *  @¹¹Ôìº¯Êı
-     *  @²ÎÊıtableHeader_:Êı¾İ±íµÄ±íÍ·£¬ÃèÊöÁËÊı¾İĞĞµÄÂß¼­¸ñÊ½
-     *  ¹¦ÄÜ:´´½¨Ò»¸öĞÂÊı¾İĞĞ
+     *  @æ„é€ å‡½æ•°
+     *  @å‚æ•°tableHeader_:æ•°æ®è¡¨çš„è¡¨å¤´ï¼Œæè¿°äº†æ•°æ®è¡Œçš„é€»è¾‘æ ¼å¼
+     *  åŠŸèƒ½:åˆ›å»ºä¸€ä¸ªæ–°æ•°æ®è¡Œ
      */
     TableRow(TableHeader * tableHeader_) {
-        //¿ÕÖ¸Õë±¨´í
+        //ç©ºæŒ‡é’ˆæŠ¥é”™
         if (tableHeader_ == NULL) {
             std::cout << "TableRow(NULL) error" << std::endl;
             return;
         }
-        //Êı¾İĞĞÈÔÈ»¿ÉÒÔĞŞ¸Ä±¨´í
+        //æ•°æ®è¡Œä»ç„¶å¯ä»¥ä¿®æ”¹æŠ¥é”™
         if (tableHeader_ -> isModifiable()) {
             std::cout << "TableRow(...) error" << std::endl;
             tableHeader = NULL;
             return;
         }
-        //¸ù¾İ±íÍ·µÄ¸ñÊ½£¬´´½¨Ò»¸öºÏÀíÈ«ÊÇNULLµÄĞĞ
+        //æ ¹æ®è¡¨å¤´çš„æ ¼å¼ï¼Œåˆ›å»ºä¸€ä¸ªåˆç†å…¨æ˜¯NULLçš„è¡Œ
         tableHeader = tableHeader_;
         dirtyFlag = true;
         gridList.resize(tableHeader -> getNCol());
-        for (int i = 0; i < gridList.size(); i ++) {
+        for (int i = 0; i < (int) gridList.size(); i ++) {
             gridList[i] = new TableGrid(tableHeader -> getColumnById(i));
         }
     }
     
     /*
-     *  @¹¹Ôìº¯Êı
-     *  @²ÎÊıtableHeader_:Êı¾İ±íµÄ±íÍ·£¬ÃèÊöÁËÊı¾İĞĞµÄÂß¼­¸ñÊ½
-     *  @²ÎÊıslotData_:±íÍ·µÄ²ÛÊı¾İ£¬´ÓÖĞ¶ÁÈ¡±íÍ·
-     *  ¹¦ÄÜ:´Ó²ÛÖĞ¶ÁÈ¡Ò»¸öÊı¾İĞĞ
+     *  @æ„é€ å‡½æ•°
+     *  @å‚æ•°tableHeader_:æ•°æ®è¡¨çš„è¡¨å¤´ï¼Œæè¿°äº†æ•°æ®è¡Œçš„é€»è¾‘æ ¼å¼
+     *  @å‚æ•°slotData_:è¡¨å¤´çš„æ§½æ•°æ®ï¼Œä»ä¸­è¯»å–è¡¨å¤´
+     *  åŠŸèƒ½:ä»æ§½ä¸­è¯»å–ä¸€ä¸ªæ•°æ®è¡Œ
      */
     TableRow(TableHeader * tableHeader_, ByteBufType slotData_) {
-        readFromByteBuffer(slotData_);
+        //ç©ºæŒ‡é’ˆæŠ¥é”™
+        if (tableHeader_ == NULL) {
+            std::cout << "TableRow(NULL) error" << std::endl;
+            return;
+        }
+        //æ•°æ®è¡Œä»ç„¶å¯ä»¥ä¿®æ”¹æŠ¥é”™
+        if (tableHeader_ -> isModifiable()) {
+            std::cout << "TableRow(...) error" << std::endl;
+            tableHeader = NULL;
+            return;
+        }
+        //æ ¹æ®è¡¨å¤´çš„æ ¼å¼å’ŒäºŒè¿›åˆ¶æ•°æ®å†…å®¹ï¼Œè¯»å–æ•°æ®è¡Œ
+        tableHeader = tableHeader_;
+        readFromByte(slotData_);
         dirtyFlag = false;
     }
     
     /*
-     *  Îö¹¹º¯Êı
-     *  ¹¦ÄÜ:ÊÍ·ÅÄÚ´æ¿Õ¼äÇ°£¬¼ì²éÈç¹ûÔà¾ÍĞ´»Ø
+     *  ææ„å‡½æ•°
+     *  åŠŸèƒ½:é‡Šæ”¾å†…å­˜ç©ºé—´å‰ï¼Œæ£€æŸ¥å¦‚æœè„å°±å†™å›
      */
     ~TableRow() {
-        writeBackToBuffer();
-        if (rowData != NULL) {
-            delete rowData;
+        for (int i = 0; i < (int) gridList.size(); i ++) {
+            delete gridList[i];
         }
+        gridList.clear();
     }
     
 public:
-    ///»ù±¾getº¯Êı
-    
-    
-    
-    
-    
-    
-public:
-    ///»ù±¾setº¯Êı
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-public:
-    ///ÆÕÍ¨º¯Êı
+    ///åŸºæœ¬getå‡½æ•°
     /*
-     *  @º¯ÊıÃû:writeBackToBuffer
-     *  ¹¦ÄÜ:Èç¹ûÔà¾ÍĞ´»Øµ½»º´æ¹ÜÀíÆ÷ÖĞÈ¥
+     *  @å‡½æ•°å:getTableHeader
+     *  åŠŸèƒ½:è¿”å›è¡¨å¤´ä¿¡æ¯
      */
-    void writeBackToBuffer() {
-        //Ôà±ê¼ÇºÏ²¢
+    TableHeader * getTableHeader() {
+        return tableHeader;
+    }
+    
+    /*
+     *  @å‡½æ•°å:getFlagAB
+     *  åŠŸèƒ½:è¿”å›çŠ¶æ€ä½
+     */
+    int getFlagAB() {
+        return flagAB;
+    }
+    
+    /*
+     *  @å‡½æ•°å:getGridById
+     *  @å‚æ•°id:æ•°æ®æ ¼çš„é€»è¾‘ä½ç½®
+     *  åŠŸèƒ½:ç”¨æ•°æ®æ ¼çš„é€»è¾‘ä½ç½®è·å–æ•°æ®æ ¼ä¿¡æ¯ï¼Œå¦‚æœä¸å­˜åœ¨å°±æŠ¥é”™
+     */
+    TableGrid * getGridById(int id) {
+        if (id < 0 || id >= (int) gridList.size()) {
+            std::cout << "TableRow.getGridById(" << id << ") error" << std::endl;
+            return NULL;
+        }
+        return gridList[id];
+    }
+    
+    /*
+     *  @å‡½æ•°å:getGridByName
+     *  @å‚æ•°columnName:æ•°æ®åˆ—çš„åç§°
+     *  åŠŸèƒ½:ç”¨æ•°æ®åˆ—çš„åç§°è·å–æ•°æ®æ ¼ä¿¡æ¯ï¼Œå¦‚æœä¸å­˜åœ¨å°±æŠ¥é”™
+     */
+    TableGrid * getGridByName(std::string columnName) {
         for (int i = 0; i < (int) gridList.size(); i ++) {
-            if (gridList[i] -> isDirty()) {
-                dirtyFlag = true;
-                break;
+            if (tableHeader -> getColumnById(i) -> getName() == columnName) {
+                return gridList[i];
             }
         }
-        //²»Ôà·µ»Ø
-        if (!dirtyFlag) {
-            return;
+        if (true) {
+            std::cout << "TableRow.getGridByName(" << columnName << ") error" << std::endl;
+            return NULL;
         }
-        //Ğ´»Ø
-        
-        
-        
-        
-        
-        
-        
-        
     }
+    
+    /*
+     *  @å‡½æ•°å:getSizeInSlot
+     *  åŠŸèƒ½:è·å–è¡¨å¤´éœ€è¦å æ®çš„æ§½çš„å¤§å°
+     */
+    int getSizeInSlot() {
+        int fNCol = 0;
+        int fSize = 0;
+        int vNCol = 0;
+        int vSize = 0;
+        for (int i = 0; i < (int) gridList.size(); i ++) {
+            if (!tableHeader -> getColumnById(i) -> hasVariableLength()) {
+                fNCol += 1;
+                fSize += gridList[i] -> getDataLength();
+            } else {
+                vNCol += 1;
+                vSize += gridList[i] -> getDataLength();
+            }
+        }
+        return 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2 + vSize;
+    }
+    
+    /*
+     *  @å‡½æ•°å:canMeetNullRequirement
+     *  åŠŸèƒ½:æ£€æŸ¥æ¯æ ¼çš„NULLæƒ…å†µæ˜¯å¦ç¬¦åˆè¡¨å¤´çš„è¦æ±‚ï¼Œ
+     */
+    bool canMeetNullRequirement() {
+        for (int i = 0; i < (int) gridList.size(); i ++) {
+            if (gridList[i] -> isNull() && !tableHeader -> getColumnById(i) -> allowNull()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /*
+     *  @å‡½æ•°å:isDirty
+     *  åŠŸèƒ½:è¿”å›æ˜¯å¦è„
+     */
+    bool isDirty() {
+        return dirtyFlag;
+    }
+    
+public:
+    ///åŸºæœ¬setå‡½æ•°
     
     
 public:
-    ///ÆäËûº¯Êı
+    ///æ™®é€šå‡½æ•°
     /*
-     *  @º¯ÊıÃû:getPossibleSize
-     *  @²ÎÊıtableHeader:Ò»¸ö±íÍ·Àà
-     *  @²ÎÊıflag:Èç¹ûÊÇ0¾ÍÊÇÇó×îĞ¡£¬ÊÇ1¾ÍÊÇÇó×î´ó
-     *  ¹¦ÄÜ:¼ÆËãÊı¾İĞĞµÄ×î´ó/×îĞ¡µÄ´óĞ¡¡£
+     *  @å‡½æ•°å:writeAsByte
+     *  åŠŸèƒ½:æŠŠæ•°æ®è¡Œä¿¡æ¯è½¬åŒ–ä¸ºå¯ä»¥å†™å…¥çš„äºŒè¿›åˆ¶æ•°æ®ï¼Œè¡Œçš„å¤§å°å¦‚æœè¶…è¿‡ä¸€é¡µå°±æŠ¥é”™ï¼Œç„¶åå†™å…¥
      */
-    static int getPossibleSize(TableHeader * tableHeader, int flag) {
-        
-        
-        
-        
+    void writeAsByte(ByteBufType & buf) {
+        //è®¡ç®—å„é¡¹å‚æ•°
+        int fNCol = 0;
+        int fSize = 0;
+        int vNCol = 0;
+        int vSize = 0;
+        for (int i = 0; i < (int) gridList.size(); i ++) {
+            if (!tableHeader -> getColumnById(i) -> hasVariableLength()) {
+                fNCol += 1;
+                fSize += gridList[i] -> getDataLength();
+            } else {
+                vNCol += 1;
+                vSize += gridList[i] -> getDataLength();
+            }
+        }
+        //æ€»é•¿åº¦è¶…æ ‡æŠ¥é”™
+        int slotLen = 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2 + vSize;
+        if (slotLen > PAGE_SIZE - PAGE_HEADER_SIZE) {
+            std::cout << "TableRow.writeAsByte(...) error" << std::endl;
+            return;
+        }
+        //å®šä¹‰ä¸€å †ä¸´æ—¶ä½¿ç”¨çš„ä¸œè¥¿
+        ByteBufType curBuf = buf;
+        static Byte nullMap[8];
+        memset(nullMap, 0, sizeof(Byte) * 8);
+        //å¼€å§‹å†™å…¥
+        writeNumberToByte(curBuf, 2, slotLen);
+        writeNumberToByte(curBuf, 2, flagAB);
+        writeNumberToByte(curBuf, 2, fSize);
+        writeNumberToByte(curBuf, 2, fNCol);
+        for (int i = 0; i < fNCol; i ++) {
+            writeArrayToByte(curBuf, gridList[i] -> getDataLength(), gridList[i] -> getDataPointer());
+            nullMap[i >> 3] |= 1 << (i & 7);
+        }
+        writeArrayToByte(curBuf, ((fNCol + 7) >> 3), nullMap);
+        writeNumberToByte(curBuf, 2, vNCol);
+        int vOffset = 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2;
+        for (int i = fNCol; i < fNCol + vNCol; i ++) {
+            if (!gridList[i] -> isNull()) {
+                writeNumberToByte(curBuf, 2, vOffset);
+                vOffset += gridList[i] -> getDataLength();
+            } else {
+                writeNumberToByte(curBuf, 2, 0xffff);
+            }
+        }
+        for (int i = fNCol; i < fNCol + vNCol; i ++) {
+            if (!gridList[i] -> isNull()) {
+                writeArrayToByte(curBuf, gridList[i] -> getDataLength(), gridList[i] -> getDataPointer());
+            }
+        }
+        //å†™å®Œä¹‹åæ£€æŸ¥é•¿åº¦æŠ¥é”™
+        if (curBuf - buf != slotLen) {
+            std::cout << "TableRow.writeAsByte(...) error" << std::endl;
+            return;
+        }
+        buf = curBuf;
     }
     
+    /*
+     *  @å‡½æ•°å:readFromByte
+     *  åŠŸèƒ½:ä»æ§½ä¸­çš„äºŒè¿›åˆ¶æ•°æ®è¯»å–å¾—åˆ°å®Œæ•´çš„æ•°æ®è¡Œ
+     */
+    void readFromByte(ByteBufType & slotData) {
+        //åˆ›å»ºæ¯ä¸ªæ•°æ®æ ¼ï¼Œå…¨æ˜¯NULL
+        gridList.clear();
+        gridList.resize(tableHeader -> getNCol());
+        for (int i = 0; i < (int) gridList.size(); i ++) {
+            gridList[i] = new TableGrid(tableHeader -> getColumnById(i));
+        }
+        //å¼€å§‹è¯»
+        ByteBufType slotData_ = slotData;
+        int slotLen = readByteToNumber(slotData, 2);
+        flagAB = readByteToNumber(slotData, 2);
+        int fSize = readByteToNumber(slotData, 2);
+        int fNCol = readByteToNumber(slotData, 2);
+        //åˆ—æ•°çº é”™ï¼Œè®°å¾—æŠŠæŒ‡é’ˆé€€å›å»
+        if (fNCol != tableHeader -> getConstantLengthNCol()) {
+            std::cout << "TableRow.readFromByte(...) error" << std::endl;
+            slotData = slotData_;
+            return;
+        }
+        //è¯»å®šé•¿åˆ—çš„äºŒè¿›åˆ¶æ•°æ®
+        static Byte fData[PAGE_SIZE + 4];
+        memset(fData, 0, sizeof(Byte) * (fSize + 4));
+        ByteBufType fCurData = fData;
+        static Byte nullMap[8];
+        memset(nullMap, 0, sizeof(Byte) * 8);
+        readByteToArray(slotData, fSize, fData, fSize);
+        readByteToArray(slotData, ((fNCol + 7) >> 3), nullMap, ((fNCol + 7) >> 3));
+        //è§£æå®šé•¿åˆ—çš„äºŒè¿›åˆ¶æ•°æ®
+        for (int i = 0; i < fNCol; i ++) {
+            if (nullMap[i >> 3] >> (i & 7) & 1) {
+                //æ˜¯NULLï¼Œä½†ä¸å…è®¸NULLï¼ŒæŠ¥é”™
+                if (!tableHeader -> getColumnById(i) -> allowNull()) {
+                    std::cout << "TableRow.readFromByte(...) error" << std::endl;
+                    slotData = slotData_;
+                    return;
+                }
+                //å‡è£…è¯»äº†ä¸€ä¸‹fCurData
+                gridList[i] -> setNull();
+                fCurData += gridList[i] -> getDataLength();
+            } else {
+                //ä¸æ˜¯NULLï¼Œå°±çœŸçš„è¯»å–æ•°æ®
+                gridList[i] -> readFromByte(fCurData);
+            }
+        }
+        //è¯»å˜é•¿åˆ—åç§»é‡ï¼Œåå‘æ¨å‡ºNULL
+        int vNCol = readByteToNumber(slotData, 2);
+        int vSize = slotLen - 8 - fSize - ((fNCol + 7) >> 3) - 2 - vNCol * 2;
+        static int vOffset [MAX_COL_NUM + 4];
+        memset(vOffset, 0, sizeof(int) * (MAX_COL_NUM + 4));
+        for (int i = fNCol; i < fNCol + vNCol; i ++) {
+            vOffset[i] = readByteToNumber(slotData, 2);
+        }
+        vOffset[fNCol + vNCol] = vSize;
+        for (int i = fNCol + vNCol - 1; i >= fNCol; i --) {
+            if (vOffset[i] == 0xffff) {
+                nullMap[i >> 3] |= 1 << (i & 7);
+                vOffset[i] = vOffset[i + 1];
+            }
+        }
+        //è¯»å˜é•¿åˆ—çš„äºŒè¿›åˆ¶æ•°æ®
+        for (int i = fNCol; i < fNCol + vNCol; i ++) {
+            if (nullMap[i >> 3] >> (i & 7) & 1) {
+                gridList[i] -> setNull();
+            } else {
+                gridList[i] -> readFromByte(slotData, vOffset[i + 1] - vOffset[i]);
+            }
+        }
+        //è¯»å®Œä¹‹åæ£€æŸ¥é•¿åº¦æŠ¥é”™
+        if (slotData - slotData_ != slotLen) {
+            std::cout << "TableRow.readFromByte(...) error" << std::endl;
+            slotData = slotData_;
+            return;
+        }
+    }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+public:
+    ///å…¶ä»–å‡½æ•°
+    /*
+     *  @å‡½æ•°å:getPossibleSize
+     *  @å‚æ•°tableHeader:ä¸€ä¸ªè¡¨å¤´ç±»
+     *  @å‚æ•°flag:å¦‚æœæ˜¯0å°±æ˜¯æ±‚æœ€å°ï¼Œæ˜¯1å°±æ˜¯æ±‚æœ€å¤§
+     *  åŠŸèƒ½:è®¡ç®—æ•°æ®è¡Œçš„æœ€å¤§/æœ€å°çš„å¤§å°ã€‚
+     */
+    static int getPossibleSize(TableHeader * tableHeader, int flag) {
+        //ç©ºæŒ‡é’ˆæŠ¥é”™
+        if (tableHeader == NULL || (flag != 0 && flag != 1)) {
+            std::cout << "TableRow::getPossibleSize(..., " << flag << ") error" << std::endl;
+            return 0;
+        }
+        //è®¡ç®—é•¿åº¦èŒƒå›´
+        int maxSlotLen = 0;
+        int minSlotLen = 0;
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+            
+        }
+        //æ­£å¸¸è¿”å›æˆ–æŠ¥é”™
+        if (flag == 0) {
+            return minSlotLen;
+        } else {
+            return maxSlotLen;
+        }
+    }
 };
 
 #endif // TABLE_ROW_H
