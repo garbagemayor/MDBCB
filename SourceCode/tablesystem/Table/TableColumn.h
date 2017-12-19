@@ -12,6 +12,8 @@
  *  存储表头信息时，每个列信息都这样存储：
  *  colLen(2B) flag(2B) type(1B) nameLen(1B) name(_B)
  *  默认值和自动赋值，目前没有set函数，因为不支持这两垃圾玩意
+ *  “互不相同”的列一定有索引
+ *  “主键” = “非NULL” + “互不相同”
  */
 class TableColumn {
 
@@ -22,6 +24,7 @@ private:
     static const int f_hasDefault = 1 << 3;
     static const int f_isAutomatic = 1 << 4;
     static const int f_isPrimaryKey = 1 << 5;
+    static const int f_hasTreeIndex = 1 << 6;
 
 private:
     //列名称
@@ -38,6 +41,7 @@ private:
      *  flag >> 3 & 1:      hasDefault          是否有默认值
      *  flag >> 4 & 1:      isAutomatic         是否自动填入数值
      *  flag >> 5 & 1:      isPrimaryKey        是否是主键
+     *  flag >> 6 & 1:      hasTreeIndex        是否有B+树索引
      */
     int flag;
     //是否可以修改
@@ -70,6 +74,9 @@ public:
         type = tableColumn -> type;
         length = tableColumn -> length;
         flag = tableColumn -> flag;
+        if (type == TableDataType::t_string) {
+            flag |= f_hasVariableLength;
+        }
         modifiable = tableColumn -> modifiable;
     }
 
@@ -93,7 +100,7 @@ public:
      *  函数名:getDataType
      *  功能:获取列数据的类型
      */
-    int getDataType() {
+    TableDataType getDataType() {
         return type;
     }
     
@@ -154,6 +161,14 @@ public:
     }
     
     /*
+     *  @函数名:hasTreeIndex
+     *  功能:返回是否拥有B+树索引
+     */
+    bool hasTreeIndex() {
+        return (flag & f_hasTreeIndex) != 0;
+    }
+    
+    /*
      *  函数名:getSizeInSlot
      *  功能:存储表头信息的时候，这一列的列信息占多少字节
      */
@@ -188,6 +203,16 @@ public:
         }
         //没有数据类型报错
         if (type == TableDataType::t_error) {
+            std::cout << "TableColumn.setConstant() error" << std::endl;
+            return;
+        }
+        //主键 = 主键标记 + 非NULL + 互不相同 + B+树索引 的逻辑错误
+        if (isPrimaryKey() && (allowNull() || !isUnique() || !hasTreeIndex())) {
+            std::cout << "TableColumn.setConstant() error" << std::endl;
+            return;
+        }
+        //互不相同 = 互不相同标记 + B+树索引 逻辑错误
+        if (isUnique() && ! hasTreeIndex()) {
             std::cout << "TableColumn.setConstant() error" << std::endl;
             return;
         }
@@ -248,114 +273,85 @@ public:
             std::cout << "TableColumn.setType(" << type_ << ") error" << std::endl;
             return;
         }
-        //检查类型合法并计算长度
-        switch (type_) {
-        case TableDataType::t_string:
-            length = 256;
-            flag |= f_hasVariableLength;
-            break;
-        case TableDataType::t_bool:
-        case TableDataType::t_char:
-            length = 1;
-            break;
-        case TableDataType::t_short:
-            length = 2;
-            break;
-        case TableDataType::t_int:
-        case TableDataType::t_float:
-            length = 4;
-            break;
-        case TableDataType::t_long:
-        case TableDataType::t_double:
-        case TableDataType::t_lob:
-            length = 8;
-        break;
-        default:
-            //类型不合法报错
+        //类型不合法报错
+        if (type_ < t_bool || type_ > t_lob) {
             std::cout << "TableColumn.setType(" << type_ << ") error" << std::endl;
             return;
         }
         type = type_;
+        length = getDataTypeMaxLength(type);
     }
     
     /*
      *  @函数名:setUnique
-     *  功能:设置为必须互不相同
+     *  功能:设置为必须互不相同，要强制拥有索引
      */
-    void setUnique() {
+    void setUnique(bool f) {
         //不可修改报错
         if (!modifiable) {
-            std::cout << "TableColumn.setUnique() error" << std::endl;
+            std::cout << "TableColumn.setUnique(" << f << ") error" << std::endl;
             return;
         }
-        flag |= f_isUnique;
-    }
-    
-    /*
-     *  @函数名:setNotUnique
-     *  功能:设置为必须互不相同
-     */
-    void setNotUnique() {
-        //不可修改报错
-        if (!modifiable) {
-            std::cout << "TableColumn.setNotUnique() error" << std::endl;
-            return;
+        if (f) {
+            flag |= f_isUnique;
+            flag |= f_hasTreeIndex;
+        } else {
+            flag &= ~f_isUnique;
         }
-        flag &= ~f_isUnique;
     }
     
     /*
      *  @函数名:setAllowNull
      *  功能:设置为允许NULL
      */
-    void setAllowNull() {
+    void setAllowNull(bool f) {
         //不可修改报错
         if (!modifiable) {
-            std::cout << "TableColumn.setAllowNull() error" << std::endl;
+            std::cout << "TableColumn.setAllowNull(" << f << ") error" << std::endl;
             return;
         }
-        flag |= f_allowNull;
-    }
-    
-    /*
-     *  @函数名:setNotAllowNull
-     *  功能:设置为允许NULL
-     */
-    void setNotAllowNull() {
-        //不可修改报错
-        if (!modifiable) {
-            std::cout << "TableColumn.setNotAllowNull() error" << std::endl;
-            return;
+        if (f) {
+            flag |= f_allowNull;
+        } else {
+            flag &= ~f_allowNull;
         }
-        flag &= ~f_allowNull;
     }
     
     /*
      *  @函数名:setPrimaryKey
      *  功能:设置为主键，主键不能NULL而且还要互不相同
      */
-    void setPrimaryKey() {
+    void setPrimaryKey(bool f) {
         //不可修改报错
         if (!modifiable) {
-            std::cout << "TableColumn.setPrimaryKey() error" << std::endl;
+            std::cout << "TableColumn.setPrimaryKey(" << f << ") error" << std::endl;
             return;
         }
-        flag |= f_isPrimaryKey;
-        flag &= ~f_allowNull;
-        flag |= f_isUnique;
+        if (f) {
+            flag |= f_isPrimaryKey;
+            flag &= ~f_allowNull;
+            flag |= f_isUnique;
+            flag |= f_hasTreeIndex;
+        } else {
+            flag &= ~f_isPrimaryKey;
+        }
     }
     
     /*
-     *  @函数名:setNotPrimaryKey
-     *  功能:设置为非主键
+     *  @函数名:setHasTreeIndex
+     *  功能:设置为有B+树索引
      */
-    void setNotPrimaryKey() {
+    void setHasTreeIndex(bool f) {
         //不可修改报错
         if (!modifiable) {
-            std::cout << "TableColumn.setNotPrimaryKey() error" << std::endl;
+            std::cout << "TableColumn.setHasTreeIndex(" << f << ") error" << std::endl;
             return;
         }
-        flag &= ~f_isPrimaryKey;
+        if (f) {
+            flag |= f_hasTreeIndex;
+        } else {
+            flag &= ~f_hasTreeIndex;
+        }
     }
     
 public:
@@ -364,20 +360,31 @@ public:
      *  函数名:writeAsByte
      *  参数buf:转化的目标地址
      *  功能:把列信息转化为二进制数据，写入目标地址，并移动目标地址
-     *  返回值:写入数据的长度
      */
-    int writeAsByte(ByteBufType & buf) {
+    void writeAsByte(ByteBufType & buf) {
+        ByteBufType curBuf = buf;
         int sz = getSizeInSlot();
         int nameLen = name.length();
-        writeNumberToByte(buf, 2, sz);
-        writeNumberToByte(buf, 2, flag);
-        writeNumberToByte(buf, 1, type);
-        writeNumberToByte(buf, 1, nameLen);
-        writeArrayToByte(buf, nameLen, (ByteBufType) name.c_str(), nameLen);
-        return sz;
+        writeNumberToByte(curBuf, 2, sz);
+        writeNumberToByte(curBuf, 2, flag);
+        writeNumberToByte(curBuf, 1, type);
+        writeNumberToByte(curBuf, 1, nameLen);
+        writeArrayToByte(curBuf, nameLen, (ByteBufType) name.c_str(), nameLen);
+        //长度报错
+        if (curBuf - buf != sz) {
+            std::cout << "TableColumn.writeAsByte(...) error" << std::endl;
+            return;
+        }
+        buf = curBuf;
     }
     
-    void readFromByteBuffer(ByteBufType & colData) {
+    
+    /*
+     *  @函数名:readFromByte
+     *  @参数slotData:读取来源
+     *  功能:从二进制数据读取得到完整的表头信息
+     */
+    void readFromByte(ByteBufType & colData) {
         ByteBufType colData_ = colData;
         int sz = readByteToNumber(colData, 2);
         flag = readByteToNumber(colData, 2);
@@ -392,6 +399,23 @@ public:
             std::cout << "TableColumn.readFromByteBuffer() error" << std::endl;
             return;
         }
+    }
+    
+    /*
+     *  @函数名:isEqualTo
+     *  功能:判断两个列头是相同的
+     */
+    bool isEqualTo(TableColumn * tableColumn) {
+        if (name != tableColumn -> name) {
+            return false;
+        }
+        if (type != tableColumn -> type) {
+            return false;
+        }
+        if (flag != tableColumn -> flag) {
+            return false;
+        }
+        return true;
     }
 };
 

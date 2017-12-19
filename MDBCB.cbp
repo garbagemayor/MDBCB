@@ -36,38 +36,108 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="SourceCode/DatabaseManager.cpp" />
-		<Unit filename="SourceCode/filesystem/ByteBufBase.h" />
-		<Unit filename="SourceCode/filesystem/OneFileManager.h" />
-		<Unit filename="SourceCode/filesystem/TestFileSystem.h" />
-		<Unit filename="SourceCode/filesystem/bufmanager/BufPageManager.h" />
-		<Unit filename="SourceCode/filesystem/bufmanager/FindReplace.h" />
-		<Unit filename="SourceCode/filesystem/fileio/FileManager.h" />
-		<Unit filename="SourceCode/filesystem/fileio/FileTable.h" />
-		<Unit filename="SourceCode/filesystem/utils/MyBitMap.h" />
-		<Unit filename="SourceCode/filesystem/utils/MyHashMap.h" />
-		<Unit filename="SourceCode/filesystem/utils/MyLinkList.h" />
-		<Unit filename="SourceCode/filesystem/utils/compare.h" />
-		<Unit filename="SourceCode/filesystem/utils/pagedef.h" />
-		<Unit filename="SourceCode/indexsystem/BaseIndex/BaseIndex.h" />
-		<Unit filename="SourceCode/indexsystem/IndexManager.h" />
-		<Unit filename="SourceCode/indexsystem/TreeIndex/Tree.h" />
-		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeIndex.h" />
-		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeNode.h" />
-		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeNode/TreeNodeBase.h" />
-		<Unit filename="SourceCode/indexsystem/testindexsystem.cpp" />
-		<Unit filename="SourceCode/shellsystem/ShellManager.h" />
-		<Unit filename="SourceCode/tablesystem/Page/TablePage.h" />
-		<Unit filename="SourceCode/tablesystem/Page/TablePageFooter.h" />
-		<Unit filename="SourceCode/tablesystem/Page/TablePageHeader.h" />
-		<Unit filename="SourceCode/tablesystem/TableManager.h" />
-		<Unit filename="SourceCode/tablesystem/Table/Table.h" />
-		<Unit filename="SourceCode/tablesystem/Table/TableColumn.h" />
-		<Unit filename="SourceCode/tablesystem/Table/TableDataType.h" />
-		<Unit filename="SourceCode/tablesystem/Table/TableGrid.h" />
-		<Unit filename="SourceCode/tablesystem/Table/TableHeader.cpp" />
-		<Unit filename="SourceCode/tablesystem/Table/TableHeader.h" />
-		<Unit filename="SourceCode/tablesystem/Table/TableRow.h" />
-		<Unit filename="SourceCode/tablesystem/TestTableSystem.h" />
+		<Unit filename="SourceCode/filesystem/ByteBufBase.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/OneFileManager.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/TestFileSystem.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/bufmanager/BufPageManager.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/bufmanager/FindReplace.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/fileio/FileManager.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/fileio/FileTable.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/utils/MyBitMap.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/utils/MyHashMap.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/utils/MyLinkList.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/utils/compare.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/filesystem/utils/pagedef.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/indexsystem/BaseIndex/BaseIndex.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/indexsystem/IndexManager.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/indexsystem/TreeIndex/Tree.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeIndex.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeNode.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeNode/TreeNodeBase.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/indexsystem/testindexsystem.cpp">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/shellsystem/ShellManager.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Page/TablePage.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Page/TablePageAssistant.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Page/TablePageAssistantItem.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Page/TablePageFooter.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Page/TablePageHeader.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/TableManager.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Table/Table.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Table/TableColumn.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Table/TableDataType.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Table/TableGrid.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Table/TableHeader.cpp">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Table/TableHeader.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Table/TableRow.h">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/TestTableSystem.h">
+			<Option target="Release" />
+		</Unit>
 		<Extensions>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />

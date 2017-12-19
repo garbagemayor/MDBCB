@@ -19,7 +19,7 @@ private:
     //这一页完整的数据内容
     ByteBufType pageData;
     //是否脏（与缓存页管理器中的页面相比）
-    bool isDirty;
+    bool dirtyFlag;
     
 private:
     ///从页头抄来的信息
@@ -42,7 +42,7 @@ public:
     TablePageFooter(int pageId_ = 0) {
         oneFileManager = NULL;
         pageData = NULL;
-        isDirty = true;
+        dirtyFlag = true;
         pageId = pageId_;
         slotCnt = 0;
         slotOffset.clear();
@@ -60,7 +60,7 @@ public:
         //基本信息
         oneFileManager = oneFileManager_;
         pageData = pageData_;
-        isDirty = false;
+        dirtyFlag = false;
         pageId = pageId_;
         slotCnt = slotCnt_;
         //页脚内的信息
@@ -81,7 +81,15 @@ public:
     }
 
 public:
-    ///TODO 其他
+    ///基本get函数
+    /*
+     *  @函数名:getSlotCnt
+     *  功能:获取槽数量
+     */
+    int getSlotCnt() {
+        return slotCnt;
+    }
+    
     /*
      *  @函数名:getSizeInSlot
      *  功能:获取页脚在存储文件中占的大小，单位字节
@@ -91,51 +99,51 @@ public:
     }
     
     /*
+     *  @函数名:isDirty
+     *  功能:返回是否脏
+     */
+    bool isDirty() {
+        return dirtyFlag;
+    }
+    
+public:
+    ///基本set函数
+    /*
+     *  @函数名:markDirty
+     *  功能:标记脏
+     */
+    void markDirty() {
+        dirtyFlag = true;
+    }
+    
+    /*
+     *  @函数名:addSlot
+     *  @参数offset:新槽的偏移量
+     *  功能:新增一个槽
+     */
+    void addSlot(int offset) {
+        //先标记脏
+        dirtyFlag = true;
+        slotCnt += 1;
+        slotOffset.push_back(offset);
+    }
+    
+    
+public:
+    ///普通函数
+    /*
      *  @函数名:writeBackToBuffer
      *  功能:写回缓存中，把缓存中这一页标记为脏，把当前类标记为干净
      */
     void writeBackToBuffer() {
-        if (isDirty) {
+        if (dirtyFlag) {
             oneFileManager -> markDirty(pageId);
             for (int i = 0; i < slotCnt; i ++) {
                 ((short *) pageData) [(PAGE_SIZE >> 1) - 1 - i] = slotOffset[i];
             }
         }
-        isDirty = false;
+        dirtyFlag = false;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     friend class TablePageHeader;
     friend class TablePage;

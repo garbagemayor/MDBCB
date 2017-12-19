@@ -19,7 +19,7 @@
  */
 class TableRow {
     
-public:
+private:
     //表头格式
     TableHeader * tableHeader;
     //状态位flagAB
@@ -76,7 +76,7 @@ public:
         }
         //根据表头的格式和二进制数据内容，读取数据行
         tableHeader = tableHeader_;
-        readFromByteBuffer(slotData_);
+        readFromByte(slotData_);
         dirtyFlag = false;
     }
     
@@ -85,7 +85,6 @@ public:
      *  功能:释放内存空间前，检查如果脏就写回
      */
     ~TableRow() {
-        writeBackToBuffer();
         for (int i = 0; i < (int) gridList.size(); i ++) {
             delete gridList[i];
         }
@@ -184,28 +183,15 @@ public:
     
 public:
     ///基本set函数
-    /*
-     *  @函数名:
-     *
-     */
     
     
-    
-    
-    
-    
-    
-    
-
 public:
     ///普通函数
     /*
-     *  @函数名:toByteBuffer
-     *  功能:把数据行信息转化为可以写入的二进制数据，行的大小如果超过一页就报错
-     *  返回值:成功转化后的数据指针，失败返回NULL
-     *  注意:不要去闲的蛋疼去清理这片内存，这个数组是static的，程序结束时自动清理
+     *  @函数名:writeAsByte
+     *  功能:把数据行信息转化为可以写入的二进制数据，行的大小如果超过一页就报错，然后写入
      */
-    ByteBufType toByteBuffer() {
+    void writeAsByte(ByteBufType & buf) {
         //计算各项参数
         int fNCol = 0;
         int fSize = 0;
@@ -223,15 +209,13 @@ public:
         //总长度超标报错
         int slotLen = 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2 + vSize;
         if (slotLen > PAGE_SIZE - PAGE_HEADER_SIZE) {
-            std::cout << "TableRow.toByteBuffer() error" << std::endl;
-            return NULL;
+            std::cout << "TableRow.writeAsByte(...) error" << std::endl;
+            return;
         }
         //定义一堆临时使用的东西
-        static Byte buf[PAGE_SIZE];
-        memset(buf, 0, sizeof(Byte) * PAGE_SIZE);
+        ByteBufType curBuf = buf;
         static Byte nullMap[8];
         memset(nullMap, 0, sizeof(Byte) * 8);
-        ByteBufType curBuf = buf;
         //开始写入
         writeNumberToByte(curBuf, 2, slotLen);
         writeNumberToByte(curBuf, 2, flagAB);
@@ -245,57 +229,103 @@ public:
         writeNumberToByte(curBuf, 2, vNCol);
         int vOffset = 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2;
         for (int i = fNCol; i < fNCol + vNCol; i ++) {
-            writeNumberToByte(curBuf, 2, vOffset);
-            vOffset += gridList[i] -> getDataLength();
+            if (!gridList[i] -> isNull()) {
+                writeNumberToByte(curBuf, 2, vOffset);
+                vOffset += gridList[i] -> getDataLength();
+            } else {
+                writeNumberToByte(curBuf, 2, 0xffff);
+            }
         }
         for (int i = fNCol; i < fNCol + vNCol; i ++) {
-            writeArrayToByte(curBuf, gridList[i] -> getDataLength(), gridList[i] -> getDataPointer());
+            if (!gridList[i] -> isNull()) {
+                writeArrayToByte(curBuf, gridList[i] -> getDataLength(), gridList[i] -> getDataPointer());
+            }
         }
         //写完之后检查长度报错
         if (curBuf - buf != slotLen) {
-            std::cout << "TableRow.toByteBuffer() error" << std::endl;
-            return NULL;
-        }
-        return buf;
-    }
-    
-    /*
-     *  @函数名:readFromByteBuffer
-     *  功能:从槽中的二进制数据读取得到完整的数据行
-     */
-    void readFromByteBuffer(ByteBufType slotData) {
-        ByteBufType slotData_ = slotData;
-        
-        
-        
-        
-    }
-    
-    /*
-     *  @函数名:writeBackToBuffer
-     *  功能:如果脏就写回到缓存管理器中去
-     */
-    void writeBackToBuffer() {
-        //脏标记合并
-        for (int i = 0; i < (int) gridList.size(); i ++) {
-            if (gridList[i] -> isDirty()) {
-                dirtyFlag = true;
-                break;
-            }
-        }
-        //不脏返回
-        if (!dirtyFlag) {
+            std::cout << "TableRow.writeAsByte(...) error" << std::endl;
             return;
         }
-        //写回
-        
-        
-        
-        
-        
-        
-        
-        
+        buf = curBuf;
+    }
+    
+    /*
+     *  @函数名:readFromByte
+     *  功能:从槽中的二进制数据读取得到完整的数据行
+     */
+    void readFromByte(ByteBufType & slotData) {
+        //创建每个数据格，全是NULL
+        gridList.clear();
+        gridList.resize(tableHeader -> getNCol());
+        for (int i = 0; i < (int) gridList.size(); i ++) {
+            gridList[i] = new TableGrid(tableHeader -> getColumnById(i));
+        }
+        //开始读
+        ByteBufType slotData_ = slotData;
+        int slotLen = readByteToNumber(slotData, 2);
+        flagAB = readByteToNumber(slotData, 2);
+        int fSize = readByteToNumber(slotData, 2);
+        int fNCol = readByteToNumber(slotData, 2);
+        //列数纠错，记得把指针退回去
+        if (fNCol != tableHeader -> getConstantLengthNCol()) {
+            std::cout << "TableRow.readFromByte(...) error" << std::endl;
+            slotData = slotData_;
+            return;
+        }
+        //读定长列的二进制数据
+        static Byte fData[PAGE_SIZE + 4];
+        memset(fData, 0, sizeof(Byte) * (fSize + 4));
+        ByteBufType fCurData = fData;
+        static Byte nullMap[8];
+        memset(nullMap, 0, sizeof(Byte) * 8);
+        readByteToArray(slotData, fSize, fData, fSize);
+        readByteToArray(slotData, ((fNCol + 7) >> 3), nullMap, ((fNCol + 7) >> 3));
+        //解析定长列的二进制数据
+        for (int i = 0; i < fNCol; i ++) {
+            if (nullMap[i >> 3] >> (i & 7) & 1) {
+                //是NULL，但不允许NULL，报错
+                if (!tableHeader -> getColumnById(i) -> allowNull()) {
+                    std::cout << "TableRow.readFromByte(...) error" << std::endl;
+                    slotData = slotData_;
+                    return;
+                }
+                //假装读了一下fCurData
+                gridList[i] -> setNull();
+                fCurData += gridList[i] -> getDataLength();
+            } else {
+                //不是NULL，就真的读取数据
+                gridList[i] -> readFromByte(fCurData);
+            }
+        }
+        //读变长列偏移量，反向推出NULL
+        int vNCol = readByteToNumber(slotData, 2);
+        int vSize = slotLen - 8 - fSize - ((fNCol + 7) >> 3) - 2 - vNCol * 2;
+        static int vOffset [MAX_COL_NUM + 4];
+        memset(vOffset, 0, sizeof(int) * (MAX_COL_NUM + 4));
+        for (int i = fNCol; i < fNCol + vNCol; i ++) {
+            vOffset[i] = readByteToNumber(slotData, 2);
+        }
+        vOffset[fNCol + vNCol] = vSize;
+        for (int i = fNCol + vNCol - 1; i >= fNCol; i --) {
+            if (vOffset[i] == 0xffff) {
+                nullMap[i >> 3] |= 1 << (i & 7);
+                vOffset[i] = vOffset[i + 1];
+            }
+        }
+        //读变长列的二进制数据
+        for (int i = fNCol; i < fNCol + vNCol; i ++) {
+            if (nullMap[i >> 3] >> (i & 7) & 1) {
+                gridList[i] -> setNull();
+            } else {
+                gridList[i] -> readFromByte(slotData, vOffset[i + 1] - vOffset[i]);
+            }
+        }
+        //读完之后检查长度报错
+        if (slotData - slotData_ != slotLen) {
+            std::cout << "TableRow.readFromByte(...) error" << std::endl;
+            slotData = slotData_;
+            return;
+        }
     }
     
 public:
@@ -325,17 +355,6 @@ public:
             return maxSlotLen;
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 };
 
 #endif // TABLE_ROW_H

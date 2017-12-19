@@ -57,6 +57,7 @@ void writeFloatToByte(ByteBufType & buf, int length, double num) {
     }
 }
 
+///把数据以二进制的方式从ByteBufType中读出来，并把指针前移
 /*
  *  @函数名:readByteToArray
  *  @参数buf:读数据的地方

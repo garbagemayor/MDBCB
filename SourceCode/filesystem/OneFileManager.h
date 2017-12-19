@@ -31,7 +31,10 @@ protected:
     std::map<int, int> indexMap;
     
 public:
-    //构造函数，默认是打开已存在的文件
+    /*
+     *  @构造函数
+     *  功能:创建一个单文件管理器，指定文件名
+     */
     OneFileManager(BufPageManager * bufPageManager_, std::string fileName_, bool isNewFile = false) {
         fileName = fileName_;
         bufPageManager = bufPageManager_;
@@ -45,11 +48,137 @@ public:
             std::cout << "OneFileManager(bufPageManager, " << fileName_ << ", " << isNewFile << ") error" << std::endl;
             return;
         }
-        //std::cout << "OneFileManager() fileId = " << fileId << std::endl;
+    }
+    
+    /*
+     *  @析构函数
+     *  功能:把打开过的页全都关掉
+     */
+    ~OneFileManager() {
+        close();
+    }
+public:
+    ///基本get函数
+    /*
+     *  @函数名:getPageCnt
+     *  功能:返回这个文件的页数
+     */
+    int getPageCnt() {
+        return pageCnt;
+    }
+    
+public:
+    ///普通函数（对文件内的页进行操作的函数）
+    /*
+     *  @函数名:getPageCount
+     *  功能:获取当前文件共有多少页
+     */
+    int getPageCount() {
+        return pageCnt;
+    }
+    
+    /*
+     *  @函数名:getPage
+     *  功能:根据页编号，返回页数据
+     */
+    ByteBufType getPage(int pageId) {
+        int index;
+        BufType data = bufPageManager -> getPage(fileId, pageId, index);
+        indexMap[pageId] = index;
+        return (ByteBufType) data;
+    }
+    
+    /*
+     *  @函数名:getNewPage
+     *  功能:创建一个新的页，返回页数据，并同时获取页编号
+     */
+    ByteBufType getNewPage(int & pageId) {
+        pageId = pageCnt;
+        pageCnt ++;
+        int index;
+        BufType data = bufPageManager -> getPage(fileId, pageId, index);
+        indexMap[pageId] = index;
+        return (ByteBufType) data;
+    }
+    
+    /*
+     *  @函数名getNewPage
+     *  功能:创建一个新的页，返回页数据
+     */
+    ByteBufType getNewPage() {
+        int pageId;
+        return getNewPage(pageId);
+    }
+    
+    /*
+     *  @函数名:access
+     *  功能:由页编号标记一个页被访问过，让替换算法尽量不要替换它
+     */
+    void access(int pageId) {
+        int index = getPageIndex(pageId, false);
+        if (index == -1) {
+            std::cout << "OneFileManager.access() error" << std::endl;
+            return;
+        }
+        bufPageManager -> access(index);
+    }
+    
+    /*
+     *  @函数名:markDirty
+     *  功能:标记脏页
+     */
+    void markDirty(int pageId) {
+        int index = getPageIndex(pageId, false);
+        if (index == -1) {
+            std::cout << "OneFileManager.markDirty() error" << std::endl;
+            return;
+        }
+        bufPageManager -> markDirty(index);
+    }
+    
+    /*
+     *  @函数名:release
+     *  功能:由页编号释放一个页面，这个页面必须是干净的
+     */
+    void release(int pageId) {
+        int index = getPageIndex(pageId, true);
+        if (index == -1) {
+            std::cout << "OneFileManagerwriteBack.release() error" << std::endl;
+            return;
+        }
+        bufPageManager -> release(index);
+    }
+    
+    /*
+     *  @函数名:writeBack
+     *  功能:由页编号来写回一个修改完成的页面，自动选择是直接释放还是写回再释放
+     */
+    void writeBack(int pageId) {
+        int index = getPageIndex(pageId, true);
+        if (index == -1) {
+            std::cout << "OneFileManager.writeBack() error" << std::endl;
+            return;
+        }
+        bufPageManager -> writeBack(index);
+    }
+    
+    /*
+     *  @函数名:close
+     *  功能:关闭这个文件，把打开的所有页都写回
+     */
+    void close() {
+        for (std::map<int, int>::iterator ite = indexMap.begin(); ite != indexMap.end(); ite ++) {
+            bufPageManager -> writeBack(ite -> first);
+        }
+        indexMap.clear();
     }
     
 protected:
-    //由页编号获取缓存页管理器中的编号，并可以顺便删除
+    ///其他函数
+    /*
+     *  @函数名:
+     *  功能:由页编号获取缓存页管理器中的编号，并可以顺便删除
+     */
     int getPageIndex(int pageId, bool eraseFlag) {
         int index = -1;
         if (indexMap.find(pageId) == indexMap.end()) {
@@ -61,85 +190,6 @@ protected:
             }
         }
         return index;
-    }
-    
-public:
-    ///对文件内的页进行操作的函数
-    //获取页数
-    int getPageCount() {
-        return pageCnt;
-    }
-    
-    //由页编号获取页数据
-    ByteBufType getPage(int pageId) {
-        int index;
-        BufType data = bufPageManager -> getPage(fileId, pageId, index);
-        indexMap[pageId] = index;
-        return (ByteBufType) data;
-    }
-    
-    //创建一个新的页，获取页编号和页数据
-    ByteBufType getNewPage(int & pageId) {
-        pageId = pageCnt;
-        pageCnt ++;
-        int index;
-        BufType data = bufPageManager -> getPage(fileId, pageId, index);
-        indexMap[pageId] = index;
-        return (ByteBufType) data;
-    }
-    
-    //创建一个新的页，不关心页编号，获取页数据
-    ByteBufType getNewPage() {
-        int pageId;
-        return getNewPage(pageId);
-    }
-    
-    //由页编号标记一个页被访问过，让替换算法尽量不要替换它
-    void access(int pageId) {
-        int index = getPageIndex(pageId, false);
-        if (index == -1) {
-            std::cout << "OneFileManager.access() error" << std::endl;
-            return;
-        }
-        bufPageManager -> access(index);
-    }
-    
-    //由页编号标记脏页
-    void markDirty(int pageId) {
-        int index = getPageIndex(pageId, false);
-        if (index == -1) {
-            std::cout << "OneFileManager.markDirty() error" << std::endl;
-            return;
-        }
-        bufPageManager -> markDirty(index);
-    }
-    
-    //由页编号释放一个页面，这个页面必须是干净的
-    void release(int pageId) {
-        int index = getPageIndex(pageId, true);
-        if (index == -1) {
-            std::cout << "OneFileManagerwriteBack.release() error" << std::endl;
-            return;
-        }
-        bufPageManager -> release(index);
-    }
-    
-    //由页编号来写回一个修改完成的页面，自动选择是直接释放还是写回再释放
-    void writeBack(int pageId) {
-        int index = getPageIndex(pageId, true);
-        if (index == -1) {
-            std::cout << "OneFileManager.writeBack() error" << std::endl;
-            return;
-        }
-        bufPageManager -> writeBack(index);
-    }
-    
-    //关闭这个文件，把打开的所有页都写回
-    void close() {
-        for (std::map<int, int>::iterator ite = indexMap.begin(); ite != indexMap.end(); ite ++) {
-            bufPageManager -> writeBack(ite -> first);
-        }
-        indexMap.clear();
     }
 };
 

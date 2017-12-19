@@ -3,6 +3,7 @@
 
 #include "../../filesystem/OneFileManager.h"
 #include "../Page/TablePage.h"
+#include "../Page/TablePageAssistant.h"
 #include "TableHeader.h"
 #include "TableRow.h"
 
@@ -11,6 +12,7 @@
  *  一个数据表对应一个文件，由 <表名> + ".table"命名。
  *  如果是新建数据表，需要保证原本没有同名的数据表。
  *  在文件的第0页，存储表头等基本信息，不存数据。
+ *  存了基本信息之后，剩下的部分存放每一页的空闲字节数，不够用就开新页
  */
 class Table {
     
@@ -19,6 +21,8 @@ private:
     OneFileManager * oneFileManager;
     //表头和表的基本信息
     TableHeader * tableHeader;
+    //表页助手
+    TablePageAssistant * tablePageAssistant;
     //索引管理器
     //IndexManager indexManager;
     
@@ -32,11 +36,16 @@ public:
     Table(BufPageManager * bufPageManager_, TableHeader * tableHeader_) {
         oneFileManager = new OneFileManager(bufPageManager_, (tableHeader_ -> getName() + ".table").c_str());
         tableHeader = tableHeader_;
-        //创建第0页的页头和页脚
-        //新建第0页，写入页头页脚
+        //新建第0页，创建并写入表头
         TablePage * page0 = new TablePage(oneFileManager);
-        //新建槽，写入表头;
-        page0 -> addSlot(tableHeader -> getSizeInSlot(), tableHeader -> toByteBuffer());
+        int headerSlotId = page0 -> createSlot(tableHeader -> getSizeInSlot());
+        ByteBufType headerSlot = page0 -> getSlot(headerSlotId);
+        tableHeader -> writeAsByte(headerSlot);
+        delete page0;
+        //创建表页助手，写入内容
+        tablePageAssistant = new TablePageAssistant(oneFileManager);
+        //创建索引管理器（主键列、数据要互不相同的列），给这些列创建索引
+        ///TODO
     }
     
     /*
@@ -47,8 +56,19 @@ public:
      */
     Table(BufPageManager * bufPageManager_, std::string tableName_) {
         oneFileManager = new OneFileManager(bufPageManager_, (tableName_ + ".table").c_str());
+        //去第0页读取表头信息
         TablePage * page0 = new TablePage(oneFileManager, 0);
         tableHeader = new TableHeader(page0 -> getSlot(0));
+        delete page0;
+        //创建表页助手，读取内容
+        tablePageAssistant = new TablePageAssistant(oneFileManager);
+        //创建索引管理器读取这些索引
+        ///TODO
+    }
+    
+    ~Table() {
+        delete oneFileManager;
+        delete tablePageAssistant
     }
     
 public:
@@ -94,62 +114,44 @@ public:
     }
     
 public:
+    ///普通函数
     /*
-     *  @函数名:insertRow
+     *  @函数名:addRow
      *  @参数tableRow:要加入的行，它会被复制之后加入，所以在哪里定义的就在哪里释放内存
      *  @参数pageId:用于返回插入位置的页编号
      *  @参数slotId:用于返回插入位置的槽编号
      *  功能:添加一行数据，去每一页里面找一个能加入的位置把它加进去
      */
-    int insertRow(TableRow * tableRow, int & pageId, int & slotId) {
-        
-        
-        
-        
-        
-        
-        
-        
-        
+    void addRow(TableRow * tableRow, int & pageId, int & slotId) {
+        //表头不同报错
+        if (!tableHeader -> isEqualTo(tableRow -> getTableHeader())) {
+            std::cout << "Table.addRow(...) error" << std::endl;
+            return;
+        }
+        //新列不满足NULL条件报错
+        if (!tableRow -> canMeetNullRequirement()) {
+            std::cout << "Table.addRow(...) error" << std::endl;
+            return;
+        }
+        //新列不满足数据互不相同条件报错
+        ///TODO
+        //在表页助手里面找一个合适的页
+        int slotLen = tableRow -> getSizeInSlot();
+        pageId = tablePageAssistant -> findPageForSlot(slotLen);
+        //在这一页中获取槽的编号
+        TablePage * page;
+        if (pageId < oneFileManager -> getPageCnt()) {
+            page = new TablePage(oneFileManager, pageId);   //在已有的页面上添加
+        } else {
+            page = new TablePage(oneFileManager);           //在新开的页面上添加
+        }
+        //写进去
+        slotId = page -> createSlot(slotLen);
+        ByteBufType buf = page -> getSlot(slotId);
+        tableRow -> writeAsByte(buf);
+        //改表页助手
+        tablePageAssistant -> setFreeCnt(pageId, page -> getPageHeader() -> getFreeCnt());
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     

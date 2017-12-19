@@ -21,7 +21,7 @@ private:
     //这一页完整的数据内容
     ByteBufType pageData;
     //是否脏（与缓存页管理器中的页面相比）
-    bool isDirty;
+    bool dirtyFlag;
     
 private:
     ///页头内存储的信息
@@ -66,11 +66,11 @@ public:
         //基本信息
         oneFileManager = NULL;
         pageData = NULL;
-        isDirty = true;
+        dirtyFlag = true;
         //页头内的信息
         pageId = pageId_;
-        nextPageId = 0;
-        prevPageId = 0;
+        nextPageId = -1;
+        prevPageId = -1;
         objId = 0;
         lsn = 0;
         slotCnt = 0;
@@ -95,7 +95,7 @@ public:
         //基本信息
         oneFileManager = oneFileManager_;
         pageData = pageData_;
-        isDirty = false;
+        dirtyFlag = false;
         //页头内的信息
         pageId = ((BufType) pageData) [0];
         nextPageId = ((BufType) pageData) [1];
@@ -123,10 +123,115 @@ public:
     }
 
 public:
+    ///基本get函数
+    /*
+     *  @函数名:getNextPageId
+     *  功能:返回下一页的页编号
+     */
+    int getNextPageId() {
+        return nextPageId;
+    }
+    
+    /*
+     *  @函数名:getPrevPageId
+     *  功能:返回上一页的页编号
+     */
+    int getPrevPageId() {
+        return prevPageId;
+    }
+    
+    /*
+     *  @函数名:getSlotCnt
+     *  功能:获取这一页已有的槽数量
+     */
+    int getSlotCnt() {
+        return slotCnt;
+    }
+    
+    /*
+     *  @函数名:getFreeData
+     *  功能:获取空闲位置的起始的偏移量
+     */
+    int getFreeData() {
+        return freeData;
+    }
+    
+    /*
+     *  @函数名:getFreeCnt
+     *  功能:获取空闲字节数
+     */
+    int getFreeCnt() {
+        return freeCnt;
+    }
+    
+    /*
+     *  @函数名:isDirty
+     *  功能:返回是否脏
+     */
+    bool isDirty() {
+        return dirtyFlag;
+    }
+    
+public:
+    ///基本set函数
+    /*
+     *  @函数名:setNextPageId
+     *  功能:设置下一页的编号
+     */
+    void setNextPageId(int nextPageId_) {
+        dirtyFlag = true;
+        nextPageId = nextPageId_;
+    }
+    
+    /*
+     *  @函数名:setPrevPageId
+     *  功能:设置上一页的编号
+     */
+    void setPrevPageId(int prevPageId_) {
+        dirtyFlag = true;
+        prevPageId = prevPageId_;
+    }
+    
+    /*
+     *  @函数名:setSlotCnt
+     *  功能:设置这一页的槽数量
+     */
+    void setSlotCnt(int slotCnt_) {
+        dirtyFlag = true;
+        slotCnt = slotCnt_;
+    }
+    
+    /*
+     *  @函数名:setFreeData
+     *  功能:设置空闲位置的起始的偏移量
+     */
+    void setFreeData(int freeData_) {
+        dirtyFlag = true;
+        freeData = freeData_;
+    }
+    
+    /*
+     *  @函数名:setFreeCnt
+     *  功能:设置空闲字节数的编号
+     */
+    void setFreeCnt(int freeCnt_) {
+        dirtyFlag = true;
+        freeCnt = freeCnt_;
+    }
+    
+    /*
+     *  @函数名:markDirty
+     *  功能:标记脏
+     */
+    void markDirty() {
+        dirtyFlag = true;
+    }
+    
+public:
     ///其他函数
     //写回缓存中
     void writeBackToBuffer() {
-        if (isDirty) {
+        if (dirtyFlag) {
             oneFileManager -> markDirty(pageId);
             ((BufType) pageData) [0] = pageId;
             ((BufType) pageData) [1] = nextPageId;
@@ -144,27 +249,8 @@ public:
             ((BufType) pageData) [13] = tornBits;
             ((BufType) pageData) [14] = flagBits;
         }
-        isDirty = false;
+        dirtyFlag = false;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     friend class TablePageFooter;
     friend class TablePage;

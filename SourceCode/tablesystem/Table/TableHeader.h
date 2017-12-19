@@ -44,7 +44,7 @@ public:
      *  功能:从槽中读取数据表的表头
      */
     TableHeader(ByteBufType slotData_) {
-        readFromByteBuffer(slotData_);
+        readFromByte(slotData_);
         modifiable = false;
     }
     
@@ -313,22 +313,18 @@ public:
     }
     
 public:
-    ///普通函数   
+    ///普通函数
     /*
      *  @函数名:toByteBuffer
-     *  功能:把表头信息转化为可以写入的二进制数据，表头大小如果超过一页就会报错
-     *  返回值:成功转化后的数据指针，失败返回NULL
-     *  注意:不要去闲的蛋疼去清理这片内存，这个数组是static的，程序结束时自动清理。
+     *  功能:把表头信息转化为可以写入的二进制数据，表头大小如果超过一页就会报错，然后写入
      */
-    ByteBufType toByteBuffer() {
+    void writeAsByte(ByteBufType & buf) {
         int sz = getSizeInSlot();
-        static Byte buf[PAGE_SIZE];
-        memset(buf, 0, sizeof(Byte) * PAGE_SIZE);
-        ByteBufType curBuf = buf;
         if (sz > PAGE_SIZE - PAGE_HEADER_SIZE) {
             std::cout << "TableHeader.toByteBuffer() error" << std::endl;
-            return NULL;
+            return;
         }
+        ByteBufType curBuf = buf;
         writeNumberToByte(curBuf, 2, sz);
         writeNumberToByte(curBuf, 4, nRow);
         writeNumberToByte(curBuf, 4, getNCol());
@@ -337,15 +333,19 @@ public:
         for (int i = 0; i < (int) colList.size(); i ++) {
             colList[i] -> writeAsByte(curBuf);
         }
-        return buf;
+        if (curBuf - buf != sz) {
+            std::cout << "TableHeader.writeAsByte(...) error" << std::endl;
+            return;
+        }
+        buf = curBuf;
     }
     
     /*
-     *  @函数名:readFromByteBuffer
+     *  @函数名:readFromByte
      *  @参数slotData:读取来源
      *  功能:从槽中的二进制数据读取得到完整的表头信息
      */
-    void readFromByteBuffer(ByteBufType slotData) {
+    void readFromByte(ByteBufType & slotData) {
         ByteBufType slotData_ = slotData;
         int sz = readByteToNumber(slotData, 2);
         nRow = readByteToNumber(slotData, 4);
@@ -358,37 +358,34 @@ public:
         colList.clear();
         colList.resize(nCol);
         for (int i = 0; i < nCol; i ++) {
-            colList[i] -> readFromByteBuffer(slotData);
+            colList[i] -> readFromByte(slotData);
         }
-        //长度纠错
+        //长度纠错，记得把指针退回去
         if (slotData - slotData_ != sz) {
             std::cout << "TableHeader.readFromByteBuffer() error" << std::endl;
+            slotData = slotData_;
             return;
         }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    /*
+     *  @函数名:isEqualTo
+     *  功能:判断两个表头是相同的
+     */
+    bool isEqualTo(TableHeader * tableHeader) {
+        if (name != tableHeader -> name) {
+            return false;
+        }
+        if (colList.size() != tableHeader -> colList.size()) {
+            return false;
+        }
+        for (int i = 0; i < (int) colList.size(); i ++) {
+            if (!colList[i] -> isEqualTo(tableHeader -> colList[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
 #endif // TABLEHEADER_H
