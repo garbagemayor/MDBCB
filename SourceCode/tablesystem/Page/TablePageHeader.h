@@ -47,7 +47,7 @@ private:
     int pminlen;
     //[10]: 该页上空闲字节的数目
     int freeCnt;
-    //[11]: 由所有实务保留的字节数
+    //[11]: 由所有事务保留的字节数
     int reservedCnt;
     //[12]: 由最近启动的事物保留的字节数
     int xactreserved;
@@ -149,6 +149,14 @@ public:
     }
     
     /*
+     *  @函数名:getLevel
+     *  功能:获取这一页在索引中的级别
+     */
+    int getLevel() {
+        return level;
+    }
+    
+    /*
      *  @函数名:getFreeData
      *  功能:获取空闲位置的起始的偏移量
      */
@@ -175,6 +183,24 @@ public:
 public:
     ///基本set函数
     /*
+     *  @函数名:setOneFileManager
+     *  功能:设置单文件管理器
+     */
+    void setOneFileManager(OneFileManager * oneFileManager_) {
+        dirtyFlag = true;
+        oneFileManager = oneFileManager_;
+    }
+    
+    /*
+     *  @函数名:setPageData
+     *  功能:设置页数据指针
+     */
+    void setPageData(ByteBufType pageData_) {
+        dirtyFlag = true;
+        pageData = pageData_;
+    }
+    
+    /*
      *  @函数名:setNextPageId
      *  功能:设置下一页的编号
      */
@@ -199,6 +225,24 @@ public:
     void setSlotCnt(int slotCnt_) {
         dirtyFlag = true;
         slotCnt = slotCnt_;
+    }
+    
+    /*
+     *  @函数名:setLevel
+     *  功能:设置这一页在索引中的级别
+     */
+    void setLevel(int level_) {
+        dirtyFlag = true;
+        level = level_;
+    }
+    
+    /*
+     *  @函数名:setIndexId
+     *  功能:设置这一页的索引类型
+     */
+    void setIndexId(int indexId_) {
+        dirtyFlag = true;
+        indexId = indexId_;
     }
     
     /*

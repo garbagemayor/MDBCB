@@ -1,4 +1,4 @@
-#ifndef MY_LINK_LIST
+﻿#ifndef MY_LINK_LIST
 #define MY_LINK_LIST
 //template <int LIST_NUM, int cap>
 class MyLinkList {

@@ -1,15 +1,15 @@
-#ifndef TEST_TABLE_SYSTEM_H_
+ï»¿#ifndef TEST_TABLE_SYSTEM_H_
 #define TEST_TABLE_SYSTEM_H_
 
 #include "TableManager.h"
 
 int runTestTableSystem() {
-    //´´½¨Êı¾İ±í¹ÜÀíÆ÷
+    //åˆ›å»ºæ•°æ®è¡¨ç®¡ç†å™¨
     FileManager * fileManager = new FileManager();
     BufPageManager * bufPageManager = new BufPageManager(fileManager);
     TableManager * tableManager = new TableManager(bufPageManager);
     
-    //´´½¨Èı¸öÁĞ²¢¼Ó½ø±íÍ·
+    //åˆ›å»ºä¸‰ä¸ªåˆ—å¹¶åŠ è¿›è¡¨å¤´
     TableColumn * column1 = new TableColumn();
     column1 -> setName("column1");
     column1 -> setType(TableDataType::t_int);
@@ -25,7 +25,7 @@ int runTestTableSystem() {
     column3 -> setType(TableDataType::t_string);
     column3 -> setConstant();
     
-    //´´½¨±íÍ·
+    //åˆ›å»ºè¡¨å¤´
     TableHeader * tableHeader = new TableHeader();
     tableHeader -> setName("Table1");
     tableHeader -> addColumn(column1);
@@ -33,7 +33,7 @@ int runTestTableSystem() {
     tableHeader -> addColumn(column3);
     tableHeader -> setConstant();
     
-    //´´½¨±í
+    //åˆ›å»ºè¡¨
     tableManager -> createTable(tableHeader);
     
     

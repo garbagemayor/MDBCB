@@ -15,6 +15,7 @@
 					<Add option="-g" />
 					<Add directory="SourceCode/tablesystem/Page" />
 					<Add directory="SourceCode/tablesystem/Table" />
+					<Add directory="SourceCode/tablesystem/Index/TreeIndex" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -26,6 +27,7 @@
 					<Add option="-O2" />
 					<Add directory="SourceCode/tablesystem/Page" />
 					<Add directory="SourceCode/tablesystem/Table" />
+					<Add directory="SourceCode/tablesystem/Index/TreeIndex" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -72,30 +74,17 @@
 		<Unit filename="SourceCode/filesystem/utils/pagedef.h">
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="SourceCode/indexsystem/BaseIndex/BaseIndex.h">
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="SourceCode/indexsystem/IndexManager.h">
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="SourceCode/indexsystem/TreeIndex/Tree.h">
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeIndex.h">
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeNode.h">
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="SourceCode/indexsystem/TreeIndex/TreeNode/TreeNodeBase.h">
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="SourceCode/indexsystem/testindexsystem.cpp">
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="SourceCode/shellsystem/ShellManager.h">
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="SourceCode/tablesystem/Index/BaseIndex.h" />
+		<Unit filename="SourceCode/tablesystem/Index/IndexManager.h" />
+		<Unit filename="SourceCode/tablesystem/Index/IndexStructure.h" />
+		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/Tree.h" />
+		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeIndex.h" />
+		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeIterator.h" />
+		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeNode.h" />
+		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeNodeKeyCell.h" />
 		<Unit filename="SourceCode/tablesystem/Page/TablePage.h">
 			<Option target="Release" />
 		</Unit>
@@ -135,6 +124,7 @@
 		<Unit filename="SourceCode/tablesystem/Table/TableRow.h">
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="SourceCode/tablesystem/TestTableIndex.h" />
 		<Unit filename="SourceCode/tablesystem/TestTableSystem.h">
 			<Option target="Release" />
 		</Unit>

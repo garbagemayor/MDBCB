@@ -1,9 +1,11 @@
-#ifndef TABLE_DATA_TYPE_H_
+ï»¿#ifndef TABLE_DATA_TYPE_H_
 #define TABLE_DATA_TYPE_H_
 
 /**
- *  Ö§³ÖµÄÊı¾İÀàĞÍ
- *  ÆäÖĞ£¬boolÕ¼Âú1¸ö×Ö½Ú£¬longÊÇ64Î»ÕûÊı£¬stringÊÇ0~256×Ö½Ú×Ö·û´®£¬lobÊÇÈÎÒâ´óĞ¡¶ş½øÖÆ´®
+ *  æ”¯æŒçš„æ•°æ®ç±»å‹
+ *  å…¶ä¸­ï¼Œboolå æ»¡1ä¸ªå­—èŠ‚ï¼Œlongæ˜¯64ä½æ•´æ•°ï¼Œ
+ *  stringæ˜¯0~256å­—èŠ‚å˜é•¿å­—ç¬¦ä¸²ï¼Œ
+ *  lobæ˜¯ä»»æ„å¤§å°äºŒè¿›åˆ¶ä¸²ï¼Œä½†ä½œä¸º8å­—èŠ‚å®šé•¿æ•°æ®å­˜æ”¾
  */
  
 #define MAX_STRING_LENGTH 256
@@ -22,8 +24,8 @@ enum TableDataType {
 };
 
 /*
- *  @º¯ÊıÃû:getDataTypeLength
- *  ¹¦ÄÜ:¶¨³¤ÀàĞÍ·µ»ØÀàĞÍµÄ³¤¶È£¬±ä³¤ÀàĞÍ·µ»Ø0¡£
+ *  @å‡½æ•°å:getDataTypeLength
+ *  åŠŸèƒ½:å®šé•¿ç±»å‹è¿”å›ç±»å‹çš„é•¿åº¦ï¼Œå˜é•¿ç±»å‹è¿”å›0ã€‚
  */
 int getDataTypeLength(TableDataType type) {
     switch (type) {
@@ -48,8 +50,8 @@ int getDataTypeLength(TableDataType type) {
 }
 
 /*
- *  @º¯ÊıÃû:getDataTypeMaxLength
- *  ¹¦ÄÜ:¶¨³¤ÀàĞÍ·µ»ØÀàĞÍµÄ³¤¶È£¬±ä³¤ÀàĞÍ·µ»Ø×î´ó³¤¶È¡£
+ *  @å‡½æ•°å:getDataTypeMaxLength
+ *  åŠŸèƒ½:å®šé•¿ç±»å‹è¿”å›ç±»å‹çš„é•¿åº¦ï¼Œå˜é•¿ç±»å‹è¿”å›æœ€å¤§é•¿åº¦ã€‚
  */
 int getDataTypeMaxLength(TableDataType type) {
     switch (type) {

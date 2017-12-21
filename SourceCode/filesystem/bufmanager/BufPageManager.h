@@ -1,4 +1,4 @@
-#ifndef BUF_PAGE_MANAGER
+﻿#ifndef BUF_PAGE_MANAGER
 #define BUF_PAGE_MANAGER
 #include "../utils/MyHashMap.h"
 #include "../utils/MyBitMap.h"

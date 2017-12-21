@@ -1,155 +1,170 @@
-#ifndef TABLE_H_
+ï»¿#ifndef TABLE_H_
 #define TABLE_H_
 
 #include "../../filesystem/OneFileManager.h"
 #include "../Page/TablePage.h"
 #include "../Page/TablePageAssistant.h"
+#include "../Index/IndexManager.h"
 #include "TableHeader.h"
 #include "TableRow.h"
 
+#include <string>
+
 /**
- *  µ¥¸öÊı¾İ±í£¬ÓÉÊı¾İ±í¹ÜÀíÆ÷TableManager¹ÜÀí¡£
- *  Ò»¸öÊı¾İ±í¶ÔÓ¦Ò»¸öÎÄ¼ş£¬ÓÉ <±íÃû> + ".table"ÃüÃû¡£
- *  Èç¹ûÊÇĞÂ½¨Êı¾İ±í£¬ĞèÒª±£Ö¤Ô­±¾Ã»ÓĞÍ¬ÃûµÄÊı¾İ±í¡£
- *  ÔÚÎÄ¼şµÄµÚ0Ò³£¬´æ´¢±íÍ·µÈ»ù±¾ĞÅÏ¢£¬²»´æÊı¾İ¡£
- *  ´æÁË»ù±¾ĞÅÏ¢Ö®ºó£¬Ê£ÏÂµÄ²¿·Ö´æ·ÅÃ¿Ò»Ò³µÄ¿ÕÏĞ×Ö½ÚÊı£¬²»¹»ÓÃ¾Í¿ªĞÂÒ³
+ *  å•ä¸ªæ•°æ®è¡¨ï¼Œç”±æ•°æ®è¡¨ç®¡ç†å™¨TableManagerç®¡ç†ã€‚
+ *  ä¸€ä¸ªæ•°æ®è¡¨å¯¹åº”ä¸€ä¸ªæ–‡ä»¶ï¼Œç”± <è¡¨å> + ".table"å‘½åã€‚
+ *  å¦‚æœæ˜¯æ–°å»ºæ•°æ®è¡¨ï¼Œéœ€è¦ä¿è¯åŸæœ¬æ²¡æœ‰åŒåçš„æ•°æ®è¡¨ã€‚
+ *  åœ¨æ–‡ä»¶çš„ç¬¬0é¡µï¼Œå­˜å‚¨è¡¨å¤´ç­‰åŸºæœ¬ä¿¡æ¯ï¼Œä¸å­˜æ•°æ®ã€‚
+ *  å­˜äº†åŸºæœ¬ä¿¡æ¯ä¹‹åï¼Œå‰©ä¸‹çš„éƒ¨åˆ†å­˜æ”¾æ¯ä¸€é¡µçš„ç©ºé—²å­—èŠ‚æ•°ï¼Œä¸å¤Ÿç”¨å°±å¼€æ–°é¡µ
  */
 class Table {
     
 private:
-    //µ¥ÎÄ¼ş¹ÜÀíÆ÷
+    //å•æ–‡ä»¶ç®¡ç†å™¨
     OneFileManager * oneFileManager;
-    //±íÍ·ºÍ±íµÄ»ù±¾ĞÅÏ¢
+    //è¡¨å¤´å’Œè¡¨çš„åŸºæœ¬ä¿¡æ¯
     TableHeader * tableHeader;
-    //±íÒ³ÖúÊÖ
+    //è¡¨é¡µåŠ©æ‰‹
     TablePageAssistant * tablePageAssistant;
-    //Ë÷Òı¹ÜÀíÆ÷
-    //IndexManager indexManager;
+    //ç´¢å¼•ç®¡ç†å™¨
+    IndexManager * indexManager;
     
 public:
     /*
-     *  @¹¹Ôìº¯Êı
-     *  @²ÎÊıbufPageManager_:»º´æÒ³¹ÜÀíÆ÷
-     *  @²ÎÊıtableHeader_:ĞÂÊı¾İ±íµÄ±íÍ·
-     *  ¹¦ÄÜ:ĞÂ½¨Ò»¸öÊı¾İ±í£¬Òª3¸ö²½Öè£º(1)´´½¨µÚ0Ò³µÄÒ³Í·ºÍÒ³½Å(2)ĞÂ½¨µÚ0Ò³(3)Ğ´Èë±íÍ·
+     *  @æ„é€ å‡½æ•°
+     *  @å‚æ•°bufPageManager_:ç¼“å­˜é¡µç®¡ç†å™¨
+     *  @å‚æ•°tableHeader_:æ–°æ•°æ®è¡¨çš„è¡¨å¤´
+     *  åŠŸèƒ½:æ–°å»ºä¸€ä¸ªæ•°æ®è¡¨ï¼Œè¦3ä¸ªæ­¥éª¤ï¼š(1)åˆ›å»ºç¬¬0é¡µçš„é¡µå¤´å’Œé¡µè„š(2)æ–°å»ºç¬¬0é¡µ(3)å†™å…¥è¡¨å¤´
      */
     Table(BufPageManager * bufPageManager_, TableHeader * tableHeader_) {
-        oneFileManager = new OneFileManager(bufPageManager_, (tableHeader_ -> getName() + ".table").c_str());
+        //ç©ºæŒ‡é’ˆæŠ¥é”™
+        if (bufPageManager_ == NULL || tableHeader_ == NULL) {
+            std::cout << "Table(..., ...) error" << std::endl;
+            return;
+        }
+        //æ‰“å¼€æ–‡ä»¶
+        std::string fileName = tableHeader_ -> getName() + ".table";
+        oneFileManager = new OneFileManager(bufPageManager_, fileName.c_str());
         tableHeader = tableHeader_;
-        //ĞÂ½¨µÚ0Ò³£¬´´½¨²¢Ğ´Èë±íÍ·
+        //æ–°å»ºç¬¬0é¡µï¼Œåˆ›å»ºå¹¶å†™å…¥è¡¨å¤´
         TablePage * page0 = new TablePage(oneFileManager);
         int headerSlotId = page0 -> createSlot(tableHeader -> getSizeInSlot());
         ByteBufType headerSlot = page0 -> getSlot(headerSlotId);
         tableHeader -> writeAsByte(headerSlot);
         delete page0;
-        //´´½¨±íÒ³ÖúÊÖ£¬Ğ´ÈëÄÚÈİ
+        //åˆ›å»ºè¡¨é¡µåŠ©æ‰‹ï¼Œå†™å…¥å†…å®¹
         tablePageAssistant = new TablePageAssistant(oneFileManager);
-        //´´½¨Ë÷Òı¹ÜÀíÆ÷£¨Ö÷¼üÁĞ¡¢Êı¾İÒª»¥²»ÏàÍ¬µÄÁĞ£©£¬¸øÕâĞ©ÁĞ´´½¨Ë÷Òı
+        //åˆ›å»ºç´¢å¼•ç®¡ç†å™¨ï¼ˆä¸»é”®åˆ—ã€æ•°æ®è¦äº’ä¸ç›¸åŒçš„åˆ—ï¼‰ï¼Œç»™è¿™äº›åˆ—åˆ›å»ºç´¢å¼•
         ///TODO
+        indexManager = new IndexManager(bufPageManager_, tableHeader);
     }
     
     /*
-     *  @¹¹Ôìº¯Êı
-     *  @²ÎÊıbufPageManager_:»º´æÒ³¹ÜÀíÆ÷
-     *  @²ÎÊıtableName_:Êı¾İ±íµÄÃû×Ö
-     *  ¹¦ÄÜ:´ò¿ªÒ»¸öÔ­ÓĞÊı¾İ±í£¬Ö»ĞèÒª¶ÁÈ¡µÚ0Ò³µÄ±íÍ·ĞÅÏ¢
+     *  @æ„é€ å‡½æ•°
+     *  @å‚æ•°bufPageManager_:ç¼“å­˜é¡µç®¡ç†å™¨
+     *  @å‚æ•°tableName_:æ•°æ®è¡¨çš„åå­—
+     *  åŠŸèƒ½:æ‰“å¼€ä¸€ä¸ªåŸæœ‰æ•°æ®è¡¨ï¼Œåªéœ€è¦è¯»å–ç¬¬0é¡µçš„è¡¨å¤´ä¿¡æ¯
      */
     Table(BufPageManager * bufPageManager_, std::string tableName_) {
         oneFileManager = new OneFileManager(bufPageManager_, (tableName_ + ".table").c_str());
-        //È¥µÚ0Ò³¶ÁÈ¡±íÍ·ĞÅÏ¢
+        //å»ç¬¬0é¡µè¯»å–è¡¨å¤´ä¿¡æ¯
         TablePage * page0 = new TablePage(oneFileManager, 0);
         tableHeader = new TableHeader(page0 -> getSlot(0));
         delete page0;
-        //´´½¨±íÒ³ÖúÊÖ£¬¶ÁÈ¡ÄÚÈİ
+        //åˆ›å»ºè¡¨é¡µåŠ©æ‰‹ï¼Œè¯»å–å†…å®¹
         tablePageAssistant = new TablePageAssistant(oneFileManager);
-        //´´½¨Ë÷Òı¹ÜÀíÆ÷¶ÁÈ¡ÕâĞ©Ë÷Òı
+        //åˆ›å»ºç´¢å¼•ç®¡ç†å™¨è¯»å–è¿™äº›ç´¢å¼•
         ///TODO
     }
     
+    /*
+     *  @ææ„å‡½æ•°
+     *  åŠŸèƒ½:å†™å›å¹¶å…³æ‰æ–‡ä»¶
+     */
     ~Table() {
         delete oneFileManager;
-        delete tablePageAssistant
+        delete tablePageAssistant;
     }
     
 public:
-    ///»ù±¾getº¯Êı
+    ///åŸºæœ¬getå‡½æ•°
     /*
-     *  @º¯ÊıÃû:getOneFileManager
-     *  ¹¦ÄÜ:»ñÈ¡Êı¾İ±íµÄµ¥ÎÄ¼ş¹ÜÀíÆ÷
+     *  @å‡½æ•°å:getOneFileManager
+     *  åŠŸèƒ½:è·å–æ•°æ®è¡¨çš„å•æ–‡ä»¶ç®¡ç†å™¨
      */
     OneFileManager * getOneFileManager() {
         return oneFileManager;
     }
     
     /*
-     *  @º¯ÊıÃû:getTableHeader
-     *  ¹¦ÄÜ:»ñÈ¡Êı¾İ±íµÄ±íÍ·
+     *  @å‡½æ•°å:getTableHeader
+     *  åŠŸèƒ½:è·å–æ•°æ®è¡¨çš„è¡¨å¤´
      */
     TableHeader * getTableHeader() {
         return tableHeader;
     }
     
     /*
-     *  @º¯ÊıÃû:getName
-     *  ¹¦ÄÜ:»ñÈ¡Êı¾İ±íÃû³Æ
+     *  @å‡½æ•°å:getName
+     *  åŠŸèƒ½:è·å–æ•°æ®è¡¨åç§°
      */
     std::string getName() {
         return tableHeader -> getName();
     }
     
     /*
-     *  @º¯ÊıÃû:getNCol
-     *  ¹¦ÄÜ:»ñÈ¡Êı¾İ±íÁĞÊı
+     *  @å‡½æ•°å:getNCol
+     *  åŠŸèƒ½:è·å–æ•°æ®è¡¨åˆ—æ•°
      */
     int getNCol() {
         return tableHeader -> getNCol();
     }
     
     /*
-     *  @º¯ÊıÃû:getNRow
-     *  ¹¦ÄÜ:»ñÈ¡Êı¾İ±íĞĞÊı
+     *  @å‡½æ•°å:getNRow
+     *  åŠŸèƒ½:è·å–æ•°æ®è¡¨è¡Œæ•°
      */
     int getNRow() {
         return tableHeader -> getNRow();
     }
     
 public:
-    ///ÆÕÍ¨º¯Êı
+    ///æ™®é€šå‡½æ•°
     /*
-     *  @º¯ÊıÃû:addRow
-     *  @²ÎÊıtableRow:Òª¼ÓÈëµÄĞĞ£¬Ëü»á±»¸´ÖÆÖ®ºó¼ÓÈë£¬ËùÒÔÔÚÄÄÀï¶¨ÒåµÄ¾ÍÔÚÄÄÀïÊÍ·ÅÄÚ´æ
-     *  @²ÎÊıpageId:ÓÃÓÚ·µ»Ø²åÈëÎ»ÖÃµÄÒ³±àºÅ
-     *  @²ÎÊıslotId:ÓÃÓÚ·µ»Ø²åÈëÎ»ÖÃµÄ²Û±àºÅ
-     *  ¹¦ÄÜ:Ìí¼ÓÒ»ĞĞÊı¾İ£¬È¥Ã¿Ò»Ò³ÀïÃæÕÒÒ»¸öÄÜ¼ÓÈëµÄÎ»ÖÃ°ÑËü¼Ó½øÈ¥
+     *  @å‡½æ•°å:addRow
+     *  @å‚æ•°tableRow:è¦åŠ å…¥çš„è¡Œï¼Œå®ƒä¼šè¢«å¤åˆ¶ä¹‹ååŠ å…¥ï¼Œæ‰€ä»¥åœ¨å“ªé‡Œå®šä¹‰çš„å°±åœ¨å“ªé‡Œé‡Šæ”¾å†…å­˜
+     *  @å‚æ•°pageId:ç”¨äºè¿”å›æ’å…¥ä½ç½®çš„é¡µç¼–å·
+     *  @å‚æ•°slotId:ç”¨äºè¿”å›æ’å…¥ä½ç½®çš„æ§½ç¼–å·
+     *  åŠŸèƒ½:æ·»åŠ ä¸€è¡Œæ•°æ®ï¼Œå»æ¯ä¸€é¡µé‡Œé¢æ‰¾ä¸€ä¸ªèƒ½åŠ å…¥çš„ä½ç½®æŠŠå®ƒåŠ è¿›å»
      */
     void addRow(TableRow * tableRow, int & pageId, int & slotId) {
-        //±íÍ·²»Í¬±¨´í
+        //è¡¨å¤´ä¸åŒæŠ¥é”™
         if (!tableHeader -> isEqualTo(tableRow -> getTableHeader())) {
             std::cout << "Table.addRow(...) error" << std::endl;
             return;
         }
-        //ĞÂÁĞ²»Âú×ãNULLÌõ¼ş±¨´í
+        //æ–°åˆ—ä¸æ»¡è¶³NULLæ¡ä»¶æŠ¥é”™
         if (!tableRow -> canMeetNullRequirement()) {
             std::cout << "Table.addRow(...) error" << std::endl;
             return;
         }
-        //ĞÂÁĞ²»Âú×ãÊı¾İ»¥²»ÏàÍ¬Ìõ¼ş±¨´í
+        //æ–°åˆ—ä¸æ»¡è¶³æ•°æ®äº’ä¸ç›¸åŒæ¡ä»¶æŠ¥é”™
         ///TODO
-        //ÔÚ±íÒ³ÖúÊÖÀïÃæÕÒÒ»¸öºÏÊÊµÄÒ³
+        //åœ¨è¡¨é¡µåŠ©æ‰‹é‡Œé¢æ‰¾ä¸€ä¸ªåˆé€‚çš„é¡µ
         int slotLen = tableRow -> getSizeInSlot();
         pageId = tablePageAssistant -> findPageForSlot(slotLen);
-        //ÔÚÕâÒ»Ò³ÖĞ»ñÈ¡²ÛµÄ±àºÅ
+        //åœ¨è¿™ä¸€é¡µä¸­è·å–æ§½çš„ç¼–å·
         TablePage * page;
         if (pageId < oneFileManager -> getPageCnt()) {
-            page = new TablePage(oneFileManager, pageId);   //ÔÚÒÑÓĞµÄÒ³ÃæÉÏÌí¼Ó
+            page = new TablePage(oneFileManager, pageId);   //åœ¨å·²æœ‰çš„é¡µé¢ä¸Šæ·»åŠ 
         } else {
-            page = new TablePage(oneFileManager);           //ÔÚĞÂ¿ªµÄÒ³ÃæÉÏÌí¼Ó
+            page = new TablePage(oneFileManager);           //åœ¨æ–°å¼€çš„é¡µé¢ä¸Šæ·»åŠ 
         }
-        //Ğ´½øÈ¥
+        //å†™è¿›å»
         slotId = page -> createSlot(slotLen);
         ByteBufType buf = page -> getSlot(slotId);
         tableRow -> writeAsByte(buf);
-        //¸Ä±íÒ³ÖúÊÖ
+        //æ”¹è¡¨é¡µåŠ©æ‰‹
         tablePageAssistant -> setFreeCnt(pageId, page -> getPageHeader() -> getFreeCnt());
     }
     
