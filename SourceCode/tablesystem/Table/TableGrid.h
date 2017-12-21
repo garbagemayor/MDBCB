@@ -323,6 +323,7 @@ public:
      *  功能:判断是否大于另一个格子里的数据，其实是反向调用isLessThan
      */
     bool isGreaterThan(TableGrid * grid) {
+        //反向比较
         return grid -> isLessThan(this);
     }
 };

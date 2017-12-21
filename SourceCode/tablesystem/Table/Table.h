@@ -4,6 +4,7 @@
 #include "../../filesystem/OneFileManager.h"
 #include "../Page/TablePage.h"
 #include "../Page/TablePageAssistant.h"
+#include "../Index/IndexManager.h"
 #include "TableHeader.h"
 #include "TableRow.h"
 
@@ -26,7 +27,7 @@ private:
     //表页助手
     TablePageAssistant * tablePageAssistant;
     //索引管理器
-    //IndexManager indexManager;
+    IndexManager * indexManager;
     
 public:
     /*
@@ -55,6 +56,7 @@ public:
         tablePageAssistant = new TablePageAssistant(oneFileManager);
         //创建索引管理器（主键列、数据要互不相同的列），给这些列创建索引
         ///TODO
+        indexManager = new IndexManager(bufPageManager_, tableHeader);
     }
     
     /*

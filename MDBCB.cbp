@@ -15,6 +15,7 @@
 					<Add option="-g" />
 					<Add directory="SourceCode/tablesystem/Page" />
 					<Add directory="SourceCode/tablesystem/Table" />
+					<Add directory="SourceCode/tablesystem/Index/TreeIndex" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -26,6 +27,7 @@
 					<Add option="-O2" />
 					<Add directory="SourceCode/tablesystem/Page" />
 					<Add directory="SourceCode/tablesystem/Table" />
+					<Add directory="SourceCode/tablesystem/Index/TreeIndex" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -80,7 +82,9 @@
 		<Unit filename="SourceCode/tablesystem/Index/IndexStructure.h" />
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/Tree.h" />
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeIndex.h" />
+		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeIterator.h" />
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeNode.h" />
+		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeNodeKeyCell.h" />
 		<Unit filename="SourceCode/tablesystem/Page/TablePage.h">
 			<Option target="Release" />
 		</Unit>

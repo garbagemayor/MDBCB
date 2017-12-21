@@ -67,6 +67,11 @@
  */
 #define MAX_SON_NUM 400
 
+/*
+ *  B+树最少子节点数
+ */
+#define MIN_SON_NUM 200
+
 ///缓存页管理器
 /*
  *  缓存中页面个数上限

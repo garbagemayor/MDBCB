@@ -49,7 +49,7 @@ public:
      *  功能:写回并关掉文件，virtual之后可以保证会先调用子类的析构函数
      */
     virtual ~BaseIndex() {
-        delete OneFileManager;
+        delete oneFileManager;
     }
 };
 
