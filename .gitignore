@@ -1,6 +1,9 @@
 bin/*
 obj/*
 SourceCode/filesystem/Debug/*
+SourceCode/shellsystem/frontend/lex.yy.c
+SourceCode/shellsystem/frontend/SQLParser.tab.c
+SourceCode/shellsystem/frontend/SQLParser.tab.h
 
 *.old
 *.o

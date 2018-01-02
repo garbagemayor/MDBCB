@@ -1,6 +1,10 @@
 ﻿#ifndef TABLE_DATA_TYPE_H_
 #define TABLE_DATA_TYPE_H_
 
+#include "../../filesystem/ByteBufBase.h"
+
+#include <iostream>
+
 /**
  *  支持的数据类型
  *  其中，bool占满1个字节，long是64位整数，
@@ -21,6 +25,28 @@ enum TableDataType {
     t_double = 7,
     t_string = 8,
     t_lob = 9,
+};
+
+bool cmpError(uint64, uint64);
+bool cmpBool(uint64, uint64);
+bool cmpChar(uint64, uint64);
+bool cmpShort(uint64, uint64);
+bool cmpInt(uint64, uint64);
+bool cmpLong(uint64, uint64);
+bool cmpFloat(uint64, uint64);
+bool cmpDouble(uint64, uint64);
+
+bool (* cmpFunctionList[]) (uint64, uint64) = {
+    cmpError,
+    cmpBool,
+    cmpChar,
+    cmpShort,
+    cmpInt,
+    cmpLong,
+    cmpFloat,
+    cmpDouble,
+    cmpError,//string
+    cmpError,//lob
 };
 
 /*
@@ -74,6 +100,83 @@ int getDataTypeMaxLength(TableDataType type) {
     default:
         return 0;
     }
+}
+
+///各个类型比大小的函数，整数全都是以无符号的形式比大小，浮点数才有符号一说
+/*
+ *  @函数名cmpError
+ *  功能:报错
+ */
+bool cmpError(uint64 a, uint64 b) {
+    std::cout << "TableDataType.cmpError(" << a << ", " << b << ")" << std::endl;
+    return false;
+}
+/*
+ *  @函数名cmpBool
+ *  功能:比大小
+ */
+bool cmpBool(uint64 a, uint64 b) {
+    a = a != 0;
+    b = b != 0;
+    return a < b;
+}
+
+/*
+ *  @函数名cmpChar
+ *  功能:比大小
+ */
+bool cmpChar(uint64 a, uint64 b) {
+    unsigned char a_ = a;
+    unsigned char b_ = b;
+    return a_ < b_;
+}
+
+/*
+ *  @函数名cmpShort
+ *  功能:比大小
+ */
+bool cmpShort(uint64 a, uint64 b) {
+    unsigned short a_ = a;
+    unsigned short b_ = b;
+    return a_ < b_;
+}
+
+/*
+ *  @函数名cmpInt
+ *  功能:比大小
+ */
+bool cmpInt(uint64 a, uint64 b) {
+    unsigned int a_ = a;
+    unsigned int b_ = b;
+    return a_ < b_;
+}
+
+/*
+ *  @函数名cmpLong
+ *  功能:比大小
+ */
+bool cmpLong(uint64 a, uint64 b) {
+    return a < b;
+}
+
+/*
+ *  @函数名cmpFloat
+ *  功能:比大小
+ */
+bool cmpFloat(uint64 a, uint64 b) {
+    float a_ = * (float *) & a;
+    float b_ = * (float *) & b;
+    return a_ < b_;
+}
+
+/*
+ *  @函数名cmpDouble
+ *  功能:比大小
+ */
+bool cmpDouble(uint64 a, uint64 b) {
+    double a_ = * (double *) & a;
+    double b_ = * (double *) & b;
+    return a_ < b_;
 }
 
 #endif // TABLE_DATA_TYPE_H_
