@@ -14,6 +14,7 @@
  *  对节点的记录都使用页编号，第0页是根节点。
  *  叶节点链表用nextPageId构成单向链表，-1表示边界。
  *  把第0页的页头的freeCnt值作为B+树叶节点链表的，因为不会用到这个值。
+ *  只有
  */
 class TreeIndex 
     : public BaseIndex {
@@ -33,7 +34,7 @@ public:
      *  功能:读取或创建一个B+树索引
      *       先调用BaseIndex的构造函数，然后记录基本信息
      */
-    TreeIndex(BufPageManager * bufPageManager_, std::string tableName_, TableColumn * tableColumn_, bool (* cmpKeyValue_) (uint64, uint64))
+    TreeIndex(BufPageManager * bufPageManager_, std::string tableName_, TableColumn * tableColumn_)
         : BaseIndex(bufPageManager_, tableName, tableColumn_) {
         //空指针报错
         if (bufPageManager_ == NULL || tableColumn_ == NULL) {
@@ -47,7 +48,7 @@ public:
         }
         //设置基本信息
         indexStructure = IndexStructure::in_treeIndex;
-        cmpKeyValue = cmpKeyValue_;
+        cmpKeyValue = cmpFunctionList[tableColumn -> getDataType()];
         //如果是新建索引，就创建一个根节点，里面没有数据
         if (oneFileManager -> getPageCnt() == 0) {
             TreeNode * node0 = new TreeNode(oneFileManager);

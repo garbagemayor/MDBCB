@@ -39,6 +39,38 @@ public:
     }
     
 public:
+    ///基本get函数
+    /*
+     *  @函数名:getTableById
+     *  @参数id:数据格的逻辑位置
+     *  功能:用数据格的逻辑位置获取数据格信息，如果不存在就报错
+     */
+    Table * getTableById(int id) {
+        if (id < 0 || id >= (int) tableList.size()) {
+            std::cout << "TableManager.getTableById(" << id << ") error" << std::endl;
+            return NULL;
+        }
+        return tableList[id];
+    }
+    
+    /*
+     *  @函数名:getTableByName
+     *  @参数columnName:数据列的名称
+     *  功能:用数据列的名称获取数据格信息，如果不存在就报错
+     */
+    Table * getTableByName(std::string columnName) {
+        for (int i = 0; i < (int) tableList.size(); i ++) {
+            if (tableList[i] ->getName() == columnName) {
+                return tableList[i];
+            }
+        }
+        if (true) {
+            std::cout << "TableManager.getTableByName(" << columnName << ") error" << std::endl;
+            return NULL;
+        }
+    }
+    
+public:
     ///普通函数
     /*
      *  @函数名:createTable

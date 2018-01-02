@@ -80,7 +80,6 @@
 		<Unit filename="SourceCode/tablesystem/Index/BaseIndex.h" />
 		<Unit filename="SourceCode/tablesystem/Index/IndexManager.h" />
 		<Unit filename="SourceCode/tablesystem/Index/IndexStructure.h" />
-		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/Tree.h" />
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeIndex.h" />
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeIterator.h" />
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeNode.h" />

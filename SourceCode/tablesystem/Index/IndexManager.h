@@ -29,15 +29,50 @@ public:
      *  功能:创建一个索引管理器，创建或读取每个有索引的列的索引
      */
     IndexManager(BufPageManager * bufPageManager_, TableHeader * tableHeader_) {
-        
-        
-        
-        
+        bufPageManager = bufPageManager_;
+        tableHeader = tableHeader_;
+        indexList.clear();
+        indexList.resize(tableHeader -> getNCol());
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+            TableColumn * tableColumn = tableHeader -> getColumnById(i);
+            if (tableColumn -> hasTreeIndex()) {
+                indexList[i] = new TreeIndex(bufPageManager, tableHeader -> getName(), tableColumn);
+            } else if(false) {
+                indexList[i] = NULL;
+            } else {
+                indexList[i] = NULL;
+            }
+        }
     }
     
+public:
+    /*
+     *  @函数名:getIndexById
+     *  功能:用编号获取列的索引
+     */
+    BaseIndex * getIndexById(int id) {
+        if (id < 0 || id >= (int) indexList.size()) {
+            std::cout << "IndexManager.getIndexById(" << id << ") error" << std::endl;
+            return NULL;
+        }
+        return indexList[id];
+    }
     
-    
-    
+    /*
+     *  @函数名:getIndexByName
+     *  功能:用数据列的名称获取列的索引
+     */
+    BaseIndex * getIndexByName(std::string columnName) {
+        for (int i = 0; i < (int) indexList.size(); i ++) {
+            if (tableHeader -> getColumnById(i) -> getName() == columnName) {
+                return indexList[i];
+            }
+        }
+        if (true) {
+            std::cout << "IndexManager.getIndexByName(" << columnName << ") error" << std::endl;
+            return NULL;
+        }
+    }
     
     
     

@@ -168,6 +168,16 @@ public:
         tablePageAssistant -> setFreeCnt(pageId, page -> getPageHeader() -> getFreeCnt());
     }
     
+    /*
+     *  @函数名:addRow
+     *  @参数tableRow:要加入的行，它会被复制之后加入，所以在哪里定义的就在哪里释放内存
+     *  功能:添加一行数据，去每一页里面找一个能加入的位置把它加进去
+     */
+    void addRow(TableRow * tableRow) {
+        int pageId;
+        int slotId;
+        addRow(tableRow, pageId, slotId);
+    }
     
     
 };
