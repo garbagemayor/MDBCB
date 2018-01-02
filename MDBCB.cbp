@@ -39,120 +39,120 @@
 		</Compiler>
 		<Unit filename="SourceCode/DatabaseManager.cpp" />
 		<Unit filename="SourceCode/filesystem/ByteBufBase.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/OneFileManager.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/TestFileSystem.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/bufmanager/BufPageManager.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/bufmanager/FindReplace.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/fileio/FileManager.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/fileio/FileTable.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/utils/MyBitMap.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/utils/MyHashMap.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/utils/MyLinkList.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/utils/compare.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/filesystem/utils/pagedef.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/shellsystem/ShellManager.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/shellsystem/frontend/SQLParser.tab.c">
 			<Option compilerVar="CC" />
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/shellsystem/frontend/SQLParser.tab.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/shellsystem/frontend/lex.yy.c">
 			<Option compilerVar="CC" />
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/BaseIndex.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/IndexManager.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/IndexStructure.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeIndex.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeIterator.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeNode.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/TreeIndex/TreeNodeKeyCell.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Page/TablePage.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Page/TablePageAssistant.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Page/TablePageAssistantItem.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Page/TablePageFooter.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Page/TablePageHeader.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/TableManager.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Table/Table.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Table/TableColumn.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Table/TableDataType.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Table/TableGrid.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Table/TableHeader.cpp">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Table/TableHeader.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Table/TableRow.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/TestTableIndex.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/TestTableSystem.h">
-			<Option target="Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Extensions>
 			<DoxyBlocks>
