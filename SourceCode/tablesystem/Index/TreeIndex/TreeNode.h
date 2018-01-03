@@ -80,6 +80,9 @@ public:
         writeBackToFile();
         //清理内存
         delete pageHeader;
+        for (int i = 0; i < (int) keyList.size(); i ++) {
+            delete keyList[i];
+        }
         keyList.clear();
     }
     

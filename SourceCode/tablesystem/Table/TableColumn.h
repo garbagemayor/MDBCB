@@ -12,7 +12,7 @@
  *  存储表头信息时，每个列信息都这样存储：
  *  colLen(2B) flag(2B) type(1B) nameLen(1B) name(_B)
  *  默认值和自动赋值，目前没有set函数，因为不支持这两垃圾玩意
- *  “互不相同”的列一定有索引
+ *  “互不相同”的列一定有索引，优先选择Hash索引
  *  “主键” = “非NULL” + “互不相同”
  */
 class TableColumn {
@@ -25,6 +25,7 @@ private:
     static const int f_isAutomatic = 1 << 4;
     static const int f_isPrimaryKey = 1 << 5;
     static const int f_hasTreeIndex = 1 << 6;
+    static const int f_hasHashIndex = 1 << 7;
 
 private:
     //列名称
@@ -42,6 +43,7 @@ private:
      *  flag >> 4 & 1:      isAutomatic         是否自动填入数值
      *  flag >> 5 & 1:      isPrimaryKey        是否是主键
      *  flag >> 6 & 1:      hasTreeIndex        是否有B+树索引
+     *  flag >> 7 & 1:      hasHashIndex        是否有Hash索引
      */
     int flag;
     //是否可以修改
@@ -166,6 +168,14 @@ public:
      */
     bool hasTreeIndex() {
         return (flag & f_hasTreeIndex) != 0;
+    }
+    
+    /*
+     *  @函数名:hasHashIndex
+     *  功能:返回是否拥有Hash索引
+     */
+    bool hasHashIndex() {
+        return (flag & f_hasHashIndex) != 0;
     }
     
     /*
@@ -294,7 +304,11 @@ public:
         }
         if (f) {
             flag |= f_isUnique;
-            flag |= f_hasTreeIndex;
+            if (!hasVariableLength()) {
+                flag |= f_hasTreeIndex;
+            } else {
+                flag |= f_hasHashIndex;
+            }
         } else {
             flag &= ~f_isUnique;
         }
@@ -331,7 +345,11 @@ public:
             flag |= f_isPrimaryKey;
             flag &= ~f_allowNull;
             flag |= f_isUnique;
-            flag |= f_hasTreeIndex;
+            if (!hasVariableLength()) {
+                flag |= f_hasTreeIndex;
+            } else {
+                flag |= f_hasHashIndex;
+            }
         } else {
             flag &= ~f_isPrimaryKey;
         }
@@ -347,10 +365,32 @@ public:
             std::cout << "TableColumn.setHasTreeIndex(" << f << ") error" << std::endl;
             return;
         }
+        //变长数据报错
+        if (hasVariableLength()) {
+            std::cout << "TableColumn.setHasTreeIndex(" << f << ") error" << std::endl;
+            return;
+        }
         if (f) {
             flag |= f_hasTreeIndex;
         } else {
             flag &= ~f_hasTreeIndex;
+        }
+    }
+    
+    /*
+     *  @函数名:setHasHashIndex
+     *  功能:设置为有Hash索引
+     */
+    void setHasHashIndex(bool f) {
+        //不可修改报错
+        if (!modifiable) {
+            std::cout << "TableColumn.setHasHashIndex(" << f << ") error" << std::endl;
+            return;
+        }
+        if (f) {
+            flag |= f_hasHashIndex;
+        } else {
+            flag &= ~f_hasHashIndex;
         }
     }
     
@@ -377,7 +417,6 @@ public:
         }
         buf = curBuf;
     }
-    
     
     /*
      *  @函数名:readFromByte
