@@ -142,5 +142,4 @@ public:
     }
 };
 
-
 #endif // TABLE_MANAGER_H_

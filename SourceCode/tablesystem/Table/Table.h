@@ -5,6 +5,8 @@
 #include "../Page/TablePage.h"
 #include "../Page/TablePageAssistant.h"
 #include "../Index/IndexManager.h"
+#include "../Filter/Filter.h"
+#include "../Filter/Calculator.h"
 #include "TableHeader.h"
 #include "TableRow.h"
 
