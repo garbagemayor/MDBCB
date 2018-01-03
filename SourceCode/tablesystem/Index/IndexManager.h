@@ -4,6 +4,7 @@
 #include "../../filesystem/bufmanager/BufPageManager.h"
 #include "../Table/TableHeader.h"
 #include "TreeIndex/TreeIndex.h"
+#include "HashIndex/HashIndex.h"
 
 #include <iostream>
 
@@ -37,8 +38,8 @@ public:
             TableColumn * tableColumn = tableHeader -> getColumnById(i);
             if (tableColumn -> hasTreeIndex()) {
                 indexList[i] = new TreeIndex(bufPageManager, tableHeader -> getName(), tableColumn);
-            } else if(false) {
-                indexList[i] = NULL;
+            } else if(tableColumn -> hasHashIndex()) {
+                indexList[i] = new HashIndex(bufPageManager, tableHeader -> getName(), tableColumn);
             } else {
                 indexList[i] = NULL;
             }

@@ -60,6 +60,8 @@ int runTestTableSystem() {
     tableManager -> getTableByName("Table1") -> addRow(tableRow1);
     
     ///查询行
+    //tableManager -> getTableByName("Table1") -> 
+    
     
     
     ///删除行

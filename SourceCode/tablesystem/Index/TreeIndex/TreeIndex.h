@@ -6,6 +6,7 @@
 #include "TreeNode.h"
 #include "TreeIterator.h"
 
+#include <string>
 #include <vector>
 #include <iostream>
 
@@ -14,13 +15,9 @@
  *  对节点的记录都使用页编号，第0页是根节点。
  *  叶节点链表用nextPageId构成单向链表，-1表示边界。
  *  把第0页的页头的freeCnt值作为B+树叶节点链表的，因为不会用到这个值。
- *  只有
  */
 class TreeIndex 
     : public BaseIndex {
-    
-public:
-    ///迭代器
     
 protected:
     //根节点编号
@@ -35,7 +32,7 @@ public:
      *       先调用BaseIndex的构造函数，然后记录基本信息
      */
     TreeIndex(BufPageManager * bufPageManager_, std::string tableName_, TableColumn * tableColumn_)
-        : BaseIndex(bufPageManager_, tableName, tableColumn_) {
+        : BaseIndex(bufPageManager_, tableName_, tableColumn_) {
         //空指针报错
         if (bufPageManager_ == NULL || tableColumn_ == NULL) {
             std::cout << "TreeIndex(..., " << tableName_ << ", ...) error" << std::endl;
@@ -107,15 +104,6 @@ public:
     }
     
     /*
-     *  @函数名:findKey
-     *  @参数keyCell:要查询的键值
-     *  功能:查询表中是否包含这个键值，返回一个迭代器
-     */
-    TreeIterator findKey(TreeNodeKeyCell * keyCell) {
-        return __findKey(keyCell);
-    }
-    
-    /*
      *  @函数名:containKey
      *  @参数keyCell:要查询的键值
      *  功能:查询表中是否包含这个键值，
@@ -123,6 +111,15 @@ public:
     bool containKey(TreeNodeKeyCell * keyCell) {
         TreeIterator ite = __findKey(keyCell);
         return ite.nodeId != -1 && ite.listId != -1;
+    }
+    
+    /*
+     *  @函数名:findKey
+     *  @参数keyCell:要查询的键值
+     *  功能:查询表中是否包含这个键值，返回一个迭代器
+     */
+    TreeIterator findKey(TreeNodeKeyCell * keyCell) {
+        return __findKey(keyCell);
     }
     
     /*

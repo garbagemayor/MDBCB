@@ -16,6 +16,7 @@
 					<Add directory="SourceCode/tablesystem/Page" />
 					<Add directory="SourceCode/tablesystem/Table" />
 					<Add directory="SourceCode/tablesystem/Index/TreeIndex" />
+					<Add directory="SourceCode/tablesystem/Index/HashIndex" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -28,6 +29,7 @@
 					<Add directory="SourceCode/tablesystem/Page" />
 					<Add directory="SourceCode/tablesystem/Table" />
 					<Add directory="SourceCode/tablesystem/Index/TreeIndex" />
+					<Add directory="SourceCode/tablesystem/Index/HashIndex" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -89,6 +91,21 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/BaseIndex.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Index/HashIndex/HashBucket.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Index/HashIndex/HashClassifier.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Index/HashIndex/HashIndex.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Index/HashIndex/HashIterator.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Index/HashIndex/HashKeyCell.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/IndexManager.h">

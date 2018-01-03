@@ -48,7 +48,6 @@ private:
         node = new TreeNode(oneFileManager, nodeId);
     }
     
-public:
     /*
      *  @析构函数
      */

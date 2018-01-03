@@ -72,6 +72,21 @@
  */
 #define MIN_SON_NUM 200
 
+/*
+ *  Hash索引的基数
+ */
+#define HASH_BASE 263
+
+/*
+ *  Hash索引的模数
+ */
+#define HASH_MODP 1997
+
+/*
+ *  Hash索引每个桶页最多记录数
+ */
+#define MAX_BUCKET_SIZE 500
+
 ///缓存页管理器
 /*
  *  缓存中页面个数上限

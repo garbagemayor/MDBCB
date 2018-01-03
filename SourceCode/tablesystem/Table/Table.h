@@ -55,7 +55,6 @@ public:
         //创建表页助手，写入内容
         tablePageAssistant = new TablePageAssistant(oneFileManager);
         //创建索引管理器（主键列、数据要互不相同的列），给这些列创建索引
-        ///TODO
         indexManager = new IndexManager(bufPageManager_, tableHeader);
     }
     
@@ -74,7 +73,7 @@ public:
         //创建表页助手，读取内容
         tablePageAssistant = new TablePageAssistant(oneFileManager);
         //创建索引管理器读取这些索引
-        ///TODO
+        indexManager = new IndexManager(bufPageManager_, tableHeader);
     }
     
     /*
@@ -150,6 +149,10 @@ public:
         }
         //新列不满足数据互不相同条件报错
         ///TODO
+        /*if (!indexManager -> canMeetUniqueRequirement(tableRow)) {
+            std::cout << "Table.addRow(...) error" << std::endl;
+            return;
+        }*/
         //在表页助手里面找一个合适的页
         int slotLen = tableRow -> getSizeInSlot();
         pageId = tablePageAssistant -> findPageForSlot(slotLen);

@@ -147,7 +147,6 @@ public:
         return keyCell -> isLessThan(this, cmpKeyCell);
     }
     
-public:
     friend class TreeNode;
     friend class TreeIndex;
 };
