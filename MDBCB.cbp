@@ -17,6 +17,7 @@
 					<Add directory="SourceCode/tablesystem/Table" />
 					<Add directory="SourceCode/tablesystem/Index/TreeIndex" />
 					<Add directory="SourceCode/tablesystem/Index/HashIndex" />
+					<Add directory="SourceCode/tablesystem/Filter" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -30,6 +31,7 @@
 					<Add directory="SourceCode/tablesystem/Table" />
 					<Add directory="SourceCode/tablesystem/Index/TreeIndex" />
 					<Add directory="SourceCode/tablesystem/Index/HashIndex" />
+					<Add directory="SourceCode/tablesystem/Filter" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -88,6 +90,15 @@
 		</Unit>
 		<Unit filename="SourceCode/shellsystem/frontend/lex.yy.c">
 			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Filter/Calculator.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Filter/Calculator.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/tablesystem/Filter/Filter.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/tablesystem/Index/BaseIndex.h">

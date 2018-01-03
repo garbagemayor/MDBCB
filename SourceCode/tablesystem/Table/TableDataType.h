@@ -25,7 +25,35 @@ enum TableDataType {
     t_double = 7,
     t_string = 8,
     t_lob = 9,
+    t_null = 10,//只在Filter里使用
 };
+
+/*
+ *  @函数名:getSuperType
+ *  功能:获取更大的类型
+ */
+TableDataType getSuperType(TableDataType type) {
+    TableDataType reType = TableDataType::t_error;
+    switch (type) {
+    case TableDataType::t_bool:
+    case TableDataType::t_char:
+    case TableDataType::t_short:
+    case TableDataType::t_int:
+    case TableDataType::t_long:
+        reType = TableDataType::t_long;
+        break;
+    case TableDataType::t_float:
+    case TableDataType::t_double:
+        reType = TableDataType::t_double;
+        break;
+    case TableDataType::t_string:
+        reType = TableDataType::t_string;
+        break;
+    default:
+        reType = TableDataType::t_error;
+    }
+    return reType;
+}
 
 bool cmpError(uint64, uint64);
 bool cmpBool(uint64, uint64);

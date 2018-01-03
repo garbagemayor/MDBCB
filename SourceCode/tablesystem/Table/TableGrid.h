@@ -183,7 +183,7 @@ public:
         dirtyFlag = true;
         nullFlag = false;
         length = length_;
-        if (data == NULL ) {
+        if (data == NULL) {
             data = new Byte [MAX_STRING_LENGTH];
         }
         memset(data, 0, sizeof(Byte) * MAX_STRING_LENGTH);
