@@ -8,7 +8,7 @@ int runTestTableSystem() {
     //创建数据表管理器
     FileManager * fileManager = new FileManager();
     BufPageManager * bufPageManager = new BufPageManager(fileManager);
-    TableManager * tableManager = new TableManager(bufPageManager);
+    TableManager * tableManager = new TableManager(bufPageManager, "database1");
     
     ///创建数据表
     //创建三个列并加进表头

@@ -5,6 +5,7 @@
 		<Option title="MDBCB" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="SourceCode\;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/MDBCB" prefix_auto="1" extension_auto="1" />
@@ -41,7 +42,9 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="SourceCode/DatabaseManager.cpp" />
+		<Unit filename="SourceCode/DatabaseManager.h">
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="SourceCode/filesystem/ByteBufBase.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
@@ -81,11 +84,16 @@
 		<Unit filename="SourceCode/shellsystem/ShellManager.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="SourceCode/shellsystem/frontend/SQLParser.tab.c">
-			<Option compilerVar="CC" />
+		<Unit filename="SourceCode/shellsystem/frontend/SQLLexer.l">
+			<Option compile="1" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="SourceCode/shellsystem/frontend/SQLParser.tab.h">
+		<Unit filename="SourceCode/shellsystem/frontend/SQLParser.cpp" />
+		<Unit filename="SourceCode/shellsystem/frontend/SQLParser.hpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SourceCode/shellsystem/frontend/SQLParser.y">
+			<Option compile="1" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/shellsystem/frontend/lex.yy.c">

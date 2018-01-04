@@ -5,8 +5,7 @@
 #include "Table/Table.h"
 
 /**
- *  数据表管理器，管理所有数据表
- *  
+ *  数据表管理器，管理一个数据库的所有数据表
  */
 class TableManager {
     
@@ -15,16 +14,19 @@ public:
     BufPageManager * bufPageManager;
     //数据表列表
     std::vector<Table *> tableList;
+    //数据库的名称
+    std::string name;
     
 public:
     /*
      *  @构造函数
      *  @参数bufPageManager_:缓存页管理器
-     *  功能:新建一个数据表管理器
+     *  功能:新建一个数据库
      */
-    TableManager(BufPageManager * bufPageManager_) {
+    TableManager(BufPageManager * bufPageManager_, std::string name_) {
         bufPageManager = bufPageManager_;
         tableList.clear();
+        name = name_;
     }
     
     /*
@@ -40,6 +42,22 @@ public:
     
 public:
     ///基本get函数
+    /*
+     *  @函数名:getName
+     *  功能:获取数据库名称
+     */
+    std::string getName() {
+        return name;
+    }
+    
+    /*
+     *  @函数名:getNTable
+     *  功能:获取数据表的个数
+     */
+    int getNTable() {
+        return tableList.size();
+    }
+    
     /*
      *  @函数名:getTableById
      *  @参数id:数据格的逻辑位置
