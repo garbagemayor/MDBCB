@@ -43,7 +43,6 @@ public:
         footer = NULL;
         dirtyFlag = true;
         //新建一个页面
-        int pageId;
         pageData = oneFileManager -> getNewPage(pageId);
         //设置页头的信息
         header = new TablePageHeader();
@@ -85,13 +84,13 @@ public:
      *  功能:写回到文件并释放
      */
     ~TablePage() {
-        writeBackToFile();
         if (header != NULL) {
             delete header;
         }
         if (footer != NULL) {
             delete footer;
         }
+        writeBackToFile();
     }
     
 public:

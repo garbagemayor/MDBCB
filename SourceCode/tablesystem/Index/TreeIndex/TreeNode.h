@@ -1,9 +1,9 @@
-﻿#ifndef TABLE_NODE_H_
-#define TABLE_NODE_H_
+﻿#ifndef TREE_NODE_H_
+#define TREE_NODE_H_
 
 #include "../../../filesystem/ByteBufBase.h"
 #include "../../../filesystem/OneFileManager.h"
-#include "../../filesystem/bufmanager/BufPageManager.h"
+#include "../../../filesystem/bufmanager/BufPageManager.h"
 #include "../../Page/TablePageHeader.h"
 #include "../IndexStructure.h"
 #include "TreeNodeKeyCell.h"
@@ -275,4 +275,4 @@ public:
     friend class TreeIterator;
 };
 
-#endif // TABLE_NODE_H_
+#endif // TREE_NODE_H_
