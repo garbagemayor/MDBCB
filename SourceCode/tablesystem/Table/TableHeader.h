@@ -158,8 +158,8 @@ public:
      *  功能:获取表头需要占据的槽的大小
      */
     int getSizeInSlot() {
-        int sz = 12;
-        sz += (name.length() + 3) & ~3;
+        int sz = 11;
+        sz += name.length();
         for (int i = 0; i < (int) colList.size(); i ++) {
             sz += colList[i] -> getSizeInSlot();
         }
@@ -195,28 +195,28 @@ public:
     void setConstant() {
         //已经是常量报错
         if (!modifiable) {
-            std::cout << "TableHeader.setConstant() error" << std::endl;
+            std::cout << "TableHeader.setConstant() error 1" << std::endl;
             return;
         }
         //没有表名报错
         if (name == "") {
-            std::cout << "TableHeader.setConstant() error" << std::endl;
+            std::cout << "TableHeader.setConstant() error 2" << std::endl;
             return;
         }
         //没有数据列报错
         if (colList.size() == 0) {
-            std::cout << "TableHeader.setConstant() error" << std::endl;
+            std::cout << "TableHeader.setConstant() error 3" << std::endl;
             return;
         }
-        //没有主键、多个主键报错
+        //多个主键报错
         int primaryKeyCnt = 0;
         for (int i = 0; i < (int) colList.size(); i ++) {
             if (colList[i] -> isPrimaryKey()) {
                 primaryKeyCnt ++;
             }
         }
-        if (primaryKeyCnt != 1) {
-            std::cout << "TableHeader.setConstant() error" << std::endl;
+        if (primaryKeyCnt > 1) {
+            std::cout << "TableHeader.setConstant() error 4" << std::endl;
             return;
         }
         //真的修改
@@ -301,14 +301,15 @@ public:
             colList.push_back(column);
         } else {
             colList.resize(colList.size() + 1);
-            for (int i = colList.size() - 2; i >= 0; i --) {
+            int i;
+            for (i = colList.size() - 2; i >= 0; i --) {
                 if (colList[i] -> hasVariableLength()) {
                     colList[i + 1] = colList[i];
                 } else {
-                    colList[i] = column;
                     break;
                 }
             }
+            colList[i + 1] = column;
         }
     }
     
@@ -321,7 +322,7 @@ public:
     void writeAsByte(ByteBufType & buf) {
         int sz = getSizeInSlot();
         if (sz > PAGE_SIZE - PAGE_HEADER_SIZE) {
-            std::cout << "TableHeader.toByteBuffer() error" << std::endl;
+            std::cout << "TableHeader.writeAsByte() error 1" << std::endl;
             return;
         }
         ByteBufType curBuf = buf;
@@ -334,7 +335,8 @@ public:
             colList[i] -> writeAsByte(curBuf);
         }
         if (curBuf - buf != sz) {
-            std::cout << "TableHeader.writeAsByte(...) error" << std::endl;
+            std::cout << "TableHeader.writeAsByte(...) error 2" << std::endl;
+            std::cout << "    " << (int) buf << " " << (int) curBuf << " " << sz << std::endl;
             return;
         }
         buf = curBuf;

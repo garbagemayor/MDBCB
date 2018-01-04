@@ -84,16 +84,19 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 57 "SQLParser.y"
+#line 92 "SQLParser.y"
 
     unsigned long long v_u;
     double v_d;
+    TableDataType v_t;
     std::string * v_s;
+    TableColumn * v_tc;
+    std::vector<TableColumn *> * v_th;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 97 "SQLParser.hpp"
+#line 100 "SQLParser.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

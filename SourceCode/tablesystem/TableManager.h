@@ -4,6 +4,8 @@
 #include "../filesystem/bufmanager/BufPageManager.h"
 #include "Table/Table.h"
 
+#include <direct.h>
+
 /**
  *  数据表管理器，管理一个数据库的所有数据表
  */
@@ -27,6 +29,8 @@ public:
         bufPageManager = bufPageManager_;
         tableList.clear();
         name = name_;
+        //读取所有数据表
+        openAllTable();
     }
     
     /*
@@ -98,32 +102,92 @@ public:
     void createTable(TableHeader * tableHeader) {
         //表头仍然可修改报错
         if (tableHeader -> isModifiable()) {
-            std::cout << "TableManager.createTable(" << tableHeader -> getName() << "_ error" << std::endl;
+            std::cout << "TableManager.createTable(" << tableHeader -> getName() << " error" << std::endl;
             return;
         }
         //同名数据表报错
         for (int i = 0; i < (int) tableList.size(); i ++) {
             if (tableList[i] -> getName() == tableHeader -> getName()) {
-                std::cout << "TableManager.createTable(" << tableHeader -> getName() << "_ error" << std::endl;
+                std::cout << "TableManager.createTable(" << tableHeader -> getName() << " error" << std::endl;
                 return;
             }
         }
-        tableList.push_back(new Table(bufPageManager, tableHeader));
+        Table * table = new Table(bufPageManager, tableHeader);
+        tableList.push_back(table);
     }
     
     /*
      *  @函数名:openTable
      *  @参数tableName:数据表的名称
-     *  功能:打开一个已存在的数据表，如果已经打开过就报错
+     *  功能:打开一个已存在的数据表，如果已经打开过就不做任何事，如果不存在就报错
      */
     void openTable(std::string tableName) {
+        //检查是否已经打开
         for (int i = 0; i < (int) tableList.size(); i ++) {
             if (tableList[i] -> getName() == tableName) {
-                std::cout << "TableManager.openTable(" << tableName << "_ error" << std::endl;
+                //std::cout << "TableManager.openTable(" << tableName << "_ error" << std::endl;
                 return;
             }
         }
+        //打开这个数据表
         tableList.push_back(new Table(bufPageManager, tableName));
+    }
+    
+    /*
+     *  @函数名:openAllTable
+     *  功能:加载当前数据库中的所有文件
+     */
+    void openAllTable() {
+        //遍历所有文件
+        struct _finddata_t fb;
+        int handle = _findfirst("*.tab", &fb);
+        if (handle == 0) {
+            return;
+        }
+        while (0 == _findnext(handle, &fb)) {
+            int noFile = strcmp(fb.name, "..");
+            if (0 != noFile && fb.attrib != 16) {
+                //找到一个数据表，打开它
+                std::string tableFileName = fb.name;
+                openTable(tableFileName.substr(0, tableFileName.length() - 4));
+            }
+        }
+        _findclose(handle);
+    }
+    
+    /*
+     *  @函数名:eraseTable
+     *  功能:删除一个数据表
+     */
+    void eraseTable(std::string tableName) {
+        //找到这个数据表并删掉
+        for (int i = 0; i < (int) tableList.size(); i ++) {
+            if (tableList[i] -> getName() == tableName) {
+                //内存中删除这个表的信息
+                delete tableList[i];
+                tableList[i] = tableList.back();
+                tableList.pop_back();
+                //从文件夹中删除
+                struct _finddata_t fb;
+                int handle = _findfirst((tableName + ".*").c_str(), &fb);
+                if (handle == 0) {
+                    return;
+                }
+                while (0 == _findnext(handle, &fb)) {
+                    int noFile = strcmp(fb.name, "..");
+                    if (0 != noFile && fb.attrib != 16) {
+                        remove(fb.name);
+                    }
+                }
+                _findclose(handle);
+                return;
+            }
+        }
+        //如果没找到就报错
+        if (true) {
+            std::cout << "TableManager.eraseTable(" << tableName << ") error" << std::endl;
+            return;
+        }
     }
     
     /*

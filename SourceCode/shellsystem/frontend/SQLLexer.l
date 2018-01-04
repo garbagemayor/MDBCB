@@ -58,7 +58,7 @@ FOREIGN                 {   return FOREIGN;     }
                             buf << yytext;
                             buf >> str;
                             yylval.v_s = new std::string(str);
-                            std::cout << "Lexer.identifier = " << * yylval.v_s << std::endl;
+                            //std::cout << "Lexer.identifier = " << * yylval.v_s << std::endl;
                             return IDENTIFIER;
                         }
 
@@ -67,7 +67,7 @@ FOREIGN                 {   return FOREIGN;     }
                             std::stringstream buf;
                             buf << yytext;
                             buf >> yylval.v_u;
-                            std::cout << "Lexer.VALUE_UINT64 = " << yylval.v_u << std::endl;
+                            //std::cout << "Lexer.VALUE_UINT64 = " << yylval.v_u << std::endl;
                             return VALUE_UINT64;
                         }
 
@@ -76,7 +76,7 @@ FOREIGN                 {   return FOREIGN;     }
                             std::stringstream buf;
                             buf << yytext;
                             buf >> std::hex >> yylval.v_u;
-                            std::cout << "Lexer.VALUE_UINT64 = " << yylval.v_u << std::endl;
+                            //std::cout << "Lexer.VALUE_UINT64 = " << yylval.v_u << std::endl;
                             return VALUE_UINT64;
                         }
                         
@@ -85,7 +85,7 @@ FOREIGN                 {   return FOREIGN;     }
                             std::stringstream buf;
                             buf << yytext;
                             buf >> yylval.v_d;
-                            std::cout << "Lexer.VALUE_DOUBLE = " << yylval.v_d << std::endl;
+                            //std::cout << "Lexer.VALUE_DOUBLE = " << yylval.v_d << std::endl;
                             return VALUE_DOUBLE;
                         }
                         
@@ -94,18 +94,18 @@ FOREIGN                 {   return FOREIGN;     }
                             std::string str = yytext;
                             str = str.substr(1, str.length() - 2);
                             yylval.v_s = new std::string(str);
-                            std::cout << "Lexer.VALUE_STRING = " << * yylval.v_s << std::endl;
+                            //std::cout << "Lexer.VALUE_STRING = " << * yylval.v_s << std::endl;
                             return VALUE_STRING;
                         }
                         
 [ \t]+                  {   
                             //空格和制表符
-                            std::cout << "Lexer.WHITE_SPACE" << std::endl;
+                            //std::cout << "Lexer.WHITE_SPACE" << std::endl;
                         }
  
 \n|\r|(\r\n)            {
                             //直接返回换行符作为符号给bison
-                            std::cout << "Lexer.END_LINE" << std::endl;
+                            //std::cout << "Lexer.END_LINE" << std::endl;
                             return '\n';
                         } 
 %%

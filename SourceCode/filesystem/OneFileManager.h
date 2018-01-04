@@ -38,7 +38,7 @@ public:
     OneFileManager(BufPageManager * bufPageManager_, std::string fileName_, bool isNewFile = false) {
         fileName = fileName_;
         bufPageManager = bufPageManager_;
-        if (isNewFile) {
+        if (isNewFile||1) {
             bufPageManager -> fileManager -> createFile(fileName.c_str());
             pageCnt = 0;
         } else {

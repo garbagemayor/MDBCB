@@ -1,6 +1,7 @@
 #ifndef DATABASE_MANAGER_H_
 #define DATABASE_MANAGER_H_
 
+#include "tablesystem/TableManager.h"
 //#include <iostream>
 
 int myMain(int (* yyparse) (void)) {
