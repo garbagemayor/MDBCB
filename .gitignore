@@ -8,4 +8,7 @@ SourceCode/filesystem/Debug/*
 *.layout
 *.depend
 
+*.table
+*.index
+
 DoNot*

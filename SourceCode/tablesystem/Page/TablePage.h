@@ -135,6 +135,21 @@ public:
         return footer;
     }
     
+    /*
+     *  @函数名:getSlot
+     *  @参数slotId:槽的编号
+     *  功能:获取一个原有槽的数据
+     *  返回值:成功返回数据指针，失败报错并返回NULL
+     */
+    ByteBufType getSlot(int slotId) {
+        if (slotId < 0 || slotId >= header -> slotCnt) {
+            std::cout << "TablePage::getSlot(" << slotId << ") error" << std::endl;
+            return NULL;
+        }
+        int offset = footer -> slotOffset[slotId];
+        return pageData + offset;
+    }
+    
 public:
     ///基本set函数
     /*
@@ -166,21 +181,6 @@ public:
         }
         oneFileManager -> writeBack(pageId);
         dirtyFlag = false;
-    }
-    
-    /*
-     *  @函数名:getSlot
-     *  @参数slotId:槽的编号
-     *  功能:获取一个原有槽的数据
-     *  返回值:成功返回数据指针，失败报错并返回NULL
-     */
-    ByteBufType getSlot(int slotId) {
-        if (slotId < 0 || slotId >= header -> slotCnt) {
-            std::cout << "TablePage::getSlot(" << slotId << ") error" << std::endl;
-            return NULL;
-        }
-        int offset = footer -> slotOffset[slotId];
-        return pageData + offset;
     }
     
     /*

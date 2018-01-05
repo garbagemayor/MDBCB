@@ -18,7 +18,7 @@ private:
 	MyBitMap* fm;
 	MyBitMap* tm;
 	int _createFile(const char* name) {
-		FILE* f = fopen(name, "a+");
+		FILE* f = fopen(name, "ab+");
 		if (f == NULL) {
 			cout << "fail" << endl;
 			return -1;
@@ -27,22 +27,21 @@ private:
 		return 0;
 	}
 	int _openFile(const char* name, int fileID) {
-		int f = open(name, O_RDWR);
-		if (f == -1) {
+		FILE * f = fopen(name, "ab+");
+		if (f == NULL) {
 			return -1;
 		}
-		fd[fileID] = f;
+		fd[fileID] = (int) f;
 		return 0;
 	}
 	int _getFileSize(const char* name) {
-	    FILE* file = fopen(name, "rb");  
+	    FILE * file = fopen(name, "rb+");
         if (file == NULL) {
             return -1;
-        } else {
-            int sz = filelength(fileno(file));
-            fclose(file);
-            return sz;
         }
+        int sz = filelength(fileno(file));
+        fclose(file);
+        return sz;
 	}
 public:
 	/*
@@ -62,15 +61,14 @@ public:
 	 * 返回:成功操作返回0
 	 */
 	int writePage(int fileID, int pageID, BufType buf, int off) {
-		int f = fd[fileID];
-		off_t offset = pageID;
-		offset = (offset << PAGE_SIZE_IDX);
-		off_t error = lseek(f, offset, SEEK_SET);
-		if (error != offset) {
+	    FILE * f = (FILE *) fd[fileID];
+		int offset = pageID << PAGE_SIZE_IDX;
+		int error = fseek(f, offset, SEEK_SET);
+		if (error == -1) {
 			return -1;
 		}
 		BufType b = buf + off;
-		error = write(f, (void*) b, PAGE_SIZE);
+		error = fwrite( b, 1, PAGE_SIZE, f);
 		return 0;
 	}
 	/*
@@ -84,15 +82,14 @@ public:
 	 */
 	int readPage(int fileID, int pageID, BufType buf, int off) {
 		//int f = fd[fID[type]];
-		int f = fd[fileID];
-		off_t offset = pageID;
-		offset = (offset << PAGE_SIZE_IDX);
-		off_t error = lseek(f, offset, SEEK_SET);
-		if (error != offset) {
+		FILE * f = (FILE *) fd[fileID];
+		int offset = pageID << PAGE_SIZE_IDX;
+		int error = fseek(f, offset, SEEK_SET);
+		if (error == -1) {
 			return -1;
 		}
 		BufType b = buf + off;
-		error = read(f, (void*) b, PAGE_SIZE);
+		error = fread( b, 1, PAGE_SIZE, f);
 		return 0;
 	}
 	/*
@@ -103,8 +100,8 @@ public:
 	 */
 	int closeFile(int fileID) {
 		fm->setBit(fileID, 1);
-		int f = fd[fileID];
-		close(f);
+		FILE * f = (FILE *) fd[fileID];
+		fclose(f);
 		return 0;
 	}
 	/*
@@ -129,6 +126,21 @@ public:
 		fm->setBit(fileID, 0);
 		_openFile(name, fileID);
 		return true;
+	}
+	/*
+	 * @函数名hasFile
+	 * @参数name:文件名
+	 * 功能:查看文件是否存在
+	 * 返回:如果存在返回true
+	 */
+	bool hasFile(const char* name) {
+	    int fileId = fm->findLeftOne();
+		fm->setBit(fileId, 0);
+	    int re = _openFile(name, fileId);
+	    if (re == 0) {
+            closeFile(fileId);
+	    }
+		return re == 0;
 	}
 	/*
 	 *  @函数名getFileSize

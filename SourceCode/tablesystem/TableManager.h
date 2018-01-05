@@ -4,6 +4,7 @@
 #include "../filesystem/bufmanager/BufPageManager.h"
 #include "Table/Table.h"
 
+#include <cstdlib>
 #include <direct.h>
 
 /**
@@ -122,6 +123,7 @@ public:
      *  功能:打开一个已存在的数据表，如果已经打开过就不做任何事，如果不存在就报错
      */
     void openTable(std::string tableName) {
+        std::cout << "TableManager.openTable(" << tableName << ")" << std::endl;
         //检查是否已经打开
         for (int i = 0; i < (int) tableList.size(); i ++) {
             if (tableList[i] -> getName() == tableName) {
@@ -130,7 +132,9 @@ public:
             }
         }
         //打开这个数据表
-        tableList.push_back(new Table(bufPageManager, tableName));
+        Table * table = new Table(bufPageManager, tableName);
+        tableList.push_back(table);
+        std::cout << "TableManager.openTable(" << tableName << ") getName = " << tableList.back() -> getName() << std::endl;
     }
     
     /*
@@ -140,18 +144,20 @@ public:
     void openAllTable() {
         //遍历所有文件
         struct _finddata_t fb;
-        int handle = _findfirst("*.tab", &fb);
-        if (handle == 0) {
+        int handle = _findfirst("*.table", &fb);
+        if (handle == -1) {
             return;
         }
-        while (0 == _findnext(handle, &fb)) {
+        do {
             int noFile = strcmp(fb.name, "..");
             if (0 != noFile && fb.attrib != 16) {
                 //找到一个数据表，打开它
-                std::string tableFileName = fb.name;
-                openTable(tableFileName.substr(0, tableFileName.length() - 4));
+                std::string tableName = fb.name;
+                tableName = tableName.substr(0, tableName.length() - 6);
+                openTable(tableName);
+                return;
             }
-        }
+        } while (_findnext(handle, &fb) == 0);
         _findclose(handle);
     }
     

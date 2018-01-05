@@ -1,11 +1,6 @@
 %{
-    #include "../../DatabaseManager.h"
+    #include "../ShellAssistant.h"
     
-    #include <iostream>
-    #include <cstdio>
-    #include <cstdlib>
-    #include <string>
-    #include <direct.h>
     #include "lex.yy.c"
     
     int yylex();
@@ -13,33 +8,6 @@
     
     BufPageManager * bufPageManager;
     TableManager * dbNow;
-    
-    //删除该文件夹，包括其中所有的文件和文件夹，可以是相对路径也可以是绝对路径
-    int removeDir(const char*  dirPath) {
-        struct _finddata_t fb;
-        char path[256 + 4];
-        strcpy(path, dirPath);
-        strcat(path, "/*");
-        int handle = _findfirst(path, &fb);
-        if (handle != 0) {
-            while (0 == _findnext(handle, &fb)) {
-                int noFile = strcmp(fb.name, "..");
-                if (0 != noFile) {
-                    memset(path, 0, sizeof(path));
-                    strcpy(path, dirPath);
-                    strcat(path, "/");
-                    strcat(path, fb.name);
-                    if (fb.attrib == 16) {
-                        removeDir(path);
-                    } else {
-                        remove(path);
-                    }
-                }
-            }
-            _findclose(handle);
-        }
-        return rmdir(dirPath);
-    }
     
 %}
 
@@ -58,7 +26,7 @@
 %token  INSERT
 %token  INTO
 %token  VALUES
-%token  DELETE
+%token  DELETEE
 %token  FROM
 %token  WHERE
 %token  UPDATE
@@ -71,8 +39,8 @@
 %token  REFERENCES
 %token  INDEX
 %token  AND
-%token  DATE         
-%token  FLOAT
+%token  DATEE
+%token  FLOATT
 %token  FOREIGN
 
 %token  ';' ',' '(' ')' '.' '=' '<' '>' //'<>' '<=' '>='
@@ -101,32 +69,48 @@
 
 
 program:
-        program stmt '\n'
+        program stmt
         {
+            setCmdColor(1);
         }
         |
+        /* empty */
+        {
+            setCmdColor(1);
+        }
 ;
 
 stmt:
-        sysStmt
+        sysStmt 
+        {
+        }
         |
         dbStmt
+        {
+        }
         |
         tbStmt
+        {
+        }
         |
         idxStmt
+        {
+        }
         |
+        endLine
+        {
+        }
 ;
 
 sysStmt:
-        SHOW DATABASES ';'
+        SHOW DATABASES ';' endLine
         {
             std::cout << "show databases!" << std::endl;
         }
 ;
 
 dbStmt:
-        CREATE DATABASE dbName ';'
+        CREATE DATABASE dbName ';' endLine
         {
             //新建一个数据库
             //关闭已经打开的数据库
@@ -147,7 +131,7 @@ dbStmt:
             }
         }        
         |
-        DROP DATABASE dbName ';'
+        DROP DATABASE dbName ';' endLine
         {
             //删除一个数据库
             //关闭已经打开的数据库
@@ -169,7 +153,7 @@ dbStmt:
             }
         }        
         |
-        USE dbName ';'
+        USE dbName ';' endLine
         {
             //打开一个数据库
             //关闭已经打开的数据库
@@ -189,7 +173,7 @@ dbStmt:
             }
         }
         |
-        SHOW TABLES ';'
+        SHOW TABLES ';' endLine
         {
             //查看这个数据库的所有数据表
             //如果没有打开数据库，报错
@@ -198,10 +182,10 @@ dbStmt:
                 std::cout << "没有正在使用的数据库" << std::endl;
             } else {
                 //打印数据库中的数据表
-                int n = dbNow -> getNTable();
-                std::cout << "共有" << n << "个数据表: ";
-                for (int i = 0; i < n; i ++) {
-                    std::cout << dbNow -> getTableById(i) -> getName() << ", ";
+                int nTab = dbNow -> getNTable();
+                std::cout << "数据库" << dbNow -> getName() << "共有" << nTab << "个数据表:" << std::endl;
+                for (int i = 0; i < nTab; i ++) {
+                    std::cout << dbNow -> getTableById(i) -> getName() << ( i < nTab ? ", " : ".");
                 }
                 std::cout << std::endl;
             }
@@ -209,76 +193,102 @@ dbStmt:
 ;
 
 tbStmt:
-        CREATE TABLE tbName '(' fieldList ')' ';'
+        CREATE TABLE tbName '(' fieldList ')' ';' endLine
         {
             //在已经打开的数据库中创建一个数据表
             //如果没有打开数据库，报错
             if (dbNow == NULL) {
                 std::cout << "Parser.CREATE TABLE: error" << std::endl;
                 std::cout << "没有已经打开的数据库:" << * $3 << std::endl;
-            } else {
+            } else if (dbNow -> hasOpenedTable(* $3)) {
                 //如果已有同名数据表，报错
-                if (dbNow -> hasOpenedTable(* $3)) {
-                    std::cout << "Parser.CREATE TABLE: error" << std::endl;
-                    std::cout << "已有这个数据表:" << * $3 << std::endl;
-                } else {
-                    //创建数据表
-                    TableHeader * tbHd = new TableHeader();
-                    tbHd -> setName(* $3);
-                    for (int i = 0; i < $5 -> size(); i ++) {
-                        tbHd -> addColumn((* $5) [i]);
-                    }
-                    tbHd -> setConstant();
-                    dbNow -> createTable(tbHd);
+                std::cout << "Parser.CREATE TABLE: error" << std::endl;
+                std::cout << "已有这个数据表:" << * $3 << std::endl;
+            } else {
+                //创建数据表
+                TableHeader * tbHd = new TableHeader();
+                tbHd -> setName(* $3);
+                for (int i = 0; i < $5 -> size(); i ++) {
+                    tbHd -> addColumn((* $5) [i]);
                 }
+                tbHd -> setConstant();
+                dbNow -> createTable(tbHd);
             }
         }
         |
-        DROP TABLE tbName ';'
+        DROP TABLE tbName ';' endLine
         {
             //在已经打开的数据库中删除一个数据表
             //如果没有打开数据库，报错
             if (dbNow == NULL) {
                 std::cout << "Parser.DROP TABLE: error" << std::endl;
-                std::cout << "没有已经打开的数据库"<< std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!dbNow -> hasOpenedTable(* $3)) {
+                //如果没有这个数据表，报错
+                std::cout << "Parser.DESC: error" << std::endl;
+                std::cout << "没有数据表:" << * $3 << std::endl;
             } else {
-                Table * table = dbNow -> getTableByName(* $3);
-                if (table == NULL) {
-                    std::cout << "Parser.DROP TABLE: error" << std::endl;
-                    std::cout << "没有这个表:" << * $3 << std::endl;
-                } else {
-                    dbNow -> eraseTable(* $3);
-                }
+                //删除数据表
+                dbNow -> eraseTable(* $3);
             }
         }
         |
-        DESC tbName ';'
+        DESC tbName ';' endLine
+        {
+            //打印数据表中的所有列
+            //如果没有打开数据库，报错
+            if (dbNow == NULL) {
+                std::cout << "Parser.DESC: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!dbNow -> hasOpenedTable(* $2)) {
+                //如果没有这个数据表，报错
+                std::cout << "Parser.DESC: error" << std::endl;
+                std::cout << "没有数据表:" << * $2 << std::endl;
+            } else {
+                //打印数据表的列
+                Table * table = dbNow -> getTableByName(* $2);
+                int nCol = table -> getNCol();
+                std::cout << "数据表" << * $2 << "共有" << nCol << "个数据列:" << std::endl;
+                TableHeader * tbHd = table -> getTableHeader();
+                for (int i = 0; i < nCol; i ++) {
+                    TableColumn * tbCol = tbHd -> getColumnById(i);
+                    std::cout << tbCol -> getName();
+                    std::cout << " " << getTypeNameInSQL(tbCol -> getDataType());
+                    if (!tbCol -> allowNull()) {
+                        std::cout << " NOT NULL";
+                    }
+                    if (tbCol -> hasTreeIndex() || tbCol -> hasHashIndex()) {
+                        std::cout << " WITH INDEX";
+                    }
+                    std::cout << (i < nCol - 1 ? ", " : ".");
+                }
+                std::cout << std::endl;
+            }
+        }
+        |
+        INSERT INTO tbName VALUES valueLists ';' endLine
         {
         }
         |
-        INSERT INTO tbName VALUES valueLists ';'
+        DELETEE FROM tbName WHERE whereClause  ';' endLine
         {
         }
         |
-        DELETE FROM tbName WHERE whereClause  ';'
+        UPDATE tbName SET setClause WHERE whereClause ';' endLine
         {
         }
         |
-        UPDATE tbName SET setClause WHERE whereClause ';'
-        {
-        }
-        |
-        SELECT selector FROM tableList WHERE whereClause ';'
+        SELECT selector FROM tableList WHERE whereClause ';' endLine
         {
         }
 ;
 
 idxStmt:
-        CREATE INDEX tbName '(' colName ')' ';'
+        CREATE INDEX tbName '(' colName ')' ';' endLine
         {
         }
         |
-        DROP INDEX tbName '(' colName ')' ';'
+        DROP INDEX tbName '(' colName ')' ';' endLine
         {
         }
 ;
@@ -339,12 +349,12 @@ type:
             $$ = TableDataType::t_string;
         }
         |
-        DATE
+        DATEE
         {
             $$ = TableDataType::t_int;
         }
         |
-        FLOAT
+        FLOATT
         {
             $$ = TableDataType::t_float;
         }
@@ -397,6 +407,7 @@ whereClause:
         filterItem
         {
         }
+;
         
 filterItem:
         col op expr
@@ -512,6 +523,13 @@ colName:
         }
 ;
 
+endLine:
+        '\n'
+        {
+            setCmdColor(0);
+        }
+;
+
 %%
 
 int yyerror(const char *emseg) {
@@ -522,7 +540,8 @@ int yyerror(const char *emseg) {
 int main() {
     FileManager * fileManager = new FileManager();
     bufPageManager = new BufPageManager(fileManager);
-    dbNow = NULL;
+    dbNow = NULL;    
+    cmdColorHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
     myMain(yyparse);
 }
