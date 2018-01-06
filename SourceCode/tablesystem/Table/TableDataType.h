@@ -25,7 +25,7 @@ enum TableDataType {
     t_double = 7,
     t_string = 8,
     t_lob = 9,
-    t_null = 10,//只在Filter里使用
+    t_null,//只在Filter里使用
 };
 
 /*
@@ -40,6 +40,7 @@ TableDataType getSuperType(TableDataType type) {
     case TableDataType::t_short:
     case TableDataType::t_int:
     case TableDataType::t_long:
+    case TableDataType::t_lob:
         reType = TableDataType::t_long;
         break;
     case TableDataType::t_float:

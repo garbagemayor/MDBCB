@@ -1,14 +1,9 @@
 %{
     #include "../ShellAssistant.h"
-    
     #include "lex.yy.c"
     
     int yylex();
     int yyerror(const char *);
-    
-    BufPageManager * bufPageManager;
-    TableManager * dbNow;
-    
 %}
 
 %token  DATABASE
@@ -33,37 +28,54 @@
 %token  SET
 %token  SELECT
 %token  IS
-%token  INTEGER
-%token  VARCHAR
 %token  DESC
 %token  REFERENCES
 %token  INDEX
 %token  AND
 %token  DATEE
-%token  FLOATT
 %token  FOREIGN
+%token  BOOLL
+%token  CHARR
+%token  SHORTT
+%token  INTEGER
+%token  LONGG
+%token  FLOATT
+%token  DOUBLEE
+%token  VARCHAR
+%token  LOB
 
 %token  ';' ',' '(' ')' '.' '=' '<' '>' //'<>' '<=' '>='
-
 %token <v_u> VALUE_UINT64
 %token <v_s> VALUE_STRING
 %token <v_d> VALUE_DOUBLE
 %token <v_s> IDENTIFIER
 
+%type <u_fl> fieldList
+%type <u_fd> field
+
+%type <u_vt> valueLists
+%type <u_vr> valueList
+%type <u_va> value
+
+%type <v_sl> identList
+%type <v_s> ident
 %type <v_t> type
-%type <v_s> dbName
-%type <v_s> tbName
-%type <v_s> colName
-%type <v_tc> field
-%type <v_th> fieldList
- 
+
 %union {
-    unsigned long long v_u;
+    
+    UnionFieldList * u_fl;
+    UnionField * u_fd;
+    StringList * v_sl;
+    
+    UnionValue * u_va;
+    UnionValueRow * u_vr;
+    UnionValueTable * u_vt;
+    
+    uint64 v_u;
     double v_d;
-    TableDataType v_t;
     std::string * v_s;
-    TableColumn * v_tc;
-    std::vector<TableColumn *> * v_th;
+    
+    TableDataType v_t;
 }
 %%
 
@@ -133,66 +145,69 @@ sysStmt:
 ;
 
 dbStmt:
-        CREATE DATABASE dbName ';' endLine
+        CREATE DATABASE ident ';' endLine
         {
             //新建一个数据库
+            std::string * dbName = $3;
             //关闭已经打开的数据库
-            if (dbNow != NULL) {
+            if (curDb != NULL) {
                 chdir("../");
-                delete dbNow;
-                dbNow = NULL;
+                delete curDb;
+                curDb = NULL;
             }
             //如果已有这个数据库，报错
-            if (access($3 -> c_str(), W_OK) == 0) {
+            if (access(dbName -> c_str(), W_OK) == 0) {
                 std::cout << "Parser.CREATE DATABASE: error" << std::endl;
-                std::cout << "已有数据库:" << * $3 << std::endl;
+                std::cout << "已有数据库:" << * dbName << std::endl;
             } else {
                 //新建这个数据库，并打开
-                mkdir($3 -> c_str());
-                chdir($3 -> c_str());
-                dbNow = new TableManager(bufPageManager, * $3);
+                mkdir(dbName -> c_str());
+                chdir(dbName -> c_str());
+                curDb = new TableManager(bufPageManager, * dbName);
             }
         }        
         |
-        DROP DATABASE dbName ';' endLine
+        DROP DATABASE ident ';' endLine
         {
             //删除一个数据库
+            std::string * dbName = $3;
             //关闭已经打开的数据库
-            if (dbNow != NULL) {
+            if (curDb != NULL) {
                 chdir("../");
-                delete dbNow;
-                dbNow = NULL;
+                delete curDb;
+                curDb = NULL;
             }
             //如果不存在这个数据库，报错
-            if (access($3 -> c_str(), W_OK) == -1) {
+            if (access(dbName -> c_str(), W_OK) == -1) {
                 std::cout << "Parser.CREATE DATABASE: error" << std::endl;
-                std::cout << "不存在数据库:" << * $3 << std::endl;
+                std::cout << "不存在数据库:" << * dbName << std::endl;
             } else {
                 //删除这个数据库
-                int rmrs = removeDir($3 -> c_str());
+                int rmrs = removeDir(dbName -> c_str());
                 if (rmrs == -1) {
                     std::cout << "删不掉这个数据库" << std::endl;
                 }
             }
         }        
         |
-        USE dbName ';' endLine
+        USE ident ';' endLine
         {
             //打开一个数据库
+            std::string * dbName = $2;
             //关闭已经打开的数据库
-            if (dbNow != NULL) {
+            if (curDb != NULL) {
                 chdir("../");
-                delete dbNow;
-                dbNow = NULL;
+                delete curDb;
+                curDb = NULL;
             }
             //如果不存在这个数据库，报错
-            if (access($2 -> c_str(), W_OK) == -1) {
+            if (access(dbName -> c_str(), W_OK) == -1) {
                 std::cout << "Parser.USE: error" << std::endl;
-                std::cout << "不存在数据库:" << * $2 << std::endl;
+                std::cout << "不存在数据库:" << * dbName << std::endl;
             } else {
                 //打开这个数据库
-                chdir($2 -> c_str());
-                dbNow = new TableManager(bufPageManager, * $2);
+                chdir(dbName -> c_str());
+                curDb = new TableManager(bufPageManager, * dbName);
             }
         }
         |
@@ -200,15 +215,15 @@ dbStmt:
         {
             //查看这个数据库的所有数据表
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.SHOW TABLES: error" << std::endl;
                 std::cout << "没有正在使用的数据库" << std::endl;
             } else {
                 //打印数据库中的数据表
-                int nTab = dbNow -> getNTable();
-                std::cout << "数据库" << dbNow -> getName() << "共有" << nTab << "个数据表:" << std::endl;
+                int nTab = curDb -> getNTable();
+                std::cout << "数据库" << curDb -> getName() << "共有" << nTab << "个数据表:" << std::endl;
                 for (int i = 0; i < nTab; i ++) {
-                    std::cout << dbNow -> getTableById(i) -> getName() << ( i < nTab - 1 ? ", " : ".");
+                    std::cout << curDb -> getTableById(i) -> getName() << ( i < nTab - 1 ? ", " : ".");
                 }
                 std::cout << std::endl;
             }
@@ -216,62 +231,95 @@ dbStmt:
 ;
 
 tbStmt:
-        CREATE TABLE tbName '(' fieldList ')' ';' endLine
+        CREATE TABLE ident '(' fieldList ')' ';' endLine
         {
             //在已经打开的数据库中创建一个数据表
+            std::string * tbName = $3;
+            UnionFieldList * fieldList = $5;
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.CREATE TABLE: error" << std::endl;
-                std::cout << "没有已经打开的数据库:" << * $3 << std::endl;
-            } else if (dbNow -> hasOpenedTable(* $3)) {
+                std::cout << "没有已经打开的数据库:" << * tbName << std::endl;
+            } else if (curDb -> hasOpenedTable(* tbName)) {
                 //如果已有同名数据表，报错
                 std::cout << "Parser.CREATE TABLE: error" << std::endl;
-                std::cout << "已有这个数据表:" << * $3 << std::endl;
+                std::cout << "已有这个数据表:" << * tbName << std::endl;
             } else {
+                //整理fieldList，获取到所有被设为PRIMARY KEY的列名
+                StringList pkList;
+                for (int i = 0; i < (int) fieldList -> size(); i ++) {
+                    if (fieldList -> at(i) -> ty == 2) {
+                        StringList * pkListI = fieldList -> at(i) -> dt.pk;
+                        for (int j = 0; j < (int) pkListI -> size(); j ++) {
+                            pkList.push_back(pkListI -> at(j));
+                        }
+                    }
+                }
+                //整理fieldList，把第一个可以被设为PRIMARY KEY的列设置一下，剩下的就无视掉
+                for (int i = 0; i < (int) pkList.size(); i ++) {
+                    int j;
+                    for (j = 0; j < (int) fieldList -> size(); j ++) {
+                        if ($5 -> at(j) -> ty == 1) {
+                            if ($5 -> at(j) -> dt.tc -> getName() == * pkList[i]) {
+                                $5 -> at(j) -> dt.tc -> setPrimaryKey(true);
+                                break;
+                            }
+                        }
+                    }
+                    if (j < (int) fieldList -> size()) {
+                        break;
+                    }
+                }
                 //创建数据表
                 TableHeader * tbHd = new TableHeader();
-                tbHd -> setName(* $3);
-                for (int i = 0; i < $5 -> size(); i ++) {
-                    tbHd -> addColumn((* $5) [i]);
+                tbHd -> setName(* tbName);
+                for (int i = 0; i < (int) fieldList -> size(); i ++) {
+                    UnionField * fd = fieldList -> at(i);
+                    if (fd -> ty == 1) {
+                        fd -> dt.tc -> setConstant();
+                        tbHd -> addColumn(fd -> dt.tc);
+                    }
                 }
                 tbHd -> setConstant();
-                dbNow -> createTable(tbHd);
+                curDb -> createTable(tbHd);
             }
         }
         |
-        DROP TABLE tbName ';' endLine
+        DROP TABLE ident ';' endLine
         {
             //在已经打开的数据库中删除一个数据表
+            std::string * tbName = $3;
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.DROP TABLE: error" << std::endl;
                 std::cout << "没有已经打开的数据库" << std::endl;
-            } else if (!dbNow -> hasOpenedTable(* $3)) {
+            } else if (!curDb -> hasOpenedTable(* tbName)) {
                 //如果没有这个数据表，报错
                 std::cout << "Parser.DESC: error" << std::endl;
-                std::cout << "没有数据表:" << * $3 << std::endl;
+                std::cout << "没有数据表:" << * tbName << std::endl;
             } else {
                 //删除数据表
-                dbNow -> eraseTable(* $3);
+                curDb -> eraseTable(* tbName);
             }
         }
         |
-        DESC tbName ';' endLine
+        DESC ident ';' endLine
         {
             //打印数据表中的所有列
+            std::string * tbName = $2;
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.DESC: error" << std::endl;
                 std::cout << "没有已经打开的数据库" << std::endl;
-            } else if (!dbNow -> hasOpenedTable(* $2)) {
+            } else if (!curDb -> hasOpenedTable(* tbName)) {
                 //如果没有这个数据表，报错
                 std::cout << "Parser.DESC: error" << std::endl;
-                std::cout << "没有数据表:" << * $2 << std::endl;
+                std::cout << "没有数据表:" << * tbName << std::endl;
             } else {
                 //打印数据表的列
-                Table * table = dbNow -> getTableByName(* $2);
+                Table * table = curDb -> getTableByName(* tbName);
                 int nCol = table -> getNCol();
-                std::cout << "数据表" << * $2 << "共有" << nCol << "个数据列:" << std::endl;
+                std::cout << "数据表" << * tbName << "共有" << nCol << "个数据列:" << std::endl;
                 TableHeader * tbHd = table -> getTableHeader();
                 for (int i = 0; i < nCol; i ++) {
                     TableColumn * tbCol = tbHd -> getColumnById(i);
@@ -283,35 +331,84 @@ tbStmt:
                     if (tbCol -> hasTreeIndex() || tbCol -> hasHashIndex()) {
                         std::cout << " WITH INDEX";
                     }
+                    if (tbCol -> isPrimaryKey()) {
+                        std::cout << " PRIMARY KEY";
+                    }
                     std::cout << (i < nCol - 1 ? ", " : ".");
                 }
                 std::cout << std::endl;
             }
         }
         |
-        INSERT INTO tbName VALUES valueLists ';' endLine
+        INSERT INTO ident VALUES valueLists ';' endLine
+        {
+            //在数据表中插入若干行
+            std::string * tbName = $3;
+            UnionValueTable * rowList = $5;
+            //如果没有打开数据库，报错
+            if (curDb == NULL) {
+                std::cout << "Parser.INSERT INTO: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!curDb -> hasOpenedTable(* tbName)) {
+                //如果没有这个数据表，报错
+                std::cout << "Parser.INSERT INTO: error" << std::endl;
+                std::cout << "没有数据表:" << * tbName << std::endl;
+            } else {
+                Table * table = curDb -> getTableByName(* tbName);
+                TableHeader * tableHeader = table -> getTableHeader();
+                //把数据一行一行的插入到表中
+                int insertCnt = 0;
+                for (int i = 0; i < (int) rowList -> size(); i ++) {
+                    //创建行数据
+                    UnionValueRow * sqlRow = rowList -> at(i);
+                    TableRow * tableRow = genTableRow(sqlRow, tableHeader);
+                    if (tableRow == NULL) {
+                        std::cout << "Parser.INSERT INTO: error" << std::endl;
+                        std::cout << "输入的第" << i << "个数据行不符合数据表" << table -> getName() << "的格式要求" << std::endl;
+                        continue;
+                    }
+                    table -> insertRow(tableRow);
+                    insertCnt += 1;
+                }
+                std::cout << "共添加" << insertCnt << "个数据行" << std::endl;
+            }
+        }
+        |
+        deleteFromTable ident WHERE whereClause  ';' endLine
         {
         }
         |
-        DELETEE FROM tbName WHERE whereClause  ';' endLine
+        updateTable SET setClause WHERE whereClause ';' endLine
         {
         }
         |
-        UPDATE tbName SET setClause WHERE whereClause ';' endLine
-        {
-        }
-        |
-        SELECT selector FROM tableList WHERE whereClause ';' endLine
+        SELECT selector FROM identList WHERE whereClause ';' endLine
         {
         }
 ;
 
+deleteFromTable:
+        DELETEE FROM ident
+        {
+            std::string * tbName = $3;
+            loadCurTable(tbName);
+        }
+;
+
+updateTable:
+        UPDATE ident
+        {
+            std::string * tbName = $2;
+            loadCurTable(tbName);
+        }
+;
+
 idxStmt:
-        CREATE INDEX tbName '(' colName ')' ';' endLine
+        CREATE INDEX ident '(' ident ')' ';' endLine
         {
         }
         |
-        DROP INDEX tbName '(' colName ')' ';' endLine
+        DROP INDEX ident '(' ident ')' ';' endLine
         {
         }
 ;
@@ -319,9 +416,7 @@ idxStmt:
 fieldList:
         field
         {
-            //std::cout << "Parser.fieldList: (" << $1 -> getName() << " " << $1 -> getDataType() << ")" << std::endl;
-            $$ = new std::vector<TableColumn *>();
-            $$ -> clear();
+            $$ = new UnionFieldList();
             $$ -> push_back($1);
         }
         |
@@ -333,38 +428,105 @@ fieldList:
 ;
 
 field:
-        colName type
+        ident type
         {
-            //std::cout << "Parser.field: (" << * $1 << " " << $2 << ")" << std::endl;
-            $$ = new TableColumn();
-            $$ -> setName(* $1);
-            $$ -> setType($2);
-            $$ -> setAllowNull(true);
-            $$ -> setConstant();
+            std::string * colName = $1;
+            
+            $$ = new UnionField();
+            $$ -> ty = 1;
+            $$ -> dt.tc = new TableColumn();
+            $$ -> dt.tc -> setName(* colName);
+            $$ -> dt.tc -> setType($2);
+            $$ -> dt.tc -> setAllowNull(true);
         }
         |
-        colName type NOT NNULL
+        ident type NOT NNULL
         {
-            //std::cout << "Parser.field: (" << * $1 << " " << $2 << " NOT NULL)" << std::endl;
-            $$ = new TableColumn();
-            $$ -> setName(* $1);
-            $$ -> setType($2);
-            $$ -> setConstant();
+            std::string * colName = $1;
+            
+            $$ = new UnionField();
+            $$ -> ty = 1;
+            $$ -> dt.tc = new TableColumn();
+            $$ -> dt.tc -> setName(* colName);
+            $$ -> dt.tc -> setType($2);
         }
         |
-        PRIMARY KEY '(' columnList ')'
+        PRIMARY KEY '(' identList ')'
         {
+            StringList * colList = $4;
+            $$ = new UnionField();
+            $$ -> ty = 2;
+            $$ -> dt.pk = colList;
         }
         |
-        FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')'
+        FOREIGN KEY '(' ident ')' REFERENCES ident '(' ident ')'
         {
+            //去一个已有数据表中把一个数据列的属性复制过来
+            std::string * colName = $4;
+            std::string * tbName = $7;
+            std::string * colName0 = $9;
+            $$ = new UnionField();
+            //如果没有打开数据库，报错
+            if (curDb == NULL) {
+                std::cout << "Parser.FOREIGN KEY: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!curDb -> hasOpenedTable(* tbName)) {
+                //如果没有这个数据表，报错
+                std::cout << "Parser.FOREIGN KEY: error" << std::endl;
+                std::cout << "没有数据表:" << * tbName << std::endl;
+            } else if (!curDb -> getTableByName(* tbName) -> getTableHeader() -> hasColumn(* colName0)) { 
+                //如果没有这个数据列，报错
+                std::cout << "Parser.FOREIGN KEY: error" << std::endl;
+                std::cout << "数据表" << * $7 << "中没有数据列:" << * colName0 << std::endl;
+            } else {
+                TableColumn * tc = curDb -> getTableByName(* tbName) -> getTableHeader() -> getColumnByName(* colName0);
+                $$ -> ty = 1;
+                $$ -> dt.tc = new TableColumn();
+                $$ -> dt.tc -> setName(* colName);
+                $$ -> dt.tc -> setType(tc -> getDataType());
+                $$ -> dt.tc -> setUnique(tc -> isUnique());
+                $$ -> dt.tc -> setAllowNull(tc -> allowNull());
+                $$ -> dt.tc -> setPrimaryKey(tc -> hasDefault());
+                $$ -> dt.tc -> setHasTreeIndex(tc -> hasTreeIndex());
+                $$ -> dt.tc -> setHasHashIndex(tc -> hasHashIndex());
+            }
         }
-;        
+;
 
 type:
+        BOOLL
+        {
+            $$ = TableDataType::t_bool;
+        }
+        |
+        CHARR
+        {
+            $$ = TableDataType::t_char;
+        }
+        |
+        SHORTT
+        {
+            $$ = TableDataType::t_short;
+        }
+        |
         INTEGER
         {
             $$ = TableDataType::t_int;
+        }
+        |
+        LONGG
+        {
+            $$ = TableDataType::t_long;
+        }
+        |
+        FLOATT
+        {
+            $$ = TableDataType::t_float;
+        }
+        |
+        DOUBLEE
+        {
+            $$ = TableDataType::t_double;
         }
         |
         VARCHAR        
@@ -377,48 +539,65 @@ type:
             $$ = TableDataType::t_int;
         }
         |
-        FLOATT
+        LOB
         {
-            $$ = TableDataType::t_float;
+            $$ = TableDataType::t_lob;
         }
 ;
-    
 
 valueLists:
         '(' valueList ')'
         {
+            $$ = new UnionValueTable();
+            $$ -> push_back($2);
         }
         |
         valueLists ',' '(' valueList ')'
         {
+            $$ = $1;
+            $$ -> push_back($4);
         }
 ;
 
 valueList:
         value
         {
+            $$ = new UnionValueRow();
+            $$ -> push_back($1);
         }
         |
         valueList ',' value
         {
+            $$ = $1;
+            $$ -> push_back($3);
         }
 ;
 
 value:
+        NNULL        
+        {
+            $$ = new UnionValue();
+        }
+        |
         VALUE_UINT64
         {
+            $$ = new UnionValue();
+            $$ -> ty = 1;
+            $$ -> dt.u = $1;
         }
         |
         VALUE_DOUBLE
         {
+            $$ = new UnionValue();
+            $$ -> ty = 2;
+            $$ -> dt.d = $1;
         }
         |
         VALUE_STRING
         {
-        }
-        |
-        NNULL        
-        {
+            $$ = new UnionValue();
+            $$ -> ty = 3;
+            $$ -> dt.s = $1;
         }
 ;
 
@@ -447,11 +626,11 @@ filterItem:
 ;
 
 col:            
-        colName
+        ident
         {
         }
         |
-        tbName '.' colName
+        ident '.' ident
         {
         }
 ;
@@ -493,11 +672,11 @@ expr:
 ;
 
 setClause:
-        colName '=' value
+        ident '=' value
         {
         }
         |
-        setClause ',' colName '=' value
+        setClause ',' ident '=' value
         {
         }
 ;
@@ -508,38 +687,21 @@ selector:
         }
 ;
 
-tableList:
-        tbName
+identList:
+        ident        
         {
+            $$ = new StringList();
+            $$ -> push_back($1);
         }
         |
-        tableList ',' tbName
-
-columnList:
-        colName        
+        identList ',' ident
         {
-        }
-        |
-        columnList ',' colName
-        {
+            $$ = $1;
+            $$ -> push_back($3);
         }
 ;
 
-dbName:
-        IDENTIFIER
-        {
-            $$ = $1;
-        }
-;  
-
-tbName:
-        IDENTIFIER
-        {
-            $$ = $1;
-        }
-;  
-
-colName:
+ident:
         IDENTIFIER
         {
             $$ = $1;
@@ -550,22 +712,24 @@ endLine:
         '\n'
         {
             setCmdColor(0);
+            curTb = NULL;
         }
 ;
 
 %%
 
-int yyerror(const char *emseg) {
-    std::cout << "Parser: Unknown sentence! please try again!" << std::endl;
-    //cout << "Error: " << emseg << endl;
+int yyerror(const char * emseg) {
+    std::cout << "Parser: Unknown sentence! please try again! " << emseg << std::endl;
+    return -1;
 }
 
 int main() {
     MyBitMap::initConst();
     FileManager * fileManager = new FileManager();
     bufPageManager = new BufPageManager(fileManager);
-    dbNow = NULL;    
+    curDb = NULL;    
     cmdColorHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    myMain(yyparse);
+    //myMain(yyparse);
+    yyparse();
 }

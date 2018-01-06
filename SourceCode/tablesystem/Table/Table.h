@@ -83,8 +83,8 @@ public:
      *  功能:写回并关掉文件
      */
     ~Table() {
-        delete oneFileManager;
         delete tablePageAssistant;
+        delete oneFileManager;
     }
     
 public:
@@ -132,37 +132,39 @@ public:
 public:
     ///普通函数
     /*
-     *  @函数名:addRow
+     *  @函数名:insertRow
      *  @参数tableRow:要加入的行，它会被复制之后加入，所以在哪里定义的就在哪里释放内存
      *  @参数pageId:用于返回插入位置的页编号
      *  @参数slotId:用于返回插入位置的槽编号
      *  功能:添加一行数据，去每一页里面找一个能加入的位置把它加进去
      */
-    void addRow(TableRow * tableRow, int & pageId, int & slotId) {
+    void insertRow(TableRow * tableRow, int & pageId, int & slotId) {
         //表头不同报错
         if (!tableHeader -> isEqualTo(tableRow -> getTableHeader())) {
-            std::cout << "Table.addRow(...) error" << std::endl;
+            std::cout << "Table.insertRow(...) error 1" << std::endl;
             return;
         }
         //新列不满足NULL条件报错
         if (!tableRow -> canMeetNullRequirement()) {
-            std::cout << "Table.addRow(...) error" << std::endl;
+            std::cout << "Table.insertRow(...) error" << std::endl;
             return;
         }
         //新列不满足数据互不相同条件报错
         ///TODO
         /*if (!indexManager -> canMeetUniqueRequirement(tableRow)) {
-            std::cout << "Table.addRow(...) error" << std::endl;
+            std::cout << "Table.insertRow(...) error" << std::endl;
             return;
         }*/
         //在表页助手里面找一个合适的页
         int slotLen = tableRow -> getSizeInSlot();
         pageId = tablePageAssistant -> findPageForSlot(slotLen);
         //在这一页中获取槽的编号
-        TablePage * page;
+        TablePage * page; 
         if (pageId < oneFileManager -> getPageCnt()) {
+            std::cout << "Table.insertRow(...) 已有页面" << std::endl;
             page = new TablePage(oneFileManager, pageId);   //在已有的页面上添加
         } else {
+            std::cout << "Table.insertRow(...) 新页面" << std::endl;
             page = new TablePage(oneFileManager);           //在新开的页面上添加
         }
         //写进去
@@ -174,14 +176,15 @@ public:
     }
     
     /*
-     *  @函数名:addRow
+     *  @函数名:insertRow
      *  @参数tableRow:要加入的行，它会被复制之后加入，所以在哪里定义的就在哪里释放内存
      *  功能:添加一行数据，去每一页里面找一个能加入的位置把它加进去
+     *       被添加的行确保表头相同，满足NULL限制
      */
-    void addRow(TableRow * tableRow) {
+    void insertRow(TableRow * tableRow) {
         int pageId;
         int slotId;
-        addRow(tableRow, pageId, slotId);
+        insertRow(tableRow, pageId, slotId);
     }
     
     
