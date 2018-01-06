@@ -19,8 +19,6 @@ private:
     int length;
     //二进制形式下的数据内容
     ByteBufType data;
-    //是否脏
-    bool dirtyFlag;
 
 public:
     /*
@@ -38,13 +36,9 @@ public:
         nullFlag = true;
         length = getDataTypeLength(tableColumn -> getDataType());
         data = NULL;
-        dirtyFlag = true;
     }
     
     ~TableGrid() {
-        if (dirtyFlag) {
-            std::cout << "~TableGrid() error" << std::endl;
-        }
         if (data != NULL) {
             delete [] data;
         }
@@ -84,14 +78,6 @@ public:
         return data;
     }
     
-    /*
-     *  @函数名:isDirty
-     *  功能:返回是否脏
-     */
-    bool isDirty() {
-        return dirtyFlag;
-    }
-    
 public:
     ///基本set函数    
     /*
@@ -99,7 +85,6 @@ public:
      *  功能:设置为NULL，标记脏
      */
     void setNull() {
-        dirtyFlag = true;
         nullFlag = true;
     }
     
@@ -107,25 +92,22 @@ public:
      *  @函数名:setDataValueNumber
      *  @参数data_:要写入的数值
      *  @参数length_:要写入数值的长度
-     *  功能:设置bool, char, short, int, long以及对应的unsigned，还有lob类型的格子的值，并标记脏
+     *  功能:设置bool, char, short, int, long, float, double以及对应的unsigned，还有lob类型的格子的值，并标记脏
      */
     void setDataValueNumber(uint64 num, int length_) {
         //数据类型错误报错
-        if (tableColumn -> getDataType() != TableDataType::t_bool &&
-            tableColumn -> getDataType() != TableDataType::t_char &&
-            tableColumn -> getDataType() != TableDataType::t_short &&
-            tableColumn -> getDataType() != TableDataType::t_int &&
-            tableColumn -> getDataType() != TableDataType::t_long &&
-            tableColumn -> getDataType() != TableDataType::t_lob) {
-            std::cout << "TableGrid.setDataValueNumber(" << num << ", " << length_ << ") error" << std::endl;
+        TableDataType superType = getSuperType(tableColumn -> getDataType());
+        if (superType != TableDataType::t_long &&
+            superType != TableDataType::t_double) {
+            std::cout << "TableGrid.setDataValueNumber(" << num << ", " << length_ << ") error 1" << std::endl;
             return;
         }
         //数据长度报错
         if (tableColumn -> getDataLength() != length_) {
-            std::cout << "TableGrid.setDataValueNumber(" << num << ", " << length_ << ") error" << std::endl;
+            std::cout << "TableGrid.setDataValueNumber(" << num << ", " << length_ << ") error 2" << std::endl;
+            std::cout << "TableGrid.setDataValueNumBer(...) getDataLength() = " << tableColumn -> getDataLength() << std::endl;
             return;
         }
-        dirtyFlag = true;
         nullFlag = false;
         length = length_;
         if (data == NULL ) {
@@ -133,7 +115,12 @@ public:
         }
         memset(data, 0, sizeof(Byte) * length);
         ByteBufType data_ = data;
-        writeNumberToByte(data_, length, num);
+        //根据数据格的实际类型选择写入方式
+        if (superType == TableDataType::t_long) {
+            writeNumberToByte(data_, length, num);
+        } else {
+            writeFloatToByte(data_, length, num);
+        }
     }
     
     /*
@@ -146,15 +133,14 @@ public:
         //数据类型错误报错
         if (tableColumn -> getDataType() != TableDataType::t_float &&
             tableColumn -> getDataType() != TableDataType::t_double) {
-            std::cout << "TableGrid.setDataValueFloat(" << num << ", " << length_ << ") error" << std::endl;
+            std::cout << "TableGrid.setDataValueFloat(" << num << ", " << length_ << ") error 1" << std::endl;
             return;
         }
         //数据长度报错
         if (tableColumn -> getDataLength() != length_) {
-            std::cout << "TableGrid.setDataValueFloat(" << num << ", " << length_ << ") error" << std::endl;
+            std::cout << "TableGrid.setDataValueFloat(" << num << ", " << length_ << ") error 2" << std::endl;
             return;
         }
-        dirtyFlag = true;
         nullFlag = false;
         length = length_;
         if (data == NULL ) {
@@ -180,7 +166,6 @@ public:
             std::cout << "TableGrid.setDataValueArray(..., " << length_ << ") error" << std::endl;
             return;
         }
-        dirtyFlag = true;
         nullFlag = false;
         length = length_;
         if (data == NULL) {
@@ -204,7 +189,6 @@ public:
             return;
         }
         //直接读
-        dirtyFlag = true;
         nullFlag = false;
         if (data == NULL) {
             data = new Byte [length];
@@ -223,7 +207,6 @@ public:
             return;
         }
         //直接读
-        dirtyFlag = true;
         nullFlag = false;
         length = length_;
         if (data == NULL) {

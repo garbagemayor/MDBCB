@@ -20,27 +20,24 @@ private:
 	int _createFile(const char* name) {
 		FILE* f = fopen(name, "ab+");
 		if (f == NULL) {
-			cout << "fail" << endl;
-			return -1;
+            cout << "fail" << endl;
+            return -1;
 		}
 		fclose(f);
 		return 0;
 	}
 	int _openFile(const char* name, int fileID) {
-		FILE * f = fopen(name, "ab+");
+		FILE * f = fopen(name, "rb+");
 		if (f == NULL) {
 			return -1;
 		}
 		fd[fileID] = (int) f;
 		return 0;
 	}
-	int _getFileSize(const char* name) {
-	    FILE * file = fopen(name, "rb+");
-        if (file == NULL) {
-            return -1;
-        }
-        int sz = filelength(fileno(file));
-        fclose(file);
+	int _getFileSize(int fileId) {
+        FILE * f = (FILE *) fd[fileId];
+        fseek(f, 0, SEEK_END);
+        int sz = ftell(f);
         return sz;
 	}
 public:
@@ -134,6 +131,8 @@ public:
 	 * 返回:如果存在返回true
 	 */
 	bool hasFile(const char* name) {
+	    return access(name, 0) == 0;
+	    
 	    int fileId = fm->findLeftOne();
 		fm->setBit(fileId, 0);
 	    int re = _openFile(name, fileId);
@@ -148,8 +147,8 @@ public:
 	 *  功能:获取name文件的大小，单位字节
 	 *  返回:操作成功返回文件大小，失败返回-1
 	 */
-    int getFileSize(const char* name) {
-        return _getFileSize(name);
+    int getFileSize(int fileId) {
+        return _getFileSize(fileId);
     }
 	
 	int newType() {

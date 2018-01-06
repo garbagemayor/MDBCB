@@ -14,6 +14,99 @@
 HANDLE cmdColorHandle;
 #endif
 
+/**
+ *  文法需要的类
+ */
+/*
+ *  字符串数组
+ */
+typedef std::vector < std::string * > StringList;
+
+/*
+ *  创建表的列定义
+ */
+class UnionField {
+    
+public:
+    int ty;
+    union data {
+        TableColumn * tc;   //ty = 1
+        StringList * pk;    //ty = 2
+    } dt;
+    
+public:
+    UnionField() {
+        ty = 0;
+        dt.tc = NULL;
+    }
+    ~UnionField() {
+        if (ty == 1) {
+            delete dt.tc;
+        } else {
+            delete dt.pk;
+        }
+    }
+};
+
+/*
+ *  列定义数组
+ */
+typedef std::vector < UnionField * > UnionFieldList;
+
+/*
+ *  数值
+ */
+class UnionValue {
+    
+public:
+    int ty;
+    union data {
+        /*NULL*/            //ty = 0
+        uint64 u;           //ty = 1
+        double d;           //ty = 2
+        std::string * s;    //ty = 3
+    } dt;
+    
+public:
+    UnionValue() {
+        ty = 0;
+        dt.u = 0;
+    }
+    
+    ~UnionValue() {
+        if (ty == 3) {
+            delete dt.s;
+        }
+    }
+};
+
+/*
+ *  数值行
+ */
+typedef std::vector < UnionValue * > UnionValueRow;
+
+/*
+ *  数值行数组，数值表
+ */
+typedef std::vector < UnionValueRow * > UnionValueTable;
+
+
+
+
+
+
+
+/**
+ *  各种帮助函数
+ */
+    
+//缓存页管理器
+BufPageManager * bufPageManager;
+//运行语境的数据库
+TableManager * curDb;
+//一条语句中前半句指定的一个数据表
+Table * curTb;
+
 /*
  *  删除该文件夹，包括其中所有的文件和文件夹，可以是相对路径也可以是绝对路径
  */
@@ -46,7 +139,7 @@ int removeDir(const char*  dirPath) {
 /*
  *  改变控制台(windows)/终端(linux)字体颜色
  */
-int setCmdColor(int c) {
+void setCmdColor(int c) {
     if (c == 0) {
         //默认颜色
 #ifdef WIN32
@@ -103,32 +196,108 @@ std::string getTypeNameInSQL(TableDataType type) {
     return typeName;
 }
 
-typedef std::vector < std::string * > StringList;
-
-class UnionField {
-    
-public:
-    int ty;
-    union data {
-        TableColumn * tc;   //ty = 1
-        StringList * pk;    //ty = 2
-    } dt;
-    
-public:
-    UnionField() {
-        ty = 0;
-        dt.tc = NULL;
+/*
+ *  加载前半句SQL语句确定的数据表
+ */
+void loadCurTable(std::string * tbName) {
+    //如果没有打开数据库，报错
+    if (curDb == NULL) {
+        std::cout << "Parser.INSERT INTO: error" << std::endl;
+        std::cout << "没有已经打开的数据库" << std::endl;
+    } else if (!curDb -> hasOpenedTable(* tbName)) {
+        //如果没有这个数据表，报错
+        std::cout << "Parser.INSERT INTO: error" << std::endl;
+        std::cout << "没有数据表:" << * tbName << std::endl;
+    } else {
+        //当前SQL语句描述的数据表
+        curTb = curDb -> getTableByName(* tbName);
     }
-    ~UnionField() {
-        if (ty == 1) {
-            delete dt.tc;
-        } else {
-            delete dt.pk;
+}
+
+/*
+ *  把文法产生的数据行转换为数据表中的数据行，不能转换就返回NULL
+ */
+TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
+    //检查这一行的数据格数量
+    if ((int) sqlRow -> size() != tableHeader -> getNCol()) {
+        return NULL;
+    }
+    TableRow * tableRow = new TableRow(tableHeader);
+    
+    std::cout << "genTableRow(...) {" << std::endl;
+    std::cout << "    tableHeader = {" << std::endl;
+    std::cout << "        name = " << tableHeader -> getName() << std::endl;
+    std::cout << "        nCol = " << tableHeader -> getNCol() << std::endl;
+    std::cout << "        nRow = " << tableHeader -> getNRow() << std::endl;
+    for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+    std::cout << "        columnList[" << i << "] = {" << std::endl;
+    std::cout << "            name = " << tableHeader -> getColumnById(i) -> getName() << std::endl;
+    std::cout << "            type = " << tableHeader -> getColumnById(i) -> getDataType() << std::endl;
+    std::cout << "            length = " << tableHeader -> getColumnById(i) -> getDataLength() << std::endl;
+    std::cout << "        }" << std::endl;
+    }
+    std::cout << "    }" << std::endl;
+    std::cout << "}" << std::endl;
+    
+    for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+        //检查这一格的数据类型和NULL情况
+        UnionValue * sqlValue = sqlRow -> at(i);
+        TableColumn * tableColumn = tableHeader -> getColumnById(i);
+        TableGrid * tableGrid = tableRow -> getGridById(i);
+        TableDataType superType = getSuperType(tableColumn -> getDataType());
+        int typeLen = getDataTypeLength(tableColumn -> getDataType());
+        if (sqlValue -> ty == 0) {
+            //SQL遇到NULL
+            if (!tableColumn -> allowNull()) {
+                delete tableRow;
+                return NULL;
+            }
+            tableGrid -> setNull();
+        } else if (sqlValue -> ty == 1) {
+            //SQL遇到UINT64
+            if (superType != TableDataType::t_long &&
+                superType != TableDataType::t_double) {
+                delete tableRow;
+                return NULL;
+            }
+            tableGrid -> setDataValueNumber(sqlValue -> dt.u, typeLen);
+        } else if (sqlValue -> ty == 2) {
+            //SQL遇到DOUBLE
+            if (superType != TableDataType::t_double) {
+                delete tableRow;
+                return NULL;
+            }
+            tableGrid -> setDataValueFloat(sqlValue -> dt.d, typeLen);
+        } else if (sqlValue -> ty == 3) {
+            //SQL遇到STRING
+            if (superType != TableDataType::t_string) {
+                delete tableRow;
+                return NULL;
+            }
+            std::string * s = sqlValue -> dt.s;
+            tableGrid -> setDataValueArray((ByteBufType) s -> c_str(), s -> length());
         }
     }
-};
+    return tableRow;
+}
 
-typedef std::vector < UnionField * > UnionFieldList;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #endif // SHELL_ASSISTANT_H_

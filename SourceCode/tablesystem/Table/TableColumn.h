@@ -428,6 +428,7 @@ public:
         int sz = readByteToNumber(colData, 2);
         flag = readByteToNumber(colData, 2);
         type = (TableDataType) readByteToNumber(colData, 1);
+        length = getDataTypeMaxLength(type);
         int nameLen = readByteToNumber(colData, 1);
         static char name_[MAX_NAME_LENGTH + 4];
         memset(name_, 0, sizeof(char) * (MAX_NAME_LENGTH + 4));

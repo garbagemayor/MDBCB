@@ -90,23 +90,27 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 69 "SQLParser.y"
+#line 64 "SQLParser.y"
 
     
     UnionFieldList * u_fl;
     UnionField * u_fd;
     StringList * v_sl;
     
-    std::string * v_s;
-    unsigned long long v_u;
+    UnionValue * u_va;
+    UnionValueRow * u_vr;
+    UnionValueTable * u_vt;
+    
+    uint64 v_u;
     double v_d;
+    std::string * v_s;
     
     TableDataType v_t;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 110 "SQLParser.hpp"
+#line 114 "SQLParser.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

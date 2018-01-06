@@ -41,11 +41,11 @@ public:
         if (!bufPageManager -> fileManager -> hasFile(fileName.c_str())) {
             bufPageManager -> fileManager -> createFile(fileName.c_str());
         }
-        pageCnt = bufPageManager -> fileManager -> getFileSize(fileName.c_str()) / PAGE_SIZE;
         if (bufPageManager -> fileManager -> openFile(fileName.c_str(), fileId) == false) {
             std::cout << "OneFileManager(bufPageManager, " << fileName_  << ") error" << std::endl;
             return;
         }
+        pageCnt = bufPageManager -> fileManager -> getFileSize(fileId) / PAGE_SIZE;
     }
     
     /*
@@ -53,7 +53,7 @@ public:
      *  功能:把打开过的页全都关掉
      */
     ~OneFileManager() {
-        close();
+        closeFile();
     }
 public:
     ///基本get函数
@@ -128,7 +128,6 @@ public:
     void markDirty(int pageId) {
         int index = getPageIndex(pageId, false);
         if (index == -1) {
-            std::cout << "OneFileManager.markDirty() error" << std::endl;
             return;
         }
         bufPageManager -> markDirty(index);
@@ -164,11 +163,12 @@ public:
      *  @函数名:close
      *  功能:关闭这个文件，把打开的所有页都写回
      */
-    void close() {
+    void closeFile() {
         for (std::map<int, int>::iterator ite = indexMap.begin(); ite != indexMap.end(); ite ++) {
-            bufPageManager -> writeBack(ite -> first);
+            bufPageManager -> writeBack(ite -> second);
         }
         indexMap.clear();
+        bufPageManager -> fileManager -> closeFile(fileId);
     }
     
 protected:

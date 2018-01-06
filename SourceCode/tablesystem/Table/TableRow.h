@@ -26,8 +26,6 @@ private:
     int flagAB;
     //数据内容
     std::vector<TableGrid *> gridList;
-    //是否脏
-    bool dirtyFlag;
     
 public:
     /*
@@ -49,7 +47,6 @@ public:
         }
         //根据表头的格式，创建一个合理全是NULL的行
         tableHeader = tableHeader_;
-        dirtyFlag = true;
         gridList.resize(tableHeader -> getNCol());
         for (int i = 0; i < (int) gridList.size(); i ++) {
             gridList[i] = new TableGrid(tableHeader -> getColumnById(i));
@@ -77,7 +74,6 @@ public:
         //根据表头的格式和二进制数据内容，读取数据行
         tableHeader = tableHeader_;
         readFromByte(slotData_);
-        dirtyFlag = false;
     }
     
     /*
@@ -171,14 +167,6 @@ public:
             }
         }
         return true;
-    }
-    
-    /*
-     *  @函数名:isDirty
-     *  功能:返回是否脏
-     */
-    bool isDirty() {
-        return dirtyFlag;
     }
     
 public:

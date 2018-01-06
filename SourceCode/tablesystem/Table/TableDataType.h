@@ -40,6 +40,7 @@ TableDataType getSuperType(TableDataType type) {
     case TableDataType::t_short:
     case TableDataType::t_int:
     case TableDataType::t_long:
+    case TableDataType::t_lob:
         reType = TableDataType::t_long;
         break;
     case TableDataType::t_float:

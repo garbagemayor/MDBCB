@@ -71,23 +71,14 @@
 #line 1 "SQLParser.y"
 
     #include "../ShellAssistant.h"
-    
     #include "lex.yy.c"
     
     int yylex();
     int yyerror(const char *);
-    
-    //缓存页管理器
-    BufPageManager * bufPageManager;
-    //运行语境的数据库
-    TableManager * dbNow;
-    //一条语句中前半句指定的一个数据表
-    Table * tbNow;
-    
 
 
 /* Line 189 of yacc.c  */
-#line 91 "SQLParser.cpp"
+#line 82 "SQLParser.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -165,23 +156,27 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 69 "SQLParser.y"
+#line 64 "SQLParser.y"
 
     
     UnionFieldList * u_fl;
     UnionField * u_fd;
     StringList * v_sl;
     
-    std::string * v_s;
-    unsigned long long v_u;
+    UnionValue * u_va;
+    UnionValueRow * u_vr;
+    UnionValueTable * u_vt;
+    
+    uint64 v_u;
     double v_d;
+    std::string * v_s;
     
     TableDataType v_t;
 
 
 
 /* Line 214 of yacc.c  */
-#line 185 "SQLParser.cpp"
+#line 180 "SQLParser.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -193,7 +188,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 197 "SQLParser.cpp"
+#line 192 "SQLParser.cpp"
 
 #ifdef short
 # undef short
@@ -408,16 +403,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   161
+#define YYLAST   163
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  53
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  24
+#define YYNNTS  25
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  69
+#define YYNRULES  70
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  170
+#define YYNSTATES  172
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -467,55 +462,58 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint16 yyprhs[] =
 {
        0,     0,     3,     6,     7,     9,    11,    13,    15,    17,
-      22,    28,    34,    39,    44,    53,    59,    64,    70,    78,
-      87,    96,   100,   109,   118,   120,   124,   127,   132,   138,
-     149,   151,   153,   155,   157,   159,   161,   163,   165,   167,
-     169,   173,   179,   181,   185,   187,   189,   191,   193,   197,
-     199,   203,   207,   212,   214,   218,   220,   223,   226,   229,
-     231,   233,   235,   237,   241,   247,   249,   251,   255,   257
+      22,    28,    34,    39,    44,    53,    59,    64,    72,    79,
+      87,    96,   100,   103,   112,   121,   123,   127,   130,   135,
+     141,   152,   154,   156,   158,   160,   162,   164,   166,   168,
+     170,   172,   176,   182,   184,   188,   190,   192,   194,   196,
+     200,   202,   206,   210,   215,   217,   221,   223,   226,   229,
+     232,   234,   236,   238,   240,   244,   250,   252,   254,   258,
+     260
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
       54,     0,    -1,    54,    55,    -1,    -1,    56,    -1,    57,
-      -1,    58,    -1,    60,    -1,    76,    -1,     7,     4,    40,
-      76,    -1,     8,     3,    75,    40,    76,    -1,     9,     3,
-      75,    40,    76,    -1,    10,    75,    40,    76,    -1,     7,
-       6,    40,    76,    -1,     8,     5,    75,    42,    61,    43,
-      40,    76,    -1,     9,     5,    75,    40,    76,    -1,    25,
-      75,    40,    76,    -1,    59,    17,    64,    40,    76,    -1,
-      18,    19,    75,    20,    67,    40,    76,    -1,    21,    75,
-      22,    72,    20,    67,    40,    76,    -1,    23,    73,    19,
-      74,    20,    67,    40,    76,    -1,    15,    16,    75,    -1,
-       8,    27,    75,    42,    75,    43,    40,    76,    -1,     9,
-      27,    75,    42,    75,    43,    40,    76,    -1,    62,    -1,
-      61,    41,    62,    -1,    75,    63,    -1,    75,    63,    13,
-      14,    -1,    11,    12,    42,    74,    43,    -1,    30,    12,
-      42,    75,    43,    26,    75,    42,    75,    43,    -1,    31,
-      -1,    32,    -1,    33,    -1,    34,    -1,    35,    -1,    36,
-      -1,    37,    -1,    38,    -1,    29,    -1,    39,    -1,    42,
-      65,    43,    -1,    64,    41,    42,    65,    43,    -1,    66,
-      -1,    65,    41,    66,    -1,    48,    -1,    50,    -1,    49,
-      -1,    14,    -1,    67,    28,    68,    -1,    68,    -1,    69,
-      70,    71,    -1,    69,    24,    14,    -1,    69,    24,    13,
-      14,    -1,    75,    -1,    75,    44,    75,    -1,    45,    -1,
-      46,    47,    -1,    46,    45,    -1,    47,    45,    -1,    46,
-      -1,    47,    -1,    66,    -1,    69,    -1,    75,    45,    66,
-      -1,    72,    41,    75,    45,    66,    -1,    69,    -1,    75,
-      -1,    74,    41,    75,    -1,    51,    -1,    52,    -1
+      -1,    58,    -1,    61,    -1,    77,    -1,     7,     4,    40,
+      77,    -1,     8,     3,    76,    40,    77,    -1,     9,     3,
+      76,    40,    77,    -1,    10,    76,    40,    77,    -1,     7,
+       6,    40,    77,    -1,     8,     5,    76,    42,    62,    43,
+      40,    77,    -1,     9,     5,    76,    40,    77,    -1,    25,
+      76,    40,    77,    -1,    15,    16,    76,    17,    65,    40,
+      77,    -1,    59,    76,    20,    68,    40,    77,    -1,    60,
+      22,    73,    20,    68,    40,    77,    -1,    23,    74,    19,
+      75,    20,    68,    40,    77,    -1,    18,    19,    76,    -1,
+      21,    76,    -1,     8,    27,    76,    42,    76,    43,    40,
+      77,    -1,     9,    27,    76,    42,    76,    43,    40,    77,
+      -1,    63,    -1,    62,    41,    63,    -1,    76,    64,    -1,
+      76,    64,    13,    14,    -1,    11,    12,    42,    75,    43,
+      -1,    30,    12,    42,    76,    43,    26,    76,    42,    76,
+      43,    -1,    31,    -1,    32,    -1,    33,    -1,    34,    -1,
+      35,    -1,    36,    -1,    37,    -1,    38,    -1,    29,    -1,
+      39,    -1,    42,    66,    43,    -1,    65,    41,    42,    66,
+      43,    -1,    67,    -1,    66,    41,    67,    -1,    14,    -1,
+      48,    -1,    50,    -1,    49,    -1,    68,    28,    69,    -1,
+      69,    -1,    70,    71,    72,    -1,    70,    24,    14,    -1,
+      70,    24,    13,    14,    -1,    76,    -1,    76,    44,    76,
+      -1,    45,    -1,    46,    47,    -1,    46,    45,    -1,    47,
+      45,    -1,    46,    -1,    47,    -1,    67,    -1,    70,    -1,
+      76,    45,    67,    -1,    73,    41,    76,    45,    67,    -1,
+      70,    -1,    76,    -1,    75,    41,    76,    -1,    51,    -1,
+      52,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    85,    85,    92,    99,   103,   107,   111,   115,   121,
-     149,   171,   194,   215,   235,   289,   307,   344,   348,   352,
-     356,   362,   382,   386,   392,   399,   407,   419,   430,   438,
-     473,   478,   483,   488,   493,   498,   503,   508,   513,   518,
-     525,   529,   535,   539,   545,   549,   553,   557,   563,   567,
-     573,   577,   581,   587,   591,   597,   601,   605,   609,   613,
-     617,   623,   627,   633,   637,   643,   649,   655,   663,   670
+       0,    84,    84,    91,    98,   102,   106,   110,   114,   120,
+     148,   170,   193,   214,   234,   288,   306,   343,   377,   381,
+     385,   391,   399,   407,   411,   417,   423,   431,   443,   454,
+     462,   497,   502,   507,   512,   517,   522,   527,   532,   537,
+     542,   549,   555,   563,   569,   577,   582,   589,   596,   605,
+     609,   615,   619,   623,   629,   633,   639,   643,   647,   651,
+     655,   659,   665,   669,   675,   679,   685,   691,   697,   705,
+     712
 };
 #endif
 
@@ -532,9 +530,10 @@ static const char *const yytname[] =
   "FLOATT", "DOUBLEE", "VARCHAR", "LOB", "';'", "','", "'('", "')'", "'.'",
   "'='", "'<'", "'>'", "VALUE_UINT64", "VALUE_STRING", "VALUE_DOUBLE",
   "IDENTIFIER", "'\\n'", "$accept", "program", "stmt", "sysStmt", "dbStmt",
-  "tbStmt", "insertIntoTable", "idxStmt", "fieldList", "field", "type",
-  "valueLists", "valueList", "value", "whereClause", "filterItem", "col",
-  "op", "expr", "setClause", "selector", "identList", "ident", "endLine", 0
+  "tbStmt", "deleteFromTable", "updateTable", "idxStmt", "fieldList",
+  "field", "type", "valueLists", "valueList", "value", "whereClause",
+  "filterItem", "col", "op", "expr", "setClause", "selector", "identList",
+  "ident", "endLine", 0
 };
 #endif
 
@@ -557,23 +556,25 @@ static const yytype_uint8 yyr1[] =
 {
        0,    53,    54,    54,    55,    55,    55,    55,    55,    56,
       57,    57,    57,    57,    58,    58,    58,    58,    58,    58,
-      58,    59,    60,    60,    61,    61,    62,    62,    62,    62,
-      63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
-      64,    64,    65,    65,    66,    66,    66,    66,    67,    67,
-      68,    68,    68,    69,    69,    70,    70,    70,    70,    70,
-      70,    71,    71,    72,    72,    73,    74,    74,    75,    76
+      58,    59,    60,    61,    61,    62,    62,    63,    63,    63,
+      63,    64,    64,    64,    64,    64,    64,    64,    64,    64,
+      64,    65,    65,    66,    66,    67,    67,    67,    67,    68,
+      68,    69,    69,    69,    70,    70,    71,    71,    71,    71,
+      71,    71,    72,    72,    73,    73,    74,    75,    75,    76,
+      77
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     0,     1,     1,     1,     1,     1,     4,
-       5,     5,     4,     4,     8,     5,     4,     5,     7,     8,
-       8,     3,     8,     8,     1,     3,     2,     4,     5,    10,
-       1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       3,     5,     1,     3,     1,     1,     1,     1,     3,     1,
-       3,     3,     4,     1,     3,     1,     2,     2,     2,     1,
-       1,     1,     1,     3,     5,     1,     1,     3,     1,     1
+       5,     5,     4,     4,     8,     5,     4,     7,     6,     7,
+       8,     3,     2,     8,     8,     1,     3,     2,     4,     5,
+      10,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       1,     3,     5,     1,     3,     1,     1,     1,     1,     3,
+       1,     3,     3,     4,     1,     3,     1,     2,     2,     2,
+       1,     1,     1,     1,     3,     5,     1,     1,     3,     1,
+       1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -582,62 +583,64 @@ static const yytype_uint8 yyr2[] =
 static const yytype_uint8 yydefact[] =
 {
        3,     0,     1,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    69,     2,     4,     5,     6,     0,     7,     8,
-       0,     0,     0,     0,     0,     0,     0,     0,    68,     0,
-       0,     0,     0,    65,     0,    53,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,    21,     0,     0,
-       0,     0,     0,     0,     0,     9,    13,     0,     0,     0,
-       0,     0,     0,    12,     0,     0,     0,     0,    66,    54,
-      16,    47,    44,    46,    45,     0,    42,     0,     0,    10,
-       0,     0,     0,    24,     0,     0,    11,    15,     0,     0,
-      49,     0,     0,     0,     0,     0,     0,     0,    40,    17,
-       0,     0,     0,     0,     0,    38,    30,    31,    32,    33,
-      34,    35,    36,    37,    39,    26,     0,     0,     0,     0,
-       0,    55,    59,    60,     0,     0,     0,    63,     0,    67,
-      43,     0,     0,     0,    25,     0,     0,     0,     0,    48,
-      18,     0,    51,    57,    56,    58,    61,    62,    50,     0,
-       0,     0,    41,     0,     0,    14,    27,    22,    23,    52,
-      19,    64,    20,    28,     0,     0,     0,     0,     0,    29
+       0,     0,    70,     2,     4,     5,     6,     0,     0,     7,
+       8,     0,     0,     0,     0,     0,     0,     0,     0,    69,
+       0,     0,     0,    22,    66,     0,    54,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+      21,     0,     0,     0,     0,     0,     0,     9,    13,     0,
+       0,     0,     0,     0,     0,    12,     0,     0,    67,    55,
+      16,     0,    50,     0,     0,     0,     0,    10,     0,     0,
+       0,    25,     0,     0,    11,    15,     0,     0,     0,     0,
+       0,     0,     0,     0,    56,    60,    61,     0,     0,     0,
+      45,    46,    48,    47,    64,     0,     0,     0,     0,    39,
+      31,    32,    33,    34,    35,    36,    37,    38,    40,    27,
+       0,     0,     0,    43,     0,     0,     0,    68,    49,    18,
+       0,    52,    58,    57,    59,    62,    63,    51,     0,     0,
+       0,     0,    26,     0,     0,     0,     0,     0,    41,    17,
+       0,     0,    53,    19,    65,     0,     0,    14,    28,    23,
+      24,    44,     0,    20,    29,     0,    42,     0,     0,     0,
+       0,    30
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
-      -1,     1,    13,    14,    15,    16,    17,    18,    82,    83,
-     115,    54,    75,    76,    89,    90,    91,   124,   148,    65,
-      34,    67,    35,    19
+      -1,     1,    13,    14,    15,    16,    17,    18,    19,    80,
+      81,   119,    88,   122,   123,    71,    72,    73,    97,   137,
+      55,    35,    67,    36,    20
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -91
+#define YYPACT_NINF -69
 static const yytype_int16 yypact[] =
 {
-     -91,    57,   -91,    77,     3,    24,   -29,    26,    31,   -29,
-     -29,   -29,   -91,   -91,   -91,   -91,   -91,    51,   -91,   -91,
-      34,    37,   -29,   -29,   -29,   -29,   -29,   -29,   -91,    45,
-     -29,   -29,    66,   -91,    92,    70,    73,    74,    65,    65,
-      78,    80,    81,    79,    84,    83,    65,   -91,   100,   -29,
-     -29,   -29,    65,    21,   -27,   -91,   -91,    65,    -2,   -29,
-      65,    65,   -29,   -91,   -29,     6,    85,    35,   -91,   -91,
-     -91,   -91,   -91,   -91,   -91,    43,   -91,    65,    86,   -91,
-     117,   119,    48,   -91,    67,    89,   -91,   -91,    90,   -17,
-     -91,   -14,   -29,   -29,    21,   -29,   -29,    21,   -91,   -91,
-      21,    93,    96,    -2,   101,   -91,   -91,   -91,   -91,   -91,
-     -91,   -91,   -91,   -91,   -91,   121,   102,   103,   -29,    65,
-      94,   -91,    47,    91,   -12,    18,    99,   -91,    33,   -91,
-     -91,    52,   -29,   -29,   -91,    65,   131,    65,    65,   -91,
-     -91,   132,   -91,   -91,   -91,   -91,   -91,   -91,   -91,    65,
-      21,    65,   -91,    69,   104,   -91,   -91,   -91,   -91,   -91,
-     -91,   -91,   -91,   -91,   122,   -29,   107,   -29,   109,   -91
+     -69,    41,   -69,    74,    58,    65,   -47,    -3,   -12,   -47,
+     -47,   -47,   -69,   -69,   -69,   -69,   -69,   -47,    13,   -69,
+     -69,   -30,     0,   -47,   -47,   -47,   -47,   -47,   -47,   -69,
+       3,   -47,   -47,   -69,   -69,    34,    16,    32,    45,   -47,
+      51,    51,    37,    68,    69,    72,    75,    77,    51,    97,
+     -69,   -47,   -47,    51,   -47,   -14,    71,   -69,   -69,    51,
+       1,   -47,    51,    51,   -47,   -69,    80,   -11,   -69,   -69,
+     -69,   -26,   -69,    62,   -47,   -47,    33,   -69,   105,   111,
+      46,   -69,   107,    81,   -69,   -69,    82,    33,    50,   -47,
+     -47,   -47,    51,    92,   -69,    49,    83,    25,    -4,    84,
+     -69,   -69,   -69,   -69,   -69,    85,    88,     1,    91,   -69,
+     -69,   -69,   -69,   -69,   -69,   -69,   -69,   -69,   -69,   119,
+      93,   108,    54,   -69,    51,    95,     4,   -69,   -69,   -69,
+     133,   -69,   -69,   -69,   -69,   -69,   -69,   -69,    51,    33,
+     -47,   -47,   -69,    51,   135,    51,    51,    33,   -69,   -69,
+      33,    51,   -69,   -69,   -69,    57,   109,   -69,   -69,   -69,
+     -69,   -69,    61,   -69,   -69,   124,   -69,   -47,   112,   -47,
+     110,   -69
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -91,   -91,   -91,   -91,   -91,   -91,   -91,   -91,   -91,    53,
-     -91,   -91,    50,   -90,   -80,    36,    -9,   -91,   -91,   -91,
-     -91,    23,    -6,     2
+     -69,   -69,   -69,   -69,   -69,   -69,   -69,   -69,   -69,   -69,
+      44,   -69,   -69,     5,   -68,   -32,    66,    -9,   -69,   -69,
+     -69,   -69,    18,    -6,   -25
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -647,44 +650,44 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      29,    33,    71,    32,   127,    36,    22,   130,    23,    80,
-     120,   118,   125,    77,    78,   128,    40,    41,    42,    43,
-      44,    45,    28,   119,    47,    48,    92,    25,    81,    26,
-      24,   121,   122,   123,   146,    71,    72,    73,    74,    28,
-      55,    56,    30,    66,    68,    69,   118,    93,    63,    28,
-      31,    27,    84,    85,    70,    95,    88,     2,   149,    79,
-     161,   118,    86,    87,     3,     4,     5,     6,    37,    72,
-      73,    74,     7,   151,    38,     8,    96,    39,     9,    99,
-      10,    20,    11,    21,    97,    46,    98,   126,    49,   103,
-     129,   104,   143,    97,   144,   152,   105,    84,   106,   107,
-     108,   109,   110,   111,   112,   113,   114,   141,   142,    12,
-      96,    50,   163,    52,    51,   147,    53,    12,    57,    60,
-      64,   140,    58,    59,    61,    62,    68,   154,   100,   101,
-      94,   102,   116,   117,   136,   132,   145,   155,   133,   157,
-     158,   135,   137,   138,   150,   156,   159,   164,   165,   167,
-     131,   160,   169,   162,   139,   153,   134,     0,     0,   166,
-       0,   168
+      30,    34,    91,    33,    29,    37,    74,    32,   104,    89,
+      40,    38,    78,    31,    92,    57,    58,    42,    43,    44,
+      45,    46,    47,    65,    91,    49,    50,    75,    70,   135,
+      90,    79,    91,    56,    77,    39,   138,    84,    85,   100,
+      41,     2,    98,    48,   151,    68,    69,   100,     3,     4,
+       5,     6,    29,    51,    82,    83,     7,   126,    86,     8,
+      52,    23,     9,    24,    10,    54,    11,   129,    26,    99,
+      27,   154,    53,   101,   102,   103,    29,    59,    21,   161,
+      22,   101,   102,   103,   127,    25,    93,   107,   136,   108,
+     124,   125,    28,    12,   132,   147,   133,   148,    90,   149,
+     164,    82,   147,    12,   166,   130,   131,    94,    95,    96,
+      60,    61,    62,   153,    66,    63,    76,   105,   157,    64,
+     159,   160,    87,   106,   120,   121,   163,   140,   134,   139,
+     141,   143,   144,   145,    68,   156,   109,   150,   110,   111,
+     112,   113,   114,   115,   116,   117,   118,   152,   146,   158,
+     167,   142,   165,   171,   169,   162,     0,   128,   155,     0,
+       0,   168,     0,   170
 };
 
 static const yytype_int16 yycheck[] =
 {
-       6,    10,    14,     9,    94,    11,     3,    97,     5,    11,
-      24,    28,    92,    40,    41,    95,    22,    23,    24,    25,
-      26,    27,    51,    40,    30,    31,    20,     3,    30,     5,
-      27,    45,    46,    47,   124,    14,    48,    49,    50,    51,
-      38,    39,    16,    49,    50,    51,    28,    41,    46,    51,
-      19,    27,    58,    59,    52,    20,    62,     0,    40,    57,
-     150,    28,    60,    61,     7,     8,     9,    10,    17,    48,
-      49,    50,    15,    40,    40,    18,    41,    40,    21,    77,
-      23,     4,    25,     6,    41,    40,    43,    93,    22,    41,
-      96,    43,    45,    41,    47,    43,    29,   103,    31,    32,
-      33,    34,    35,    36,    37,    38,    39,    13,    14,    52,
-      41,    19,    43,    40,    44,   124,    42,    52,    40,    40,
-      20,   119,    42,    42,    40,    42,   132,   133,    42,    12,
-      45,    12,    43,    43,    13,    42,    45,   135,    42,   137,
-     138,    40,    40,    40,    45,    14,    14,    43,    26,    42,
-     100,   149,    43,   151,   118,   132,   103,    -1,    -1,   165,
-      -1,   167
+       6,    10,    28,     9,    51,    11,    20,    19,    76,    20,
+      40,    17,    11,    16,    40,    40,    41,    23,    24,    25,
+      26,    27,    28,    48,    28,    31,    32,    41,    53,    97,
+      41,    30,    28,    39,    59,    22,    40,    62,    63,    14,
+      40,     0,    74,    40,    40,    51,    52,    14,     7,     8,
+       9,    10,    51,    19,    60,    61,    15,    89,    64,    18,
+      44,     3,    21,     5,    23,    20,    25,    92,     3,    75,
+       5,   139,    40,    48,    49,    50,    51,    40,     4,   147,
+       6,    48,    49,    50,    90,    27,    24,    41,    97,    43,
+      40,    41,    27,    52,    45,    41,    47,    43,    41,   124,
+      43,   107,    41,    52,    43,    13,    14,    45,    46,    47,
+      42,    42,    40,   138,    17,    40,    45,    12,   143,    42,
+     145,   146,    42,    12,    43,    43,   151,    42,    45,    45,
+      42,    40,    13,    40,   140,   141,    29,    42,    31,    32,
+      33,    34,    35,    36,    37,    38,    39,    14,    40,    14,
+      26,   107,    43,    43,    42,   150,    -1,    91,   140,    -1,
+      -1,   167,    -1,   169
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -692,22 +695,23 @@ static const yytype_int16 yycheck[] =
 static const yytype_uint8 yystos[] =
 {
        0,    54,     0,     7,     8,     9,    10,    15,    18,    21,
-      23,    25,    52,    55,    56,    57,    58,    59,    60,    76,
-       4,     6,     3,     5,    27,     3,     5,    27,    51,    75,
-      16,    19,    75,    69,    73,    75,    75,    17,    40,    40,
-      75,    75,    75,    75,    75,    75,    40,    75,    75,    22,
-      19,    44,    40,    42,    64,    76,    76,    40,    42,    42,
-      40,    40,    42,    76,    20,    72,    75,    74,    75,    75,
-      76,    14,    48,    49,    50,    65,    66,    40,    41,    76,
-      11,    30,    61,    62,    75,    75,    76,    76,    75,    67,
-      68,    69,    20,    41,    45,    20,    41,    41,    43,    76,
-      42,    12,    12,    41,    43,    29,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    63,    43,    43,    28,    40,
-      24,    45,    46,    47,    70,    67,    75,    66,    67,    75,
-      66,    65,    42,    42,    62,    40,    13,    40,    40,    68,
-      76,    13,    14,    45,    47,    45,    66,    69,    71,    40,
-      45,    40,    43,    74,    75,    76,    14,    76,    76,    14,
-      76,    66,    76,    43,    43,    26,    75,    42,    75,    43
+      23,    25,    52,    55,    56,    57,    58,    59,    60,    61,
+      77,     4,     6,     3,     5,    27,     3,     5,    27,    51,
+      76,    16,    19,    76,    70,    74,    76,    76,    76,    22,
+      40,    40,    76,    76,    76,    76,    76,    76,    40,    76,
+      76,    19,    44,    40,    20,    73,    76,    77,    77,    40,
+      42,    42,    40,    40,    42,    77,    17,    75,    76,    76,
+      77,    68,    69,    70,    20,    41,    45,    77,    11,    30,
+      62,    63,    76,    76,    77,    77,    76,    42,    65,    20,
+      41,    28,    40,    24,    45,    46,    47,    71,    68,    76,
+      14,    48,    49,    50,    67,    12,    12,    41,    43,    29,
+      31,    32,    33,    34,    35,    36,    37,    38,    39,    64,
+      43,    43,    66,    67,    40,    41,    68,    76,    69,    77,
+      13,    14,    45,    47,    45,    67,    70,    72,    40,    45,
+      42,    42,    63,    40,    13,    40,    40,    41,    43,    77,
+      42,    40,    14,    77,    67,    75,    76,    77,    14,    77,
+      77,    67,    66,    77,    43,    43,    43,    26,    76,    42,
+      76,    43
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1521,7 +1525,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 86 "SQLParser.y"
+#line 85 "SQLParser.y"
     {
             setCmdColor(1);
             std::cout << ">>>";
@@ -1531,7 +1535,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 92 "SQLParser.y"
+#line 91 "SQLParser.y"
     {
             setCmdColor(1);
             std::cout << ">>>";
@@ -1541,7 +1545,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 100 "SQLParser.y"
+#line 99 "SQLParser.y"
     {
         ;}
     break;
@@ -1549,7 +1553,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 104 "SQLParser.y"
+#line 103 "SQLParser.y"
     {
         ;}
     break;
@@ -1557,7 +1561,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 108 "SQLParser.y"
+#line 107 "SQLParser.y"
     {
         ;}
     break;
@@ -1565,7 +1569,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 112 "SQLParser.y"
+#line 111 "SQLParser.y"
     {
         ;}
     break;
@@ -1573,7 +1577,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 116 "SQLParser.y"
+#line 115 "SQLParser.y"
     {
         ;}
     break;
@@ -1581,7 +1585,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 122 "SQLParser.y"
+#line 121 "SQLParser.y"
     {
             //遍历所有文件夹
             struct _finddata_t fb;
@@ -1611,15 +1615,15 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 150 "SQLParser.y"
+#line 149 "SQLParser.y"
     {
             //新建一个数据库
             std::string * dbName = (yyvsp[(3) - (5)].v_s);
             //关闭已经打开的数据库
-            if (dbNow != NULL) {
+            if (curDb != NULL) {
                 chdir("../");
-                delete dbNow;
-                dbNow = NULL;
+                delete curDb;
+                curDb = NULL;
             }
             //如果已有这个数据库，报错
             if (access(dbName -> c_str(), W_OK) == 0) {
@@ -1629,7 +1633,7 @@ yyreduce:
                 //新建这个数据库，并打开
                 mkdir(dbName -> c_str());
                 chdir(dbName -> c_str());
-                dbNow = new TableManager(bufPageManager, * dbName);
+                curDb = new TableManager(bufPageManager, * dbName);
             }
         ;}
     break;
@@ -1637,15 +1641,15 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 172 "SQLParser.y"
+#line 171 "SQLParser.y"
     {
             //删除一个数据库
             std::string * dbName = (yyvsp[(3) - (5)].v_s);
             //关闭已经打开的数据库
-            if (dbNow != NULL) {
+            if (curDb != NULL) {
                 chdir("../");
-                delete dbNow;
-                dbNow = NULL;
+                delete curDb;
+                curDb = NULL;
             }
             //如果不存在这个数据库，报错
             if (access(dbName -> c_str(), W_OK) == -1) {
@@ -1664,15 +1668,15 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 195 "SQLParser.y"
+#line 194 "SQLParser.y"
     {
             //打开一个数据库
             std::string * dbName = (yyvsp[(2) - (4)].v_s);
             //关闭已经打开的数据库
-            if (dbNow != NULL) {
+            if (curDb != NULL) {
                 chdir("../");
-                delete dbNow;
-                dbNow = NULL;
+                delete curDb;
+                curDb = NULL;
             }
             //如果不存在这个数据库，报错
             if (access(dbName -> c_str(), W_OK) == -1) {
@@ -1681,7 +1685,7 @@ yyreduce:
             } else {
                 //打开这个数据库
                 chdir(dbName -> c_str());
-                dbNow = new TableManager(bufPageManager, * dbName);
+                curDb = new TableManager(bufPageManager, * dbName);
             }
         ;}
     break;
@@ -1689,19 +1693,19 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 216 "SQLParser.y"
+#line 215 "SQLParser.y"
     {
             //查看这个数据库的所有数据表
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.SHOW TABLES: error" << std::endl;
                 std::cout << "没有正在使用的数据库" << std::endl;
             } else {
                 //打印数据库中的数据表
-                int nTab = dbNow -> getNTable();
-                std::cout << "数据库" << dbNow -> getName() << "共有" << nTab << "个数据表:" << std::endl;
+                int nTab = curDb -> getNTable();
+                std::cout << "数据库" << curDb -> getName() << "共有" << nTab << "个数据表:" << std::endl;
                 for (int i = 0; i < nTab; i ++) {
-                    std::cout << dbNow -> getTableById(i) -> getName() << ( i < nTab - 1 ? ", " : ".");
+                    std::cout << curDb -> getTableById(i) -> getName() << ( i < nTab - 1 ? ", " : ".");
                 }
                 std::cout << std::endl;
             }
@@ -1711,34 +1715,34 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 236 "SQLParser.y"
+#line 235 "SQLParser.y"
     {
             //在已经打开的数据库中创建一个数据表
             std::string * tbName = (yyvsp[(3) - (8)].v_s);
             UnionFieldList * fieldList = (yyvsp[(5) - (8)].u_fl);
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.CREATE TABLE: error" << std::endl;
                 std::cout << "没有已经打开的数据库:" << * tbName << std::endl;
-            } else if (dbNow -> hasOpenedTable(* tbName)) {
+            } else if (curDb -> hasOpenedTable(* tbName)) {
                 //如果已有同名数据表，报错
                 std::cout << "Parser.CREATE TABLE: error" << std::endl;
                 std::cout << "已有这个数据表:" << * tbName << std::endl;
             } else {
                 //整理fieldList，获取到所有被设为PRIMARY KEY的列名
                 StringList pkList;
-                for (int i = 0; i < fieldList -> size(); i ++) {
+                for (int i = 0; i < (int) fieldList -> size(); i ++) {
                     if (fieldList -> at(i) -> ty == 2) {
                         StringList * pkListI = fieldList -> at(i) -> dt.pk;
-                        for (int j = 0; j < pkListI -> size(); j ++) {
+                        for (int j = 0; j < (int) pkListI -> size(); j ++) {
                             pkList.push_back(pkListI -> at(j));
                         }
                     }
                 }
                 //整理fieldList，把第一个可以被设为PRIMARY KEY的列设置一下，剩下的就无视掉
-                for (int i = 0; i < pkList.size(); i ++) {
+                for (int i = 0; i < (int) pkList.size(); i ++) {
                     int j;
-                    for (j = 0; j < fieldList -> size(); j ++) {
+                    for (j = 0; j < (int) fieldList -> size(); j ++) {
                         if ((yyvsp[(5) - (8)].u_fl) -> at(j) -> ty == 1) {
                             if ((yyvsp[(5) - (8)].u_fl) -> at(j) -> dt.tc -> getName() == * pkList[i]) {
                                 (yyvsp[(5) - (8)].u_fl) -> at(j) -> dt.tc -> setPrimaryKey(true);
@@ -1746,14 +1750,14 @@ yyreduce:
                             }
                         }
                     }
-                    if (j < fieldList -> size()) {
+                    if (j < (int) fieldList -> size()) {
                         break;
                     }
                 }
                 //创建数据表
                 TableHeader * tbHd = new TableHeader();
                 tbHd -> setName(* tbName);
-                for (int i = 0; i < fieldList -> size(); i ++) {
+                for (int i = 0; i < (int) fieldList -> size(); i ++) {
                     UnionField * fd = fieldList -> at(i);
                     if (fd -> ty == 1) {
                         fd -> dt.tc -> setConstant();
@@ -1761,7 +1765,7 @@ yyreduce:
                     }
                 }
                 tbHd -> setConstant();
-                dbNow -> createTable(tbHd);
+                curDb -> createTable(tbHd);
             }
         ;}
     break;
@@ -1769,21 +1773,21 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 290 "SQLParser.y"
+#line 289 "SQLParser.y"
     {
             //在已经打开的数据库中删除一个数据表
             std::string * tbName = (yyvsp[(3) - (5)].v_s);
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.DROP TABLE: error" << std::endl;
                 std::cout << "没有已经打开的数据库" << std::endl;
-            } else if (!dbNow -> hasOpenedTable(* tbName)) {
+            } else if (!curDb -> hasOpenedTable(* tbName)) {
                 //如果没有这个数据表，报错
                 std::cout << "Parser.DESC: error" << std::endl;
                 std::cout << "没有数据表:" << * tbName << std::endl;
             } else {
                 //删除数据表
-                dbNow -> eraseTable(* tbName);
+                curDb -> eraseTable(* tbName);
             }
         ;}
     break;
@@ -1791,21 +1795,21 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 308 "SQLParser.y"
+#line 307 "SQLParser.y"
     {
             //打印数据表中的所有列
             std::string * tbName = (yyvsp[(2) - (4)].v_s);
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.DESC: error" << std::endl;
                 std::cout << "没有已经打开的数据库" << std::endl;
-            } else if (!dbNow -> hasOpenedTable(* tbName)) {
+            } else if (!curDb -> hasOpenedTable(* tbName)) {
                 //如果没有这个数据表，报错
                 std::cout << "Parser.DESC: error" << std::endl;
                 std::cout << "没有数据表:" << * tbName << std::endl;
             } else {
                 //打印数据表的列
-                Table * table = dbNow -> getTableByName(* tbName);
+                Table * table = curDb -> getTableByName(* tbName);
                 int nCol = table -> getNCol();
                 std::cout << "数据表" << * tbName << "共有" << nCol << "个数据列:" << std::endl;
                 TableHeader * tbHd = table -> getTableHeader();
@@ -1832,15 +1836,45 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 345 "SQLParser.y"
+#line 344 "SQLParser.y"
     {
+            //在数据表中插入若干行
+            std::string * tbName = (yyvsp[(3) - (7)].v_s);
+            UnionValueTable * rowList = (yyvsp[(5) - (7)].u_vt);
+            //如果没有打开数据库，报错
+            if (curDb == NULL) {
+                std::cout << "Parser.INSERT INTO: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!curDb -> hasOpenedTable(* tbName)) {
+                //如果没有这个数据表，报错
+                std::cout << "Parser.INSERT INTO: error" << std::endl;
+                std::cout << "没有数据表:" << * tbName << std::endl;
+            } else {
+                Table * table = curDb -> getTableByName(* tbName);
+                TableHeader * tableHeader = table -> getTableHeader();
+                //把数据一行一行的插入到表中
+                int insertCnt = 0;
+                for (int i = 0; i < (int) rowList -> size(); i ++) {
+                    //创建行数据
+                    UnionValueRow * sqlRow = rowList -> at(i);
+                    TableRow * tableRow = genTableRow(sqlRow, tableHeader);
+                    if (tableRow == NULL) {
+                        std::cout << "Parser.INSERT INTO: error" << std::endl;
+                        std::cout << "输入的第" << i << "个数据行不符合数据表" << table -> getName() << "的格式要求" << std::endl;
+                        continue;
+                    }
+                    table -> insertRow(tableRow);
+                    insertCnt += 1;
+                }
+                std::cout << "共添加" << insertCnt << "个数据行" << std::endl;
+            }
         ;}
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 349 "SQLParser.y"
+#line 378 "SQLParser.y"
     {
         ;}
     break;
@@ -1848,7 +1882,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 353 "SQLParser.y"
+#line 382 "SQLParser.y"
     {
         ;}
     break;
@@ -1856,7 +1890,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 357 "SQLParser.y"
+#line 386 "SQLParser.y"
     {
         ;}
     break;
@@ -1864,37 +1898,27 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 363 "SQLParser.y"
+#line 392 "SQLParser.y"
     {
-            //前半句SQL语句，确定了数据表
             std::string * tbName = (yyvsp[(3) - (3)].v_s);
-            //如果没有打开数据库，报错
-            if (dbNow == NULL) {
-                std::cout << "Parser.INSERT INTO: error" << std::endl;
-                std::cout << "没有已经打开的数据库" << std::endl;
-            } else if (!dbNow -> hasOpenedTable(* tbName)) {
-                //如果没有这个数据表，报错
-                std::cout << "Parser.INSERT INTO: error" << std::endl;
-                std::cout << "没有数据表:" << * tbName << std::endl;
-            } else {
-                //当前SQL语句描述的数据表
-                tbNow = dbNow -> getTableByName(* tbName);
-            }
+            loadCurTable(tbName);
         ;}
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 383 "SQLParser.y"
+#line 400 "SQLParser.y"
     {
+            std::string * tbName = (yyvsp[(2) - (2)].v_s);
+            loadCurTable(tbName);
         ;}
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 387 "SQLParser.y"
+#line 408 "SQLParser.y"
     {
         ;}
     break;
@@ -1902,28 +1926,35 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 393 "SQLParser.y"
+#line 412 "SQLParser.y"
     {
-            (yyval.u_fl) = new UnionFieldList();
-            (yyval.u_fl) -> clear();
-            (yyval.u_fl) -> push_back((yyvsp[(1) - (1)].u_fd));
         ;}
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 400 "SQLParser.y"
+#line 418 "SQLParser.y"
     {
-            (yyval.u_fl) = (yyvsp[(1) - (3)].u_fl);
-            (yyval.u_fl) -> push_back((yyvsp[(3) - (3)].u_fd));
+            (yyval.u_fl) = new UnionFieldList();
+            (yyval.u_fl) -> push_back((yyvsp[(1) - (1)].u_fd));
         ;}
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 408 "SQLParser.y"
+#line 424 "SQLParser.y"
+    {
+            (yyval.u_fl) = (yyvsp[(1) - (3)].u_fl);
+            (yyval.u_fl) -> push_back((yyvsp[(3) - (3)].u_fd));
+        ;}
+    break;
+
+  case 27:
+
+/* Line 1455 of yacc.c  */
+#line 432 "SQLParser.y"
     {
             std::string * colName = (yyvsp[(1) - (2)].v_s);
             
@@ -1936,10 +1967,10 @@ yyreduce:
         ;}
     break;
 
-  case 27:
+  case 28:
 
 /* Line 1455 of yacc.c  */
-#line 420 "SQLParser.y"
+#line 444 "SQLParser.y"
     {
             std::string * colName = (yyvsp[(1) - (4)].v_s);
             
@@ -1951,10 +1982,10 @@ yyreduce:
         ;}
     break;
 
-  case 28:
+  case 29:
 
 /* Line 1455 of yacc.c  */
-#line 431 "SQLParser.y"
+#line 455 "SQLParser.y"
     {
             StringList * colList = (yyvsp[(4) - (5)].v_sl);
             (yyval.u_fd) = new UnionField();
@@ -1963,10 +1994,10 @@ yyreduce:
         ;}
     break;
 
-  case 29:
+  case 30:
 
 /* Line 1455 of yacc.c  */
-#line 439 "SQLParser.y"
+#line 463 "SQLParser.y"
     {
             //去一个已有数据表中把一个数据列的属性复制过来
             std::string * colName = (yyvsp[(4) - (10)].v_s);
@@ -1974,19 +2005,19 @@ yyreduce:
             std::string * colName0 = (yyvsp[(9) - (10)].v_s);
             (yyval.u_fd) = new UnionField();
             //如果没有打开数据库，报错
-            if (dbNow == NULL) {
+            if (curDb == NULL) {
                 std::cout << "Parser.FOREIGN KEY: error" << std::endl;
                 std::cout << "没有已经打开的数据库" << std::endl;
-            } else if (!dbNow -> hasOpenedTable(* tbName)) {
+            } else if (!curDb -> hasOpenedTable(* tbName)) {
                 //如果没有这个数据表，报错
                 std::cout << "Parser.FOREIGN KEY: error" << std::endl;
                 std::cout << "没有数据表:" << * tbName << std::endl;
-            } else if (!dbNow -> getTableByName(* tbName) -> getTableHeader() -> hasColumn(* colName0)) { 
+            } else if (!curDb -> getTableByName(* tbName) -> getTableHeader() -> hasColumn(* colName0)) { 
                 //如果没有这个数据列，报错
                 std::cout << "Parser.FOREIGN KEY: error" << std::endl;
                 std::cout << "数据表" << * (yyvsp[(7) - (10)].v_s) << "中没有数据列:" << * colName0 << std::endl;
             } else {
-                TableColumn * tc = dbNow -> getTableByName(* tbName) -> getTableHeader() -> getColumnByName(* colName0);
+                TableColumn * tc = curDb -> getTableByName(* tbName) -> getTableHeader() -> getColumnByName(* colName0);
                 (yyval.u_fd) -> ty = 1;
                 (yyval.u_fd) -> dt.tc = new TableColumn();
                 (yyval.u_fd) -> dt.tc -> setName(* colName);
@@ -2000,233 +2031,179 @@ yyreduce:
         ;}
     break;
 
-  case 30:
-
-/* Line 1455 of yacc.c  */
-#line 474 "SQLParser.y"
-    {
-            (yyval.v_t) = TableDataType::t_bool;
-        ;}
-    break;
-
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 479 "SQLParser.y"
+#line 498 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_char;
+            (yyval.v_t) = TableDataType::t_bool;
         ;}
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 484 "SQLParser.y"
+#line 503 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_short;
+            (yyval.v_t) = TableDataType::t_char;
         ;}
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 489 "SQLParser.y"
+#line 508 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_int;
+            (yyval.v_t) = TableDataType::t_short;
         ;}
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 494 "SQLParser.y"
+#line 513 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_long;
+            (yyval.v_t) = TableDataType::t_int;
         ;}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 499 "SQLParser.y"
+#line 518 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_float;
+            (yyval.v_t) = TableDataType::t_long;
         ;}
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 504 "SQLParser.y"
+#line 523 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_double;
+            (yyval.v_t) = TableDataType::t_float;
         ;}
     break;
 
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 509 "SQLParser.y"
+#line 528 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_string;
+            (yyval.v_t) = TableDataType::t_double;
         ;}
     break;
 
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 514 "SQLParser.y"
+#line 533 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_int;
+            (yyval.v_t) = TableDataType::t_string;
         ;}
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 519 "SQLParser.y"
+#line 538 "SQLParser.y"
     {
-            (yyval.v_t) = TableDataType::t_lob;
+            (yyval.v_t) = TableDataType::t_int;
         ;}
     break;
 
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 526 "SQLParser.y"
+#line 543 "SQLParser.y"
     {
+            (yyval.v_t) = TableDataType::t_lob;
         ;}
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 530 "SQLParser.y"
+#line 550 "SQLParser.y"
     {
+            (yyval.u_vt) = new UnionValueTable();
+            (yyval.u_vt) -> push_back((yyvsp[(2) - (3)].u_vr));
         ;}
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 536 "SQLParser.y"
+#line 556 "SQLParser.y"
     {
+            (yyval.u_vt) = (yyvsp[(1) - (5)].u_vt);
+            (yyval.u_vt) -> push_back((yyvsp[(4) - (5)].u_vr));
         ;}
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 540 "SQLParser.y"
+#line 564 "SQLParser.y"
     {
+            (yyval.u_vr) = new UnionValueRow();
+            (yyval.u_vr) -> push_back((yyvsp[(1) - (1)].u_va));
         ;}
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 546 "SQLParser.y"
+#line 570 "SQLParser.y"
     {
+            (yyval.u_vr) = (yyvsp[(1) - (3)].u_vr);
+            (yyval.u_vr) -> push_back((yyvsp[(3) - (3)].u_va));
         ;}
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 550 "SQLParser.y"
+#line 578 "SQLParser.y"
     {
+            (yyval.u_va) = new UnionValue();
         ;}
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 554 "SQLParser.y"
+#line 583 "SQLParser.y"
     {
+            (yyval.u_va) = new UnionValue();
+            (yyval.u_va) -> ty = 1;
+            (yyval.u_va) -> dt.u = (yyvsp[(1) - (1)].v_u);
         ;}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 558 "SQLParser.y"
+#line 590 "SQLParser.y"
     {
+            (yyval.u_va) = new UnionValue();
+            (yyval.u_va) -> ty = 2;
+            (yyval.u_va) -> dt.d = (yyvsp[(1) - (1)].v_d);
         ;}
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 564 "SQLParser.y"
+#line 597 "SQLParser.y"
     {
+            (yyval.u_va) = new UnionValue();
+            (yyval.u_va) -> ty = 3;
+            (yyval.u_va) -> dt.s = (yyvsp[(1) - (1)].v_s);
         ;}
     break;
 
   case 49:
-
-/* Line 1455 of yacc.c  */
-#line 568 "SQLParser.y"
-    {
-        ;}
-    break;
-
-  case 50:
-
-/* Line 1455 of yacc.c  */
-#line 574 "SQLParser.y"
-    {
-        ;}
-    break;
-
-  case 51:
-
-/* Line 1455 of yacc.c  */
-#line 578 "SQLParser.y"
-    {
-        ;}
-    break;
-
-  case 52:
-
-/* Line 1455 of yacc.c  */
-#line 582 "SQLParser.y"
-    {
-        ;}
-    break;
-
-  case 53:
-
-/* Line 1455 of yacc.c  */
-#line 588 "SQLParser.y"
-    {
-        ;}
-    break;
-
-  case 54:
-
-/* Line 1455 of yacc.c  */
-#line 592 "SQLParser.y"
-    {
-        ;}
-    break;
-
-  case 55:
-
-/* Line 1455 of yacc.c  */
-#line 598 "SQLParser.y"
-    {
-        ;}
-    break;
-
-  case 56:
-
-/* Line 1455 of yacc.c  */
-#line 602 "SQLParser.y"
-    {
-        ;}
-    break;
-
-  case 57:
 
 /* Line 1455 of yacc.c  */
 #line 606 "SQLParser.y"
@@ -2234,7 +2211,7 @@ yyreduce:
         ;}
     break;
 
-  case 58:
+  case 50:
 
 /* Line 1455 of yacc.c  */
 #line 610 "SQLParser.y"
@@ -2242,23 +2219,23 @@ yyreduce:
         ;}
     break;
 
-  case 59:
+  case 51:
 
 /* Line 1455 of yacc.c  */
-#line 614 "SQLParser.y"
+#line 616 "SQLParser.y"
     {
         ;}
     break;
 
-  case 60:
+  case 52:
 
 /* Line 1455 of yacc.c  */
-#line 618 "SQLParser.y"
+#line 620 "SQLParser.y"
     {
         ;}
     break;
 
-  case 61:
+  case 53:
 
 /* Line 1455 of yacc.c  */
 #line 624 "SQLParser.y"
@@ -2266,15 +2243,15 @@ yyreduce:
         ;}
     break;
 
-  case 62:
+  case 54:
 
 /* Line 1455 of yacc.c  */
-#line 628 "SQLParser.y"
+#line 630 "SQLParser.y"
     {
         ;}
     break;
 
-  case 63:
+  case 55:
 
 /* Line 1455 of yacc.c  */
 #line 634 "SQLParser.y"
@@ -2282,15 +2259,15 @@ yyreduce:
         ;}
     break;
 
-  case 64:
+  case 56:
 
 /* Line 1455 of yacc.c  */
-#line 638 "SQLParser.y"
+#line 640 "SQLParser.y"
     {
         ;}
     break;
 
-  case 65:
+  case 57:
 
 /* Line 1455 of yacc.c  */
 #line 644 "SQLParser.y"
@@ -2298,48 +2275,121 @@ yyreduce:
         ;}
     break;
 
+  case 58:
+
+/* Line 1455 of yacc.c  */
+#line 648 "SQLParser.y"
+    {
+        ;}
+    break;
+
+  case 59:
+
+/* Line 1455 of yacc.c  */
+#line 652 "SQLParser.y"
+    {
+        ;}
+    break;
+
+  case 60:
+
+/* Line 1455 of yacc.c  */
+#line 656 "SQLParser.y"
+    {
+        ;}
+    break;
+
+  case 61:
+
+/* Line 1455 of yacc.c  */
+#line 660 "SQLParser.y"
+    {
+        ;}
+    break;
+
+  case 62:
+
+/* Line 1455 of yacc.c  */
+#line 666 "SQLParser.y"
+    {
+        ;}
+    break;
+
+  case 63:
+
+/* Line 1455 of yacc.c  */
+#line 670 "SQLParser.y"
+    {
+        ;}
+    break;
+
+  case 64:
+
+/* Line 1455 of yacc.c  */
+#line 676 "SQLParser.y"
+    {
+        ;}
+    break;
+
+  case 65:
+
+/* Line 1455 of yacc.c  */
+#line 680 "SQLParser.y"
+    {
+        ;}
+    break;
+
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 650 "SQLParser.y"
+#line 686 "SQLParser.y"
     {
-            (yyval.v_sl) = new StringList();
-            (yyval.v_sl) -> push_back((yyvsp[(1) - (1)].v_s));
         ;}
     break;
 
   case 67:
 
 /* Line 1455 of yacc.c  */
-#line 656 "SQLParser.y"
+#line 692 "SQLParser.y"
     {
-            (yyval.v_sl) = (yyvsp[(1) - (3)].v_sl);
-            (yyval.v_sl) -> push_back((yyvsp[(3) - (3)].v_s));
+            (yyval.v_sl) = new StringList();
+            (yyval.v_sl) -> push_back((yyvsp[(1) - (1)].v_s));
         ;}
     break;
 
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 664 "SQLParser.y"
+#line 698 "SQLParser.y"
     {
-            (yyval.v_s) = (yyvsp[(1) - (1)].v_s);
+            (yyval.v_sl) = (yyvsp[(1) - (3)].v_sl);
+            (yyval.v_sl) -> push_back((yyvsp[(3) - (3)].v_s));
         ;}
     break;
 
   case 69:
 
 /* Line 1455 of yacc.c  */
-#line 671 "SQLParser.y"
+#line 706 "SQLParser.y"
+    {
+            (yyval.v_s) = (yyvsp[(1) - (1)].v_s);
+        ;}
+    break;
+
+  case 70:
+
+/* Line 1455 of yacc.c  */
+#line 713 "SQLParser.y"
     {
             setCmdColor(0);
+            curTb = NULL;
         ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2343 "SQLParser.cpp"
+#line 2393 "SQLParser.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2551,19 +2601,19 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 676 "SQLParser.y"
+#line 719 "SQLParser.y"
 
 
-int yyerror(const char *emseg) {
-    std::cout << "Parser: Unknown sentence! please try again!" << std::endl;
-    //cout << "Error: " << emseg << endl;
+int yyerror(const char * emseg) {
+    std::cout << "Parser: Unknown sentence! please try again! " << emseg << std::endl;
+    return -1;
 }
 
 int main() {
     MyBitMap::initConst();
     FileManager * fileManager = new FileManager();
     bufPageManager = new BufPageManager(fileManager);
-    dbNow = NULL;    
+    curDb = NULL;    
     cmdColorHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
     //myMain(yyparse);
