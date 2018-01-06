@@ -81,9 +81,7 @@
 		<Unit filename="SourceCode/filesystem/utils/pagedef.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="SourceCode/shellsystem/ShellManager.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="SourceCode/shellsystem/ShellAssistant.h" />
 		<Unit filename="SourceCode/shellsystem/frontend/SQLLexer.l">
 			<Option compile="1" />
 			<Option target="&lt;{~None~}&gt;" />

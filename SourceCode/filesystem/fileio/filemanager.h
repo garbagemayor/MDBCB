@@ -68,7 +68,7 @@ public:
 			return -1;
 		}
 		BufType b = buf + off;
-		error = fwrite( b, 1, PAGE_SIZE, f);
+ 		error = fwrite( b, 1, PAGE_SIZE, f);
 		return 0;
 	}
 	/*

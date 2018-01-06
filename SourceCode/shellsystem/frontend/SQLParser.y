@@ -72,11 +72,13 @@ program:
         program stmt
         {
             setCmdColor(1);
+            std::cout << ">>>";
         }
         |
         /* empty */
         {
             setCmdColor(1);
+            std::cout << ">>>";
         }
 ;
 
@@ -105,7 +107,28 @@ stmt:
 sysStmt:
         SHOW DATABASES ';' endLine
         {
-            std::cout << "show databases!" << std::endl;
+            //遍历所有文件夹
+            struct _finddata_t fb;
+            int handle = _findfirst("*", &fb);
+            std::vector < std::string > dbList;
+            if (handle != -1) {
+                do {
+                    int noFile = strcmp(fb.name, "..");
+                    if (0 != noFile && fb.attrib == 16) {
+                        std::string name = fb.name;
+                        if (name != "." && name != "..") {
+                            //找到一个文件夹，就是找到一个数据库
+                            dbList.push_back(fb.name);
+                        }
+                    }
+                } while (_findnext(handle, &fb) == 0);
+                _findclose(handle);
+            }
+            std::cout << "当前目录下共有" << dbList.size() << "个数据库:" << std::endl;
+            for (int i = 0; i < (int) dbList.size(); i ++) {
+                std::cout << dbList[i] << (i < (int) dbList.size() - 1 ? ", " : ".");
+            }
+            std::cout << std::endl;
         }
 ;
 
@@ -185,7 +208,7 @@ dbStmt:
                 int nTab = dbNow -> getNTable();
                 std::cout << "数据库" << dbNow -> getName() << "共有" << nTab << "个数据表:" << std::endl;
                 for (int i = 0; i < nTab; i ++) {
-                    std::cout << dbNow -> getTableById(i) -> getName() << ( i < nTab ? ", " : ".");
+                    std::cout << dbNow -> getTableById(i) -> getName() << ( i < nTab - 1 ? ", " : ".");
                 }
                 std::cout << std::endl;
             }
@@ -538,6 +561,7 @@ int yyerror(const char *emseg) {
 }
 
 int main() {
+    MyBitMap::initConst();
     FileManager * fileManager = new FileManager();
     bufPageManager = new BufPageManager(fileManager);
     dbNow = NULL;    

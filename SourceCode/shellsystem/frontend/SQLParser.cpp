@@ -495,13 +495,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    72,    72,    78,    84,    88,    92,    96,   100,   106,
-     113,   134,   156,   176,   196,   219,   236,   269,   273,   277,
-     281,   287,   291,   297,   305,   313,   323,   332,   336,   342,
-     347,   352,   357,   365,   369,   375,   379,   385,   389,   393,
-     397,   403,   407,   413,   417,   421,   427,   431,   437,   441,
-     445,   449,   453,   457,   463,   467,   473,   477,   483,   489,
-     493,   496,   500,   506,   513,   520,   527
+       0,    72,    72,    79,    86,    90,    94,    98,   102,   108,
+     136,   157,   179,   199,   219,   242,   259,   292,   296,   300,
+     304,   310,   314,   320,   328,   336,   346,   355,   359,   365,
+     370,   375,   380,   388,   392,   398,   402,   408,   412,   416,
+     420,   426,   430,   436,   440,   444,   450,   454,   460,   464,
+     468,   472,   476,   480,   486,   490,   496,   500,   506,   512,
+     516,   519,   523,   529,   536,   543,   550
 };
 #endif
 
@@ -1507,22 +1507,24 @@ yyreduce:
 #line 73 "SQLParser.y"
     {
             setCmdColor(1);
+            std::cout << ">>>";
         ;}
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 78 "SQLParser.y"
+#line 79 "SQLParser.y"
     {
             setCmdColor(1);
+            std::cout << ">>>";
         ;}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 85 "SQLParser.y"
+#line 87 "SQLParser.y"
     {
         ;}
     break;
@@ -1530,7 +1532,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 89 "SQLParser.y"
+#line 91 "SQLParser.y"
     {
         ;}
     break;
@@ -1538,7 +1540,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 93 "SQLParser.y"
+#line 95 "SQLParser.y"
     {
         ;}
     break;
@@ -1546,7 +1548,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 97 "SQLParser.y"
+#line 99 "SQLParser.y"
     {
         ;}
     break;
@@ -1554,7 +1556,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 101 "SQLParser.y"
+#line 103 "SQLParser.y"
     {
         ;}
     break;
@@ -1562,16 +1564,37 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 107 "SQLParser.y"
+#line 109 "SQLParser.y"
     {
-            std::cout << "show databases!" << std::endl;
+            //遍历所有文件夹
+            struct _finddata_t fb;
+            int handle = _findfirst("*", &fb);
+            std::vector < std::string > dbList;
+            if (handle != -1) {
+                do {
+                    int noFile = strcmp(fb.name, "..");
+                    if (0 != noFile && fb.attrib == 16) {
+                        std::string name = fb.name;
+                        if (name != "." && name != "..") {
+                            //找到一个文件夹，就是找到一个数据库
+                            dbList.push_back(fb.name);
+                        }
+                    }
+                } while (_findnext(handle, &fb) == 0);
+                _findclose(handle);
+            }
+            std::cout << "当前目录下共有" << dbList.size() << "个数据库:" << std::endl;
+            for (int i = 0; i < (int) dbList.size(); i ++) {
+                std::cout << dbList[i] << (i < (int) dbList.size() - 1 ? ", " : ".");
+            }
+            std::cout << std::endl;
         ;}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 114 "SQLParser.y"
+#line 137 "SQLParser.y"
     {
             //新建一个数据库
             //关闭已经打开的数据库
@@ -1596,7 +1619,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 135 "SQLParser.y"
+#line 158 "SQLParser.y"
     {
             //删除一个数据库
             //关闭已经打开的数据库
@@ -1622,7 +1645,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 157 "SQLParser.y"
+#line 180 "SQLParser.y"
     {
             //打开一个数据库
             //关闭已经打开的数据库
@@ -1646,7 +1669,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 177 "SQLParser.y"
+#line 200 "SQLParser.y"
     {
             //查看这个数据库的所有数据表
             //如果没有打开数据库，报错
@@ -1658,7 +1681,7 @@ yyreduce:
                 int nTab = dbNow -> getNTable();
                 std::cout << "数据库" << dbNow -> getName() << "共有" << nTab << "个数据表:" << std::endl;
                 for (int i = 0; i < nTab; i ++) {
-                    std::cout << dbNow -> getTableById(i) -> getName() << ( i < nTab ? ", " : ".");
+                    std::cout << dbNow -> getTableById(i) -> getName() << ( i < nTab - 1 ? ", " : ".");
                 }
                 std::cout << std::endl;
             }
@@ -1668,7 +1691,7 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 197 "SQLParser.y"
+#line 220 "SQLParser.y"
     {
             //在已经打开的数据库中创建一个数据表
             //如果没有打开数据库，报错
@@ -1695,7 +1718,7 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 220 "SQLParser.y"
+#line 243 "SQLParser.y"
     {
             //在已经打开的数据库中删除一个数据表
             //如果没有打开数据库，报错
@@ -1716,7 +1739,7 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 237 "SQLParser.y"
+#line 260 "SQLParser.y"
     {
             //打印数据表中的所有列
             //如果没有打开数据库，报错
@@ -1753,7 +1776,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 270 "SQLParser.y"
+#line 293 "SQLParser.y"
     {
         ;}
     break;
@@ -1761,7 +1784,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 274 "SQLParser.y"
+#line 297 "SQLParser.y"
     {
         ;}
     break;
@@ -1769,7 +1792,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 278 "SQLParser.y"
+#line 301 "SQLParser.y"
     {
         ;}
     break;
@@ -1777,7 +1800,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 282 "SQLParser.y"
+#line 305 "SQLParser.y"
     {
         ;}
     break;
@@ -1785,7 +1808,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 288 "SQLParser.y"
+#line 311 "SQLParser.y"
     {
         ;}
     break;
@@ -1793,7 +1816,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 292 "SQLParser.y"
+#line 315 "SQLParser.y"
     {
         ;}
     break;
@@ -1801,7 +1824,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 298 "SQLParser.y"
+#line 321 "SQLParser.y"
     {
             //std::cout << "Parser.fieldList: (" << $1 -> getName() << " " << $1 -> getDataType() << ")" << std::endl;
             (yyval.v_th) = new std::vector<TableColumn *>();
@@ -1813,7 +1836,7 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 306 "SQLParser.y"
+#line 329 "SQLParser.y"
     {
             (yyval.v_th) = (yyvsp[(1) - (3)].v_th);
             (yyval.v_th) -> push_back((yyvsp[(3) - (3)].v_tc));
@@ -1823,7 +1846,7 @@ yyreduce:
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 314 "SQLParser.y"
+#line 337 "SQLParser.y"
     {
             //std::cout << "Parser.field: (" << * $1 << " " << $2 << ")" << std::endl;
             (yyval.v_tc) = new TableColumn();
@@ -1837,7 +1860,7 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 324 "SQLParser.y"
+#line 347 "SQLParser.y"
     {
             //std::cout << "Parser.field: (" << * $1 << " " << $2 << " NOT NULL)" << std::endl;
             (yyval.v_tc) = new TableColumn();
@@ -1850,7 +1873,7 @@ yyreduce:
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 333 "SQLParser.y"
+#line 356 "SQLParser.y"
     {
         ;}
     break;
@@ -1858,7 +1881,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 337 "SQLParser.y"
+#line 360 "SQLParser.y"
     {
         ;}
     break;
@@ -1866,7 +1889,7 @@ yyreduce:
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 343 "SQLParser.y"
+#line 366 "SQLParser.y"
     {
             (yyval.v_t) = TableDataType::t_int;
         ;}
@@ -1875,7 +1898,7 @@ yyreduce:
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 348 "SQLParser.y"
+#line 371 "SQLParser.y"
     {
             (yyval.v_t) = TableDataType::t_string;
         ;}
@@ -1884,7 +1907,7 @@ yyreduce:
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 353 "SQLParser.y"
+#line 376 "SQLParser.y"
     {
             (yyval.v_t) = TableDataType::t_int;
         ;}
@@ -1893,7 +1916,7 @@ yyreduce:
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 358 "SQLParser.y"
+#line 381 "SQLParser.y"
     {
             (yyval.v_t) = TableDataType::t_float;
         ;}
@@ -1902,7 +1925,7 @@ yyreduce:
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 366 "SQLParser.y"
+#line 389 "SQLParser.y"
     {
         ;}
     break;
@@ -1910,7 +1933,7 @@ yyreduce:
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 370 "SQLParser.y"
+#line 393 "SQLParser.y"
     {
         ;}
     break;
@@ -1918,7 +1941,7 @@ yyreduce:
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 376 "SQLParser.y"
+#line 399 "SQLParser.y"
     {
         ;}
     break;
@@ -1926,7 +1949,7 @@ yyreduce:
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 380 "SQLParser.y"
+#line 403 "SQLParser.y"
     {
         ;}
     break;
@@ -1934,7 +1957,7 @@ yyreduce:
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 386 "SQLParser.y"
+#line 409 "SQLParser.y"
     {
         ;}
     break;
@@ -1942,7 +1965,7 @@ yyreduce:
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 390 "SQLParser.y"
+#line 413 "SQLParser.y"
     {
         ;}
     break;
@@ -1950,7 +1973,7 @@ yyreduce:
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 394 "SQLParser.y"
+#line 417 "SQLParser.y"
     {
         ;}
     break;
@@ -1958,7 +1981,7 @@ yyreduce:
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 398 "SQLParser.y"
+#line 421 "SQLParser.y"
     {
         ;}
     break;
@@ -1966,7 +1989,7 @@ yyreduce:
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 404 "SQLParser.y"
+#line 427 "SQLParser.y"
     {
         ;}
     break;
@@ -1974,7 +1997,7 @@ yyreduce:
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 408 "SQLParser.y"
+#line 431 "SQLParser.y"
     {
         ;}
     break;
@@ -1982,7 +2005,7 @@ yyreduce:
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 414 "SQLParser.y"
+#line 437 "SQLParser.y"
     {
         ;}
     break;
@@ -1990,7 +2013,7 @@ yyreduce:
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 418 "SQLParser.y"
+#line 441 "SQLParser.y"
     {
         ;}
     break;
@@ -1998,7 +2021,7 @@ yyreduce:
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 422 "SQLParser.y"
+#line 445 "SQLParser.y"
     {
         ;}
     break;
@@ -2006,7 +2029,7 @@ yyreduce:
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 428 "SQLParser.y"
+#line 451 "SQLParser.y"
     {
         ;}
     break;
@@ -2014,7 +2037,7 @@ yyreduce:
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 432 "SQLParser.y"
+#line 455 "SQLParser.y"
     {
         ;}
     break;
@@ -2022,7 +2045,7 @@ yyreduce:
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 438 "SQLParser.y"
+#line 461 "SQLParser.y"
     {
         ;}
     break;
@@ -2030,7 +2053,7 @@ yyreduce:
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 442 "SQLParser.y"
+#line 465 "SQLParser.y"
     {
         ;}
     break;
@@ -2038,7 +2061,7 @@ yyreduce:
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 446 "SQLParser.y"
+#line 469 "SQLParser.y"
     {
         ;}
     break;
@@ -2046,7 +2069,7 @@ yyreduce:
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 450 "SQLParser.y"
+#line 473 "SQLParser.y"
     {
         ;}
     break;
@@ -2054,7 +2077,7 @@ yyreduce:
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 454 "SQLParser.y"
+#line 477 "SQLParser.y"
     {
         ;}
     break;
@@ -2062,7 +2085,7 @@ yyreduce:
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 458 "SQLParser.y"
+#line 481 "SQLParser.y"
     {
         ;}
     break;
@@ -2070,7 +2093,7 @@ yyreduce:
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 464 "SQLParser.y"
+#line 487 "SQLParser.y"
     {
         ;}
     break;
@@ -2078,7 +2101,7 @@ yyreduce:
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 468 "SQLParser.y"
+#line 491 "SQLParser.y"
     {
         ;}
     break;
@@ -2086,7 +2109,7 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 474 "SQLParser.y"
+#line 497 "SQLParser.y"
     {
         ;}
     break;
@@ -2094,7 +2117,7 @@ yyreduce:
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 478 "SQLParser.y"
+#line 501 "SQLParser.y"
     {
         ;}
     break;
@@ -2102,7 +2125,7 @@ yyreduce:
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 484 "SQLParser.y"
+#line 507 "SQLParser.y"
     {
         ;}
     break;
@@ -2110,7 +2133,7 @@ yyreduce:
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 490 "SQLParser.y"
+#line 513 "SQLParser.y"
     {
         ;}
     break;
@@ -2118,7 +2141,7 @@ yyreduce:
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 497 "SQLParser.y"
+#line 520 "SQLParser.y"
     {
         ;}
     break;
@@ -2126,7 +2149,7 @@ yyreduce:
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 501 "SQLParser.y"
+#line 524 "SQLParser.y"
     {
         ;}
     break;
@@ -2134,7 +2157,7 @@ yyreduce:
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 507 "SQLParser.y"
+#line 530 "SQLParser.y"
     {
             (yyval.v_s) = (yyvsp[(1) - (1)].v_s);
         ;}
@@ -2143,7 +2166,7 @@ yyreduce:
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 514 "SQLParser.y"
+#line 537 "SQLParser.y"
     {
             (yyval.v_s) = (yyvsp[(1) - (1)].v_s);
         ;}
@@ -2152,7 +2175,7 @@ yyreduce:
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 521 "SQLParser.y"
+#line 544 "SQLParser.y"
     {
             (yyval.v_s) = (yyvsp[(1) - (1)].v_s);
         ;}
@@ -2161,7 +2184,7 @@ yyreduce:
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 528 "SQLParser.y"
+#line 551 "SQLParser.y"
     {
             setCmdColor(0);
         ;}
@@ -2170,7 +2193,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 2174 "SQLParser.cpp"
+#line 2197 "SQLParser.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2382,7 +2405,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 533 "SQLParser.y"
+#line 556 "SQLParser.y"
 
 
 int yyerror(const char *emseg) {
@@ -2391,6 +2414,7 @@ int yyerror(const char *emseg) {
 }
 
 int main() {
+    MyBitMap::initConst();
     FileManager * fileManager = new FileManager();
     bufPageManager = new BufPageManager(fileManager);
     dbNow = NULL;    

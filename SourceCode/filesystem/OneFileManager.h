@@ -36,11 +36,9 @@ public:
      *  功能:创建一个单文件管理器，指定文件名
      */
     OneFileManager(BufPageManager * bufPageManager_, std::string fileName_) {
-        std::cout << "OneFileManager(..., " << fileName_ << ") debug" << std::endl;
         fileName = fileName_;
         bufPageManager = bufPageManager_;
         if (!bufPageManager -> fileManager -> hasFile(fileName.c_str())) {
-            std::cout << "OneFileManager(...) createFile" << std::endl;
             bufPageManager -> fileManager -> createFile(fileName.c_str());
         }
         pageCnt = bufPageManager -> fileManager -> getFileSize(fileName.c_str()) / PAGE_SIZE;

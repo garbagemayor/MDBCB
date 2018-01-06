@@ -4,7 +4,6 @@
 #include "../filesystem/bufmanager/BufPageManager.h"
 #include "Table/Table.h"
 
-#include <cstdlib>
 #include <direct.h>
 
 /**
@@ -123,7 +122,6 @@ public:
      *  功能:打开一个已存在的数据表，如果已经打开过就不做任何事，如果不存在就报错
      */
     void openTable(std::string tableName) {
-        std::cout << "TableManager.openTable(" << tableName << ")" << std::endl;
         //检查是否已经打开
         for (int i = 0; i < (int) tableList.size(); i ++) {
             if (tableList[i] -> getName() == tableName) {
@@ -134,7 +132,6 @@ public:
         //打开这个数据表
         Table * table = new Table(bufPageManager, tableName);
         tableList.push_back(table);
-        std::cout << "TableManager.openTable(" << tableName << ") getName = " << tableList.back() -> getName() << std::endl;
     }
     
     /*
@@ -155,7 +152,6 @@ public:
                 std::string tableName = fb.name;
                 tableName = tableName.substr(0, tableName.length() - 6);
                 openTable(tableName);
-                return;
             }
         } while (_findnext(handle, &fb) == 0);
         _findclose(handle);

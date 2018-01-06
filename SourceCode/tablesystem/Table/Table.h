@@ -67,7 +67,6 @@ public:
      *  功能:打开一个原有数据表，只需要读取第0页的表头信息
      */
     Table(BufPageManager * bufPageManager_, std::string tableName_) {
-        std::cout << "Table(..., " << tableName_ << ") debug" << std::endl;
         oneFileManager = new OneFileManager(bufPageManager_, (tableName_ + ".table").c_str());
         //去第0页读取表头信息
         TablePage * page0 = new TablePage(oneFileManager, 0);
