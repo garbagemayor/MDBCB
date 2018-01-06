@@ -131,6 +131,4 @@ public:
 typedef std::vector < UnionField * > UnionFieldList;
 
 
-
-
 #endif // SHELL_ASSISTANT_H_

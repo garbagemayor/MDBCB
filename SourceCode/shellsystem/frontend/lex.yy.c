@@ -295,16 +295,16 @@ static yyconst short int yy_accept[184] =
        45,   45,   45,   45,   45,   45,   45,   45,   45,   45,
        45,   45,   45,   48,   46,   47,   47,   26,   45,   45,
        45,   45,   45,   45,   45,   45,   45,   45,   45,   45,
-       45,   32,   10,   37,   45,   11,   45,   45,   45,   45,
+       45,   31,   10,   36,   45,   11,   45,   45,   45,   45,
 
        20,   45,   45,   45,    8,   45,   45,   45,    0,    0,
-       47,   29,   30,   45,   45,   27,   45,   23,   45,    7,
-       45,   45,   17,   45,   45,   14,   33,   12,   45,   45,
+       47,   28,   29,   45,   45,   37,   45,   23,   45,    7,
+       45,   45,   17,   45,   45,   14,   32,   12,   45,   45,
        45,   45,    5,   45,   45,   45,   45,   45,    0,   48,
-       48,   47,   45,   45,   45,   45,   34,   45,   25,   45,
-       45,   45,   45,   31,    3,   45,   45,   45,   18,    6,
-       45,   16,   35,   45,   13,   45,   45,   21,    4,   19,
-       15,   45,   45,   28,    9,   45,   36,    1,   45,    2,
+       48,   47,   45,   45,   45,   45,   33,   45,   25,   45,
+       45,   45,   45,   30,    3,   45,   45,   45,   18,    6,
+       45,   16,   34,   45,   13,   45,   45,   21,    4,   19,
+       15,   45,   45,   27,    9,   45,   35,    1,   45,    2,
        45,   24,    0
     } ;
 
@@ -859,57 +859,57 @@ YY_RULE_SETUP
 case 27:
 YY_RULE_SETUP
 #line 40 "SQLLexer.l"
-{   return DATEE;       }
+{   return FOREIGN;     }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 41 "SQLLexer.l"
-{   return FOREIGN;     }
+{   return BOOLL;       }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 42 "SQLLexer.l"
-{   return BOOLL;       }
+{   return CHARR;       }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 43 "SQLLexer.l"
-{   return CHARR;       }
+{   return SHORTT;      }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 44 "SQLLexer.l"
-{   return SHORTT;      }
+{   return INTEGER;     }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 45 "SQLLexer.l"
-{   return INTEGER;     }
+{   return LONGG;       }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 46 "SQLLexer.l"
-{   return LONGG;       }
+{   return FLOATT;      }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 47 "SQLLexer.l"
-{   return FLOATT;      }
+{   return DOUBLEE;     }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 48 "SQLLexer.l"
-{   return DOUBLEE;     }
+{   return VARCHAR;     }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 49 "SQLLexer.l"
-{   return VARCHAR;     }
+{   return LOB;         }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 50 "SQLLexer.l"
-{   return LOB;     }
+{   return DATEE;       }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
