@@ -103,5 +103,34 @@ std::string getTypeNameInSQL(TableDataType type) {
     return typeName;
 }
 
+typedef std::vector < std::string * > StringList;
+
+class UnionField {
+    
+public:
+    int ty;
+    union data {
+        TableColumn * tc;   //ty = 1
+        StringList * pk;    //ty = 2
+    } dt;
+    
+public:
+    UnionField() {
+        ty = 0;
+        dt.tc = NULL;
+    }
+    ~UnionField() {
+        if (ty == 1) {
+            delete dt.tc;
+        } else {
+            delete dt.pk;
+        }
+    }
+};
+
+typedef std::vector < UnionField * > UnionFieldList;
+
+
+
 
 #endif // SHELL_ASSISTANT_H_

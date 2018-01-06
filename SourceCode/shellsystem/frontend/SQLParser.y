@@ -33,37 +33,49 @@
 %token  SET
 %token  SELECT
 %token  IS
-%token  INTEGER
-%token  VARCHAR
 %token  DESC
 %token  REFERENCES
 %token  INDEX
 %token  AND
 %token  DATEE
-%token  FLOATT
 %token  FOREIGN
+%token  BOOLL
+%token  CHARR
+%token  SHORTT
+%token  INTEGER
+%token  LONGG
+%token  FLOATT
+%token  DOUBLEE
+%token  VARCHAR
+%token  LOB
 
 %token  ';' ',' '(' ')' '.' '=' '<' '>' //'<>' '<=' '>='
-
 %token <v_u> VALUE_UINT64
 %token <v_s> VALUE_STRING
 %token <v_d> VALUE_DOUBLE
 %token <v_s> IDENTIFIER
 
-%type <v_t> type
+%type <u_fl> fieldList
+%type <u_fd> field
+
+%type <v_sl> columnList
+
 %type <v_s> dbName
 %type <v_s> tbName
 %type <v_s> colName
-%type <v_tc> field
-%type <v_th> fieldList
- 
+%type <v_t> type
+
 %union {
+    
+    UnionFieldList * u_fl;
+    UnionField * u_fd;
+    StringList * v_sl;
+    
+    std::string * v_s;
     unsigned long long v_u;
     double v_d;
+    
     TableDataType v_t;
-    std::string * v_s;
-    TableColumn * v_tc;
-    std::vector<TableColumn *> * v_th;
 }
 %%
 
@@ -228,11 +240,40 @@ tbStmt:
                 std::cout << "Parser.CREATE TABLE: error" << std::endl;
                 std::cout << "已有这个数据表:" << * $3 << std::endl;
             } else {
+                //整理fieldList，获取到所有被设为PRIMARY KEY的列名
+                StringList pkList;
+                for (int i = 0; i < $5 -> size(); i ++) {
+                    if ($5 -> at(i) -> ty == 2) {
+                        StringList * pkListI = $5 -> at(i) -> dt.pk;
+                        for (int j = 0; j < pkListI -> size(); j ++) {
+                            pkList.push_back(pkListI -> at(j));
+                        }
+                    }
+                }
+                //整理fieldList，把第一个可以被设为PRIMARY KEY的列设置一下，剩下的就无视掉
+                for (int i = 0; i < pkList.size(); i ++) {
+                    int j;
+                    for (j = 0; j < $5 -> size(); j ++) {
+                        if ($5 -> at(j) -> ty == 1) {
+                            if ($5 -> at(j) -> dt.tc -> getName() == * pkList[i]) {
+                                $5 -> at(j) -> dt.tc -> setPrimaryKey(true);
+                                break;
+                            }
+                        }
+                    }
+                    if (j < $5 -> size()) {
+                        break;
+                    }
+                }
                 //创建数据表
                 TableHeader * tbHd = new TableHeader();
                 tbHd -> setName(* $3);
                 for (int i = 0; i < $5 -> size(); i ++) {
-                    tbHd -> addColumn((* $5) [i]);
+                    UnionField * fd = (* $5) [i];
+                    if (fd -> ty == 1) {
+                        fd -> dt.tc -> setConstant();
+                        tbHd -> addColumn(fd -> dt.tc);
+                    }
                 }
                 tbHd -> setConstant();
                 dbNow -> createTable(tbHd);
@@ -283,6 +324,9 @@ tbStmt:
                     if (tbCol -> hasTreeIndex() || tbCol -> hasHashIndex()) {
                         std::cout << " WITH INDEX";
                     }
+                    if (tbCol -> isPrimaryKey()) {
+                        std::cout << " PRIMARY KEY";
+                    }
                     std::cout << (i < nCol - 1 ? ", " : ".");
                 }
                 std::cout << std::endl;
@@ -319,8 +363,7 @@ idxStmt:
 fieldList:
         field
         {
-            //std::cout << "Parser.fieldList: (" << $1 -> getName() << " " << $1 -> getDataType() << ")" << std::endl;
-            $$ = new std::vector<TableColumn *>();
+            $$ = new UnionFieldList();
             $$ -> clear();
             $$ -> push_back($1);
         }
@@ -335,36 +378,95 @@ fieldList:
 field:
         colName type
         {
-            //std::cout << "Parser.field: (" << * $1 << " " << $2 << ")" << std::endl;
-            $$ = new TableColumn();
-            $$ -> setName(* $1);
-            $$ -> setType($2);
-            $$ -> setAllowNull(true);
-            $$ -> setConstant();
+            $$ = new UnionField();
+            $$ -> ty = 1;
+            $$ -> dt.tc = new TableColumn();
+            $$ -> dt.tc -> setName(* $1);
+            $$ -> dt.tc -> setType($2);
+            $$ -> dt.tc -> setAllowNull(true);
         }
         |
         colName type NOT NNULL
         {
-            //std::cout << "Parser.field: (" << * $1 << " " << $2 << " NOT NULL)" << std::endl;
-            $$ = new TableColumn();
-            $$ -> setName(* $1);
-            $$ -> setType($2);
-            $$ -> setConstant();
+            $$ = new UnionField();
+            $$ -> ty = 1;
+            $$ -> dt.tc = new TableColumn();
+            $$ -> dt.tc -> setName(* $1);
+            $$ -> dt.tc -> setType($2);
         }
         |
         PRIMARY KEY '(' columnList ')'
         {
+            $$ = new UnionField();
+            $$ -> ty = 2;
+            $$ -> dt.pk = $4;
         }
         |
         FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')'
         {
+            //去一个已有数据表中把一个数据列的属性复制过来
+            $$ = new UnionField();
+            //如果没有打开数据库，报错
+            if (dbNow == NULL) {
+                std::cout << "Parser.FOREIGN KEY: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!dbNow -> hasOpenedTable(* $7)) {
+                //如果没有这个数据表，报错
+                std::cout << "Parser.FOREIGN KEY: error" << std::endl;
+                std::cout << "没有数据表:" << * $7 << std::endl;
+            } else if (!dbNow -> getTableByName(* $7) -> getTableHeader() -> hasColumn(* $9)) { 
+                //如果没有这个数据列，报错
+                std::cout << "Parser.FOREIGN KEY: error" << std::endl;
+                std::cout << "数据表" << * $7 << "中没有数据列:" << * $9 << std::endl;
+            } else {
+                TableColumn * tc = dbNow -> getTableByName(* $7) -> getTableHeader() -> getColumnByName(* $9);
+                $$ -> ty = 1;
+                $$ -> dt.tc = new TableColumn();
+                $$ -> dt.tc -> setName(* $4);
+                $$ -> dt.tc -> setType(tc -> getDataType());
+                $$ -> dt.tc -> setUnique(tc -> isUnique());
+                $$ -> dt.tc -> setAllowNull(tc -> allowNull());
+                $$ -> dt.tc -> setPrimaryKey(tc -> hasDefault());
+                $$ -> dt.tc -> setHasTreeIndex(tc -> hasTreeIndex());
+                $$ -> dt.tc -> setHasHashIndex(tc -> hasHashIndex());
+            }
         }
-;        
+;
 
 type:
+        BOOLL
+        {
+            $$ = TableDataType::t_bool;
+        }
+        |
+        CHARR
+        {
+            $$ = TableDataType::t_char;
+        }
+        |
+        SHORTT
+        {
+            $$ = TableDataType::t_short;
+        }
+        |
         INTEGER
         {
             $$ = TableDataType::t_int;
+        }
+        |
+        LONGG
+        {
+            $$ = TableDataType::t_long;
+        }
+        |
+        FLOATT
+        {
+            $$ = TableDataType::t_float;
+        }
+        |
+        DOUBLEE
+        {
+            $$ = TableDataType::t_double;
         }
         |
         VARCHAR        
@@ -377,9 +479,9 @@ type:
             $$ = TableDataType::t_int;
         }
         |
-        FLOATT
+        LOB
         {
-            $$ = TableDataType::t_float;
+            $$ = TableDataType::t_lob;
         }
 ;
     
@@ -518,10 +620,14 @@ tableList:
 columnList:
         colName        
         {
+            $$ = new StringList();
+            $$ -> push_back($1);
         }
         |
         columnList ',' colName
         {
+            $$ = $1;
+            $$ -> push_back($3);
         }
 ;
 

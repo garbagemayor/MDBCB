@@ -137,6 +137,20 @@ public:
     }
     
     /*
+     *  @函数名:hasColumn
+     *  @参数columnName:数据列的名称
+     *  功能:查询是否存在这个列
+     */
+    bool hasColumn(std::string columnName) {
+        for (int i = 0; i < (int) colList.size(); i ++) {
+            if (colList[i] -> getName() == columnName) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /*
      *  @函数名:getColumnIdByName
      *  @参数columnName:数据列的名称
      *  功能:用列的名字位置获取列编号，如果不存在就报错

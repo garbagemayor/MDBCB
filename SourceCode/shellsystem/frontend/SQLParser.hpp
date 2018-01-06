@@ -61,19 +61,25 @@
      SET = 277,
      SELECT = 278,
      IS = 279,
-     INTEGER = 280,
-     VARCHAR = 281,
-     DESC = 282,
-     REFERENCES = 283,
-     INDEX = 284,
-     AND = 285,
-     DATEE = 286,
-     FLOATT = 287,
-     FOREIGN = 288,
-     VALUE_UINT64 = 289,
-     VALUE_STRING = 290,
-     VALUE_DOUBLE = 291,
-     IDENTIFIER = 292
+     DESC = 280,
+     REFERENCES = 281,
+     INDEX = 282,
+     AND = 283,
+     DATEE = 284,
+     FOREIGN = 285,
+     BOOLL = 286,
+     CHARR = 287,
+     SHORTT = 288,
+     INTEGER = 289,
+     LONGG = 290,
+     FLOATT = 291,
+     DOUBLEE = 292,
+     VARCHAR = 293,
+     LOB = 294,
+     VALUE_UINT64 = 295,
+     VALUE_STRING = 296,
+     VALUE_DOUBLE = 297,
+     IDENTIFIER = 298
    };
 #endif
 
@@ -84,19 +90,23 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 60 "SQLParser.y"
+#line 68 "SQLParser.y"
 
+    
+    UnionFieldList * u_fl;
+    UnionField * u_fd;
+    StringList * v_sl;
+    
+    std::string * v_s;
     unsigned long long v_u;
     double v_d;
+    
     TableDataType v_t;
-    std::string * v_s;
-    TableColumn * v_tc;
-    std::vector<TableColumn *> * v_th;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 100 "SQLParser.hpp"
+#line 110 "SQLParser.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

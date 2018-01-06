@@ -25,7 +25,7 @@ enum TableDataType {
     t_double = 7,
     t_string = 8,
     t_lob = 9,
-    t_null = 10,//只在Filter里使用
+    t_null,//只在Filter里使用
 };
 
 /*
