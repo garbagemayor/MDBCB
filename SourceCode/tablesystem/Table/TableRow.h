@@ -15,7 +15,8 @@
  *  槽长度slotLen(2B) 状态位flagAB(2B) 
  *  定长部分大小fSize(2B) 定长部分列数fNCol(2B) 定长数据(fsizeB) NULL位图(ceil(fNCol/8)B)
  *  变长列数vNCol(2B) 偏移数组vOffset(vNCol*2B) 变长数据(vSizeB)
- *  变长数据的NULL位图是vOffset的值为0，变长列偏移数组是基于槽起点计算
+ *  NULL位图为1表示数据格是NULL，为0表示数据格里有数据
+ *  变长数据的NULL位图是vOffset的值为0xffff，变长列偏移数组是基于槽起点计算
  */
 class TableRow {
     
@@ -51,6 +52,7 @@ public:
         for (int i = 0; i < (int) gridList.size(); i ++) {
             gridList[i] = new TableGrid(tableHeader -> getColumnById(i));
         }
+        flagAB = 0;
     }
     
     /*
@@ -204,16 +206,19 @@ public:
         ByteBufType curBuf = buf;
         static Byte nullMap[8];
         memset(nullMap, 0, sizeof(Byte) * 8);
-        //开始写入
+        //写入定长部分
         writeNumberToByte(curBuf, 2, slotLen);
         writeNumberToByte(curBuf, 2, flagAB);
         writeNumberToByte(curBuf, 2, fSize);
         writeNumberToByte(curBuf, 2, fNCol);
         for (int i = 0; i < fNCol; i ++) {
             writeArrayToByte(curBuf, gridList[i] -> getDataLength(), gridList[i] -> getDataPointer());
-            nullMap[i >> 3] |= 1 << (i & 7);
+            if (gridList[i] -> isNull()) {
+                nullMap[i >> 3] |= 1 << (i & 7);
+            }
         }
         writeArrayToByte(curBuf, ((fNCol + 7) >> 3), nullMap);
+        //写入变长部分
         writeNumberToByte(curBuf, 2, vNCol);
         int vOffset = 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2;
         for (int i = fNCol; i < fNCol + vNCol; i ++) {

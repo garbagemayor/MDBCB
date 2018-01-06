@@ -16,7 +16,7 @@ private:
     OneFileManager * oneFileManager;
     //这一页的页管理器
     TablePage * curPage;
-    //偏移量
+    //页码偏移量
     int assiOffset;
     //容量，是长度的一半
     int assiSize;
@@ -161,7 +161,7 @@ public:
             return -1;
         }
         //查询
-        ByteBufType tmpBuf = assiData + 6 + (pageId - assiOffset);
+        ByteBufType tmpBuf = assiData + 6 + (pageId - assiOffset) * 2;
         int tmpCnt = readByteToNumber(tmpBuf, 2);
         return tmpCnt;
     }
@@ -190,7 +190,7 @@ public:
         }
         //修改
         curPage -> markDirty();
-        ByteBufType tmpBuf = assiData + 6 + (pageId - assiOffset);
+        ByteBufType tmpBuf = assiData + 6 + (pageId - assiOffset) * 2;
         writeNumberToByte(tmpBuf, 2, pageFreeCnt);
     }
     
