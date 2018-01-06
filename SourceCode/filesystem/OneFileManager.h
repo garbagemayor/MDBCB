@@ -35,17 +35,15 @@ public:
      *  @构造函数
      *  功能:创建一个单文件管理器，指定文件名
      */
-    OneFileManager(BufPageManager * bufPageManager_, std::string fileName_, bool isNewFile = false) {
+    OneFileManager(BufPageManager * bufPageManager_, std::string fileName_) {
         fileName = fileName_;
         bufPageManager = bufPageManager_;
-        if (isNewFile||1) {
+        if (!bufPageManager -> fileManager -> hasFile(fileName.c_str())) {
             bufPageManager -> fileManager -> createFile(fileName.c_str());
-            pageCnt = 0;
-        } else {
-            pageCnt = bufPageManager -> fileManager -> getFileSize(fileName.c_str()) / PAGE_SIZE;
         }
+        pageCnt = bufPageManager -> fileManager -> getFileSize(fileName.c_str()) / PAGE_SIZE;
         if (bufPageManager -> fileManager -> openFile(fileName.c_str(), fileId) == false) {
-            std::cout << "OneFileManager(bufPageManager, " << fileName_ << ", " << isNewFile << ") error" << std::endl;
+            std::cout << "OneFileManager(bufPageManager, " << fileName_  << ") error" << std::endl;
             return;
         }
     }

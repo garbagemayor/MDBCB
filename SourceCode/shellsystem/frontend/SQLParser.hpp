@@ -54,7 +54,7 @@
      INSERT = 270,
      INTO = 271,
      VALUES = 272,
-     DELETE = 273,
+     DELETEE = 273,
      FROM = 274,
      WHERE = 275,
      UPDATE = 276,
@@ -67,8 +67,8 @@
      REFERENCES = 283,
      INDEX = 284,
      AND = 285,
-     DATE = 286,
-     FLOAT = 287,
+     DATEE = 286,
+     FLOATT = 287,
      FOREIGN = 288,
      VALUE_UINT64 = 289,
      VALUE_STRING = 290,
@@ -84,7 +84,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 92 "SQLParser.y"
+#line 60 "SQLParser.y"
 
     unsigned long long v_u;
     double v_d;

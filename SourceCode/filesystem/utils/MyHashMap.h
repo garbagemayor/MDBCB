@@ -1,4 +1,4 @@
-#ifndef MY_HASH_MAP
+﻿#ifndef MY_HASH_MAP
 #define MY_HASH_MAP
 #include "pagedef.h"
 #include "MyLinkList.h"

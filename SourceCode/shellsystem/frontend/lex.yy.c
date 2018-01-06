@@ -794,7 +794,7 @@ YY_RULE_SETUP
 case 16:
 YY_RULE_SETUP
 #line 29 "SQLLexer.l"
-{   return DELETE;      }
+{   return DELETEE;      }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
@@ -859,12 +859,12 @@ YY_RULE_SETUP
 case 29:
 YY_RULE_SETUP
 #line 42 "SQLLexer.l"
-{   return DATE;        }
+{   return DATEE;        }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 43 "SQLLexer.l"
-{   return FLOAT;       }
+{   return FLOATT;       }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
@@ -982,15 +982,16 @@ YY_RULE_SETUP
 {
                             //直接返回换行符作为符号给bison
                             //std::cout << "Lexer.END_LINE" << std::endl;
+                            //setCmdColor(0);
                             return '\n';
                         } 
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 111 "SQLLexer.l"
+#line 112 "SQLLexer.l"
 ECHO;
 	YY_BREAK
-#line 994 "lex.yy.c"
+#line 995 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1876,7 +1877,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 111 "SQLLexer.l"
+#line 112 "SQLLexer.l"
 
 
 int yywrap() {

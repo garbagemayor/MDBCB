@@ -145,6 +145,19 @@ public:
         dirtyFlag = false;
     }
     
+    /*
+     *  @函数名:print
+     *  功能:打印出来，用来调试
+     */
+    void print() {
+        std::cout << "TablePageFooter.print() {" << std::endl;
+        std::cout << "    slotCnt = " << slotCnt << std::endl;
+        for (int i = 0; i < slotCnt; i ++) {
+            std::cout << "    slotOffset[" << i << "] = " << slotOffset[i] << std::endl;
+        }
+        std::cout << "}" << std::endl;
+    }
+    
     friend class TablePageHeader;
     friend class TablePage;
 };

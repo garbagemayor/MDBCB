@@ -360,6 +360,7 @@ public:
         colList.clear();
         colList.resize(nCol);
         for (int i = 0; i < nCol; i ++) {
+            colList[i] = new TableColumn();
             colList[i] -> readFromByte(slotData);
         }
         //长度纠错，记得把指针退回去

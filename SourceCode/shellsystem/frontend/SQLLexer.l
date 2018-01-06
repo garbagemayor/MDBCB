@@ -26,7 +26,7 @@ NULL                    {   return NNULL;       }
 INSERT                  {   return INSERT;      }
 INTO                    {   return INTO;        }
 VALUES                  {   return VALUES;      }
-DELETE                  {   return DELETE;      }
+DELETE                  {   return DELETEE;      }
 FROM                    {   return FROM;        }
 WHERE                   {   return WHERE;       }
 UPDATE                  {   return UPDATE;      }
@@ -39,8 +39,8 @@ DESC                    {   return DESC;        }
 REFERENCES              {   return REFERENCES;  }
 INDEX                   {   return INDEX;       }
 AND                     {   return AND;         }
-DATE                    {   return DATE;        }
-FLOAT                   {   return FLOAT;       }
+DATE                    {   return DATEE;        }
+FLOAT                   {   return FLOATT;       }
 FOREIGN                 {   return FOREIGN;     }
 
 [;,\(\)\.]              {   return *yytext;     }
@@ -106,6 +106,7 @@ FOREIGN                 {   return FOREIGN;     }
 \n|\r|(\r\n)            {
                             //直接返回换行符作为符号给bison
                             //std::cout << "Lexer.END_LINE" << std::endl;
+                            //setCmdColor(0);
                             return '\n';
                         } 
 %%
