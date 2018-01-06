@@ -15,7 +15,7 @@ HANDLE cmdColorHandle;
 #endif
 
 /**
- *  文法需要的类
+ *  需要的类
  */
 /*
  *  字符串数组
@@ -91,21 +91,40 @@ typedef std::vector < UnionValue * > UnionValueRow;
 typedef std::vector < UnionValueRow * > UnionValueTable;
 
 
-
-
-
-
+/*
+ *  运行时需要的数据，写到类里面可以在最后自动调用析构函数
+ */
+class RunningData {
+    
+public:
+    //缓存页管理器
+    BufPageManager * bufPageManager;
+    //运行语境的数据库
+    TableManager * database;
+    //一条语句中前半句指定的一个数据表，不需要析构
+    Table * table;
+    
+    RunningData() {
+        bufPageManager = NULL;
+        database = NULL;
+        table = NULL;
+    }
+    ~RunningData() {
+        if (database != NULL) {
+            delete database;
+            database = NULL;
+        }
+        if (bufPageManager != NULL) {
+            delete bufPageManager;
+            bufPageManager = NULL;
+        }
+    }
+};
 
 /**
- *  各种帮助函数
+ *  需要的数据和函数
  */
-    
-//缓存页管理器
-BufPageManager * bufPageManager;
-//运行语境的数据库
-TableManager * curDb;
-//一条语句中前半句指定的一个数据表
-Table * curTb;
+RunningData cur;
 
 /*
  *  删除该文件夹，包括其中所有的文件和文件夹，可以是相对路径也可以是绝对路径
@@ -201,16 +220,16 @@ std::string getTypeNameInSQL(TableDataType type) {
  */
 void loadCurTable(std::string * tbName) {
     //如果没有打开数据库，报错
-    if (curDb == NULL) {
+    if (cur.database == NULL) {
         std::cout << "Parser.INSERT INTO: error" << std::endl;
         std::cout << "没有已经打开的数据库" << std::endl;
-    } else if (!curDb -> hasOpenedTable(* tbName)) {
+    } else if (!cur.database -> hasOpenedTable(* tbName)) {
         //如果没有这个数据表，报错
         std::cout << "Parser.INSERT INTO: error" << std::endl;
         std::cout << "没有数据表:" << * tbName << std::endl;
     } else {
         //当前SQL语句描述的数据表
-        curTb = curDb -> getTableByName(* tbName);
+        cur.table = cur.database -> getTableByName(* tbName);
     }
 }
 
@@ -218,11 +237,6 @@ void loadCurTable(std::string * tbName) {
  *  把文法产生的数据行转换为数据表中的数据行，不能转换就返回NULL
  */
 TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
-    //检查这一行的数据格数量
-    if ((int) sqlRow -> size() != tableHeader -> getNCol()) {
-        return NULL;
-    }
-    TableRow * tableRow = new TableRow(tableHeader);
     
     std::cout << "genTableRow(...) {" << std::endl;
     std::cout << "    tableHeader = {" << std::endl;
@@ -239,6 +253,11 @@ TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
     std::cout << "    }" << std::endl;
     std::cout << "}" << std::endl;
     
+    //检查这一行的数据格数量
+    if ((int) sqlRow -> size() != tableHeader -> getNCol()) {
+        return NULL;
+    }
+    TableRow * tableRow = new TableRow(tableHeader);
     for (int i = 0; i < tableHeader -> getNCol(); i ++) {
         //检查这一格的数据类型和NULL情况
         UnionValue * sqlValue = sqlRow -> at(i);

@@ -161,10 +161,10 @@ public:
         //在这一页中获取槽的编号
         TablePage * page; 
         if (pageId < oneFileManager -> getPageCnt()) {
-            std::cout << "Table.insertRow(...) 已有页面" << std::endl;
+            std::cout << "Table.insertRow(...) inOldPage" << std::endl;
             page = new TablePage(oneFileManager, pageId);   //在已有的页面上添加
         } else {
-            std::cout << "Table.insertRow(...) 新页面" << std::endl;
+            std::cout << "Table.insertRow(...) inNewPage" << std::endl;
             page = new TablePage(oneFileManager);           //在新开的页面上添加
         }
         //写进去
