@@ -158,19 +158,6 @@ public:
         return 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2 + vSize;
     }
     
-    /*
-     *  @函数名:canMeetNullRequirement
-     *  功能:检查每格的NULL情况是否符合表头的要求，
-     */
-    bool canMeetNullRequirement() {
-        for (int i = 0; i < (int) gridList.size(); i ++) {
-            if (gridList[i] -> isNull() && !tableHeader -> getColumnById(i) -> allowNull()) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
 public:
     ///基本set函数
     

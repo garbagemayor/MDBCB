@@ -129,6 +129,14 @@ public:
         return tableHeader -> getNRow();
     }
     
+    /*
+     *  @函数名:getIndexManager
+     *  功能:获取数据表的索引管理器
+     */
+    IndexManager * getIndexManager() {
+        return indexManager;
+    }
+    
 public:
     ///普通函数
     /*
@@ -137,6 +145,7 @@ public:
      *  @参数pageId:用于返回插入位置的页编号
      *  @参数slotId:用于返回插入位置的槽编号
      *  功能:添加一行数据，去每一页里面找一个能加入的位置把它加进去
+     *       被添加的行已经确保：表头相同，满足NULL限制，满足互不相同限制
      */
     void insertRow(TableRow * tableRow, int & pageId, int & slotId) {
         //表头不同报错
@@ -144,17 +153,6 @@ public:
             std::cout << "Table.insertRow(...) error 1" << std::endl;
             return;
         }
-        //新列不满足NULL条件报错
-        if (!tableRow -> canMeetNullRequirement()) {
-            std::cout << "Table.insertRow(...) error" << std::endl;
-            return;
-        }
-        //新列不满足数据互不相同条件报错
-        ///TODO
-        /*if (!indexManager -> canMeetUniqueRequirement(tableRow)) {
-            std::cout << "Table.insertRow(...) error" << std::endl;
-            return;
-        }*/
         //在表页助手里面找一个合适的页
         int slotLen = tableRow -> getSizeInSlot();
         pageId = tablePageAssistant -> findPageForSlot(slotLen);
@@ -173,13 +171,33 @@ public:
         tableRow -> writeAsByte(buf);
         //改表页助手
         tablePageAssistant -> setFreeCnt(pageId, page -> getPageHeader() -> getFreeCnt());
+        //改索引
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+            if (tableHeader -> getColumnById(i) -> hasTreeIndex() ||
+                tableHeader -> getColumnById(i) -> hasHashIndex()) {
+                //B+树索引
+                uint64 gridValue = tableRow -> getGridById(i) -> getDataValueNumber();
+                TreeNodeKeyCell * keyCell = new TreeNodeKeyCell(gridValue, pageId, slotId);
+                ((TreeIndex *) indexManager -> getIndexById(i)) -> insertKey(keyCell);
+                delete keyCell;
+            }
+            /*
+             else if (tableHeader -> getColumnById(i) -> hasHashIndex()) {
+                //Hash索引
+                ByteBufType gridData = tableRow -> getGridById(i) -> getDataPointer();
+                int gridLength = tableRow -> getGridById(i) -> getDataLength();
+                uint64 gridValue = ((uint64) gridData) << 32 | (uint64) gridLength;
+                HashKeyCell * keyCell = new HashKeyCell(gridValue, pageId, slotId);
+            }
+            */
+        }
     }
     
     /*
      *  @函数名:insertRow
      *  @参数tableRow:要加入的行，它会被复制之后加入，所以在哪里定义的就在哪里释放内存
      *  功能:添加一行数据，去每一页里面找一个能加入的位置把它加进去
-     *       被添加的行确保表头相同，满足NULL限制
+     *       被添加的行已经确保：表头相同，满足NULL限制，满足互不相同限制
      */
     void insertRow(TableRow * tableRow) {
         int pageId;

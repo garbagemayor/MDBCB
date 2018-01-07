@@ -368,16 +368,17 @@ tbStmt:
                 std::cout << "没有数据表:" << * tbName << std::endl;
             } else {
                 Table * table = cur.database -> getTableByName(* tbName);
-                TableHeader * tableHeader = table -> getTableHeader();
                 //把数据一行一行的插入到表中
                 int insertCnt = 0;
                 for (int i = 0; i < (int) rowList -> size(); i ++) {
-                    //创建行数据
+                    //创建数据库中的数据行
                     UnionValueRow * sqlRow = rowList -> at(i);
-                    TableRow * tableRow = genTableRow(sqlRow, tableHeader);
+                    std::string errMsg;
+                    TableRow * tableRow = genTableRow(sqlRow, table, errMsg);
                     if (tableRow == NULL) {
                         std::cout << "Parser.INSERT INTO: error" << std::endl;
                         std::cout << "输入的第" << i << "个数据行不符合数据表" << table -> getName() << "的格式要求" << std::endl;
+                        std::cout << errMsg << std::endl;
                         continue;
                     }
                     table -> insertRow(tableRow);
@@ -387,32 +388,18 @@ tbStmt:
             }
         }
         |
-        deleteFromTable ident WHERE whereClause  ';' endLine
+        DELETEE FROM ident ident WHERE whereClause  ';' endLine
         {
+            std::string * tbName = $3;
         }
         |
-        updateTable SET setClause WHERE whereClause ';' endLine
+        UPDATE ident SET setClause WHERE whereClause ';' endLine
         {
+            std::string * tbName = $2;
         }
         |
         SELECT selector FROM identList WHERE whereClause ';' endLine
         {
-        }
-;
-
-deleteFromTable:
-        DELETEE FROM ident
-        {
-            std::string * tbName = $3;
-            loadCurTable(tbName);
-        }
-;
-
-updateTable:
-        UPDATE ident
-        {
-            std::string * tbName = $2;
-            loadCurTable(tbName);
         }
 ;
 
@@ -638,6 +625,26 @@ filterItem:
         }
 ;
 
+expr:
+        value
+        {
+        }
+        |
+        col
+        {
+        }
+;
+
+selector:
+        col
+        {
+        }
+        |
+        selector ',' col
+        {
+        }
+;
+
 col:            
         ident
         {
@@ -645,6 +652,37 @@ col:
         |
         ident '.' ident
         {
+        }
+;
+
+setClause:
+        ident '=' value
+        {
+        }
+        |
+        setClause ',' ident '=' value
+        {
+        }
+;
+
+identList:
+        ident        
+        {
+            $$ = new StringList();
+            $$ -> push_back($1);
+        }
+        |
+        identList ',' ident
+        {
+            $$ = $1;
+            $$ -> push_back($3);
+        }
+;
+
+ident:
+        IDENTIFIER
+        {
+            $$ = $1;
         }
 ;
 
@@ -674,53 +712,6 @@ op:
         }
 ;
 
-expr:
-        value
-        {
-        }
-        |
-        col
-        {
-        }
-;
-
-setClause:
-        ident '=' value
-        {
-        }
-        |
-        setClause ',' ident '=' value
-        {
-        }
-;
-
-selector:
-        col
-        {
-        }
-;
-
-identList:
-        ident        
-        {
-            $$ = new StringList();
-            $$ -> push_back($1);
-        }
-        |
-        identList ',' ident
-        {
-            $$ = $1;
-            $$ -> push_back($3);
-        }
-;
-
-ident:
-        IDENTIFIER
-        {
-            $$ = $1;
-        }
-;
-
 endLine:
         '\n'
         {
@@ -744,5 +735,7 @@ int main() {
     cmdColorHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
     //myMain(yyparse);
-    yyparse();
+    while (true) {
+        yyparse();
+    }
 }

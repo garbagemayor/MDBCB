@@ -56,6 +56,20 @@ public:
     }
     
 public:
+    ///基本get函数
+    uint64 getKey() {
+        return key;
+    }
+    
+    int getKeyPageId() {
+        return keyPageId;
+    }
+    
+    int getKeySlotId() {
+        return keySlotId;
+    }
+    
+public:
     ///普通函数
     /*
      *  @函数名:writeAsByte

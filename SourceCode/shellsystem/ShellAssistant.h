@@ -4,6 +4,7 @@
 #include "../DatabaseManager.h"
 
 #include <iostream>
+#include <sstream>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -236,7 +237,9 @@ void loadCurTable(std::string * tbName) {
 /*
  *  把文法产生的数据行转换为数据表中的数据行，不能转换就返回NULL
  */
-TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
+TableRow * genTableRow(UnionValueRow * sqlRow, Table * table, std::string & errorMessage) {
+    std::stringstream ssbuf;
+    TableHeader * tableHeader = table -> getTableHeader();
     
     std::cout << "genTableRow(...) {" << std::endl;
     std::cout << "    tableHeader = {" << std::endl;
@@ -255,9 +258,12 @@ TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
     
     //检查这一行的数据格数量
     if ((int) sqlRow -> size() != tableHeader -> getNCol()) {
+        ssbuf << "读取到" << (int) sqlRow -> size() << "个数据，期望得到" << tableHeader -> getNCol() << "个";
+        ssbuf >> errorMessage;
         return NULL;
     }
     TableRow * tableRow = new TableRow(tableHeader);
+    IndexManager * indexManager = table -> getIndexManager();
     for (int i = 0; i < tableHeader -> getNCol(); i ++) {
         //检查这一格的数据类型和NULL情况
         UnionValue * sqlValue = sqlRow -> at(i);
@@ -268,6 +274,8 @@ TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
         if (sqlValue -> ty == 0) {
             //SQL遇到NULL
             if (!tableColumn -> allowNull()) {
+                ssbuf << "输入的第" << i << "个数据格" << "不允许为NULL值";
+                ssbuf >> errorMessage;
                 delete tableRow;
                 return NULL;
             }
@@ -276,6 +284,9 @@ TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
             //SQL遇到UINT64
             if (superType != TableDataType::t_long &&
                 superType != TableDataType::t_double) {
+                ssbuf << "输入的第" << i << "个数据格" << "的数据类型不兼容，";
+                ssbuf << "读取到" << "UINT64" << "无法转换为" << getTypeNameInSQL(tableColumn -> getDataType());
+                ssbuf >> errorMessage;
                 delete tableRow;
                 return NULL;
             }
@@ -283,6 +294,9 @@ TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
         } else if (sqlValue -> ty == 2) {
             //SQL遇到DOUBLE
             if (superType != TableDataType::t_double) {
+                ssbuf << "输入的第" << i << "个数据格" << "的数据类型不兼容，";
+                ssbuf << "读取到" << "DOUBLE" << "无法转换为" << getTypeNameInSQL(tableColumn -> getDataType());
+                ssbuf >> errorMessage;
                 delete tableRow;
                 return NULL;
             }
@@ -290,11 +304,40 @@ TableRow * genTableRow(UnionValueRow * sqlRow, TableHeader * tableHeader) {
         } else if (sqlValue -> ty == 3) {
             //SQL遇到STRING
             if (superType != TableDataType::t_string) {
+                ssbuf << "输入的第" << i << "个数据格" << "的数据类型不兼容，";
+                ssbuf << "读取到" << "VARCHAR" << "无法转换为" << getTypeNameInSQL(tableColumn -> getDataType());
+                ssbuf >> errorMessage;
                 delete tableRow;
                 return NULL;
             }
             std::string * s = sqlValue -> dt.s;
             tableGrid -> setDataValueArray((ByteBufType) s -> c_str(), s -> length());
+        }
+        //数据不允许重复的列检查
+        if (tableColumn -> isUnique()) {
+            if (tableColumn -> hasTreeIndex() ||
+                tableColumn -> hasHashIndex()) {
+                //B+树索引
+                TreeIndex * treeIndex = (TreeIndex *) indexManager -> getIndexById(i);
+                if (treeIndex -> containKey(tableGrid -> getDataValueNumber())) {
+                    ssbuf << "输入的第" << i << "个数据格" << "在数据表中重复出现，但该列不允许重复数据";
+                    ssbuf >> errorMessage;
+                    delete tableRow;
+                    return NULL;
+                }
+            }
+            /*
+             else if (tableColumn -> hasHashIndex()) {
+                //Hash索引
+                HashIndex * hashIndex = (HashIndex *) indexManager -> getIndexById(i);
+                if (hashIndex -> containKey(tableGrid -> getDataPointer(), tableGrid -> getDataLength()) {
+                    ssbuf << "输入的第" << i "个数据格" << "在数据表中重复出现，但该列不允许重复数据";
+                    ssbuf >> errorMessage;
+                    delete tableRow;
+                    return NULL;
+                }
+            }
+            */
         }
     }
     return tableRow;

@@ -89,6 +89,14 @@ public:
         
     }
     
+    /*
+     *  * ite
+     */
+    TreeNodeKeyCell * operator * () {
+        return node -> keyList[listId];
+        
+    }
+    
     friend class TreeIndex;
 };
 

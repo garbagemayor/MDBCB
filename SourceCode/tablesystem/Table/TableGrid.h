@@ -78,6 +78,26 @@ public:
         return data;
     }
     
+    /*
+     *  @函数名:getDataValueNumber
+     *  功能:以uint64的形式获取数据格内的数据
+     */
+    uint64 getDataValueNumber() {
+        TableDataType superType = getSuperType(tableColumn -> getDataType());
+        uint64 value = 0;
+        if (superType == TableDataType::t_long ||
+            superType == TableDataType::t_double) {
+            for (int i = 0; i < length; i ++) {
+                value = value | data[i] << (i << 3);
+            }
+        } else {
+            for (int i = 0; i < length; i ++) {
+                value = (value * HASH_BASE + data[i]) % HASH_MODP2;
+            }
+        }
+        return value;
+    }
+    
 public:
     ///基本set函数    
     /*
