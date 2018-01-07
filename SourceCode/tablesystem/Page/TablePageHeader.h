@@ -31,7 +31,7 @@ private:
     int nextPageId;
     //[2]: 如果这一页处于一个页链中，就是下一页的页号
     int prevPageId;
-    //[3]: 该页所属对象的ID（不知道是什么）
+    //[3]: 该页所属对象的ID（表页1，表页助手2，B+树索引3，Hash索引4）
     int objId;
     //[4]: 用于该页变化和更新的日志序列号（即LSN）值（不知道是什么）
     int lsn;
@@ -141,6 +141,14 @@ public:
     }
     
     /*
+     *  @函数名:getObjId
+     *  功能:返回对象标识符
+     */
+    int getObjId() {
+        return objId;
+    }
+    
+    /*
      *  @函数名:getSlotCnt
      *  功能:获取这一页已有的槽数量
      */
@@ -216,6 +224,15 @@ public:
     void setPrevPageId(int prevPageId_) {
         dirtyFlag = true;
         prevPageId = prevPageId_;
+    }
+    
+    /*
+     *  @函数名:setObjId
+     *  功能:设置对象标识符
+     */
+    void setObjId(int objId_) {
+        dirtyFlag = true;
+        objId = objId_;
     }
     
     /*

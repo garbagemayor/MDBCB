@@ -105,12 +105,48 @@ public:
     
     /*
      *  @函数名:containKey
+     *  @参数keyValue:要查询的数值
+     *  @参数pageId:返回这个数值所在的页编号
+     *  @参数slotId:返回这个数值所在的槽编号
+     *  功能:查询表中是否包含这个数值，找到返回true和页编号槽编号，找不到返回false和-1,-1
+     */
+    bool containKey(uint64 key, int & pageId, int & slotId) {
+        TreeNodeKeyCell * keyCell = new TreeNodeKeyCell(key, -1, -1);
+        TreeIterator ite = __lowerBoundKey(keyCell);
+        if (keyCell -> key == (* ite) -> key) {
+            pageId = (* ite) -> keyPageId;
+            slotId = (* ite) -> keySlotId;
+            return true;
+        } else {
+            pageId = -1;
+            slotId = -1;
+            return false;
+        }
+    }
+    
+    /*
+     *  @函数名:containKey
+     *  @参数keyValue:要查询的数值
+     *  功能:查询表中是否包含这个数值，找到返回true，找不到返回false
+     */
+    bool containKey(uint64 key) {
+        int pageId = -1;
+        int slotId = -1;
+        return containKey(key, pageId, slotId);
+    }
+    
+    /*
+     *  @函数名:containKey
      *  @参数keyCell:要查询的键值
      *  功能:查询表中是否包含这个键值，
      */
     bool containKey(TreeNodeKeyCell * keyCell) {
-        TreeIterator ite = __findKey(keyCell);
-        return ite.nodeId != -1 && ite.listId != -1;
+        TreeIterator ite = __lowerBoundKey(keyCell);
+        if (keyCell -> isEqualTo(* ite)) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     /*
@@ -119,7 +155,21 @@ public:
      *  功能:查询表中是否包含这个键值，返回一个迭代器
      */
     TreeIterator findKey(TreeNodeKeyCell * keyCell) {
-        return __findKey(keyCell);
+        TreeIterator ite = __lowerBoundKey(keyCell);
+        if (keyCell -> isEqualTo(* ite)) {
+            return ite;
+        } else {
+            return TreeIterator();
+        }
+    }
+    
+    /*
+     *  @函数名:lowerBoundKey
+     *  @参数keyCell:要查询的键值
+     *  功能:查询表中不小于这个键值的第一个键值，返回一个迭代器
+     */
+    TreeIterator lowerBoundKey(TreeNodeKeyCell * keyCell) {
+        return __lowerBoundKey(keyCell);
     }
     
     /*
@@ -447,18 +497,18 @@ protected:
     }
     
     /*
-     *  @函数名:__findKey
+     *  @函数名:__lowerBoundKey
      *  @参数keyCell:查询的键值
-     *  功能:非递归的查询是否包含一个键值，返回一个迭代器，指向这个数据在叶节点中所在的位置
+     *  功能:非递归的查询“不小于keyCell的第一个键值”，返回一个迭代器，指向这个数据在叶节点中所在的位置
      */
-    TreeIterator __findKey(TreeNodeKeyCell * keyCell) {
+    TreeIterator __lowerBoundKey(TreeNodeKeyCell * keyCell) {
         TreeNode * nodeCur = new TreeNode(oneFileManager, rootPageId);
         TreeNode * nodeTmp;
         int s;
         //向下逐层查询
         while (true) {
-            for (s = (int) nodeCur -> keyList.size() - 1; s >= 0; s --) {
-                if (!nodeCur -> keyList[s] -> isGreaterThan(keyCell, cmpKeyValue)) {
+            for (s = 0; s < (int) nodeCur -> keyList.size(); s ++) {
+                if (!keyCell -> isLessThan(nodeCur -> keyList[s], cmpKeyValue)) {
                     break;
                 }
             }
@@ -466,15 +516,26 @@ protected:
                 break;
             }
             //向下一层
+            if (s == (int) nodeCur -> keyList.size() ||
+                nodeCur -> keyList[s] -> isLessThan(keyCell, cmpKeyValue)) {
+                s --;
+            }
             nodeTmp = new TreeNode(oneFileManager, nodeCur -> keyList[s] -> sonPageId);
             delete nodeCur;
             nodeCur = nodeTmp;
         }
-        if (nodeCur -> keyList[s] -> isEqualTo(keyCell)) {
-            return TreeIterator(oneFileManager, nodeCur -> curPageId, s);
-        } else {
-            return TreeIterator();
+        //叶子节点，返回一个迭代器
+        if (s == (int) nodeCur -> keyList.size()) {
+            if (nodeCur -> pageHeader -> getNextPageId() == -1) {
+                return TreeIterator();
+            } else {
+                nodeTmp = new TreeNode(oneFileManager, nodeCur -> pageHeader -> getNextPageId());
+                delete nodeCur;
+                nodeCur = nodeTmp;
+                s = 0;
+            }
         }
+        return TreeIterator(oneFileManager, nodeCur -> curPageId, s);
     }
 };
 

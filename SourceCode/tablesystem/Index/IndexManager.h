@@ -36,11 +36,15 @@ public:
         indexList.resize(tableHeader -> getNCol());
         for (int i = 0; i < tableHeader -> getNCol(); i ++) {
             TableColumn * tableColumn = tableHeader -> getColumnById(i);
-            if (tableColumn -> hasTreeIndex()) {
+            if (tableColumn -> hasTreeIndex() || tableColumn -> hasHashIndex()) {
                 indexList[i] = new TreeIndex(bufPageManager, tableHeader -> getName(), tableColumn);
-            } else if(tableColumn -> hasHashIndex()) {
+            }
+            /*
+             else if(tableColumn -> hasHashIndex()) {
                 indexList[i] = new HashIndex(bufPageManager, tableHeader -> getName(), tableColumn);
-            } else {
+            }
+            */
+             else {
                 indexList[i] = NULL;
             }
         }

@@ -90,7 +90,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 64 "SQLParser.y"
+#line 72 "SQLParser.y"
 
     
     UnionFieldList * u_fl;
@@ -98,8 +98,14 @@ typedef union YYSTYPE
     StringList * v_sl;
     
     UnionValue * u_va;
-    UnionValueRow * u_vr;
-    UnionValueTable * u_vt;
+    UnionValueList * u_vr;
+    UnionValueLists * u_vt;
+    
+    UnionWhereClause * u_wc;
+    UnionWhereItem * u_wi;
+    
+    UnionColList * u_cl;
+    UnionCol * u_co;
     
     uint64 v_u;
     double v_d;
@@ -110,7 +116,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 114 "SQLParser.hpp"
+#line 120 "SQLParser.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

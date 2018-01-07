@@ -169,19 +169,6 @@ public:
                 delete tableList[i];
                 tableList[i] = tableList.back();
                 tableList.pop_back();
-                //从文件夹中删除
-                struct _finddata_t fb;
-                int handle = _findfirst((tableName + ".*").c_str(), &fb);
-                if (handle == 0) {
-                    return;
-                }
-                while (0 == _findnext(handle, &fb)) {
-                    int noFile = strcmp(fb.name, "..");
-                    if (0 != noFile && fb.attrib != 16) {
-                        remove(fb.name);
-                    }
-                }
-                _findclose(handle);
                 return;
             }
         }

@@ -83,6 +83,11 @@
 #define HASH_MODP 1997
 
 /*
+ *  Hash索引的模数
+ */
+#define HASH_MODP2 1000000000000037ull
+
+/*
  *  Hash索引每个桶页最多记录数
  */
 #define MAX_BUCKET_SIZE 500

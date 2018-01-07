@@ -31,7 +31,7 @@ private:
      *  @构造函数
      *  功能:创建一个正常的迭代器
      */
-    TreeIterator( OneFileManager * oneFileManager_, int nodeId_, int listId_) {
+    TreeIterator(OneFileManager * oneFileManager_, int nodeId_, int listId_) {
         oneFileManager = oneFileManager_;
         nodeId = nodeId_;
         listId = listId_;
@@ -52,6 +52,10 @@ private:
      *  @析构函数
      */
     ~TreeIterator() {
+        if (node != NULL) {
+            delete node;
+            node = NULL;
+        }
     }
     
 public:
@@ -86,6 +90,14 @@ public:
         TreeIterator iteTmp(* this);
         ++ (* this);
         return iteTmp;
+        
+    }
+    
+    /*
+     *  * ite
+     */
+    TreeNodeKeyCell * operator * () {
+        return node -> keyList[listId];
         
     }
     

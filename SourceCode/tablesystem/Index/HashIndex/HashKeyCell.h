@@ -29,7 +29,7 @@ public:
      *  @构造函数
      *  功能:给key相关的三个数赋值
      */
-    HashKeyCell(int key_, int keyPageId_, int keySlotId_) {
+    HashKeyCell(uint64 key_, int keyPageId_, int keySlotId_) {
         key = key_;
         keyPageId = keyPageId_;
         keySlotId = keySlotId_;

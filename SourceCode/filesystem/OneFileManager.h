@@ -113,7 +113,7 @@ public:
      *  功能:由页编号标记一个页被访问过，让替换算法尽量不要替换它
      */
     void access(int pageId) {
-        int index = getPageIndex(pageId, false);
+        int index = getPageIndex(pageId);
         if (index == -1) {
             std::cout << "OneFileManager.access() error" << std::endl;
             return;
@@ -126,7 +126,7 @@ public:
      *  功能:标记脏页
      */
     void markDirty(int pageId) {
-        int index = getPageIndex(pageId, false);
+        int index = getPageIndex(pageId);
         if (index == -1) {
             return;
         }
@@ -138,7 +138,7 @@ public:
      *  功能:由页编号释放一个页面，这个页面必须是干净的
      */
     void release(int pageId) {
-        int index = getPageIndex(pageId, true);
+        int index = getPageIndex(pageId);
         if (index == -1) {
             std::cout << "OneFileManagerwriteBack.release() error" << std::endl;
             return;
@@ -151,7 +151,7 @@ public:
      *  功能:由页编号来写回一个修改完成的页面，自动选择是直接释放还是写回再释放
      */
     void writeBack(int pageId) {
-        int index = getPageIndex(pageId, true);
+        int index = getPageIndex(pageId);
         if (index == -1) {
             std::cout << "OneFileManager.writeBack() error" << std::endl;
             return;
@@ -177,15 +177,12 @@ protected:
      *  @函数名:
      *  功能:由页编号获取缓存页管理器中的编号，并可以顺便删除
      */
-    int getPageIndex(int pageId, bool eraseFlag) {
+    int getPageIndex(int pageId) {
         int index = -1;
         if (indexMap.find(pageId) == indexMap.end()) {
             index = bufPageManager -> hash -> findIndex(fileId, pageId);
         } else {
             index = indexMap[pageId];
-            if (eraseFlag) {
-                indexMap.erase(pageId);
-            }
         }
         return index;
     }

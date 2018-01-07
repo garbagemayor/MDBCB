@@ -15,7 +15,8 @@
  *  槽长度slotLen(2B) 状态位flagAB(2B) 
  *  定长部分大小fSize(2B) 定长部分列数fNCol(2B) 定长数据(fsizeB) NULL位图(ceil(fNCol/8)B)
  *  变长列数vNCol(2B) 偏移数组vOffset(vNCol*2B) 变长数据(vSizeB)
- *  变长数据的NULL位图是vOffset的值为0，变长列偏移数组是基于槽起点计算
+ *  NULL位图为1表示数据格是NULL，为0表示数据格里有数据
+ *  变长数据的NULL位图是vOffset的值为0xffff，变长列偏移数组是基于槽起点计算
  */
 class TableRow {
     
@@ -51,6 +52,7 @@ public:
         for (int i = 0; i < (int) gridList.size(); i ++) {
             gridList[i] = new TableGrid(tableHeader -> getColumnById(i));
         }
+        flagAB = 0;
     }
     
     /*
@@ -98,6 +100,14 @@ public:
     }
     
     /*
+     *  @函数名:getNCol
+     *  功能:获取列数
+     */
+    int getNCol() {
+        return gridList.size();
+    }
+    
+    /*
      *  @函数名:getFlagAB
      *  功能:返回状态位
      */
@@ -124,7 +134,7 @@ public:
      *  功能:用数据列的名称获取数据格信息，如果不存在就报错
      */
     TableGrid * getGridByName(std::string columnName) {
-        for (int i = 0; i < (int) gridList.size(); i ++) {
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
             if (tableHeader -> getColumnById(i) -> getName() == columnName) {
                 return gridList[i];
             }
@@ -154,19 +164,6 @@ public:
             }
         }
         return 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2 + vSize;
-    }
-    
-    /*
-     *  @函数名:canMeetNullRequirement
-     *  功能:检查每格的NULL情况是否符合表头的要求，
-     */
-    bool canMeetNullRequirement() {
-        for (int i = 0; i < (int) gridList.size(); i ++) {
-            if (gridList[i] -> isNull() && !tableHeader -> getColumnById(i) -> allowNull()) {
-                return false;
-            }
-        }
-        return true;
     }
     
 public:
@@ -204,16 +201,19 @@ public:
         ByteBufType curBuf = buf;
         static Byte nullMap[8];
         memset(nullMap, 0, sizeof(Byte) * 8);
-        //开始写入
+        //写入定长部分
         writeNumberToByte(curBuf, 2, slotLen);
         writeNumberToByte(curBuf, 2, flagAB);
         writeNumberToByte(curBuf, 2, fSize);
         writeNumberToByte(curBuf, 2, fNCol);
         for (int i = 0; i < fNCol; i ++) {
             writeArrayToByte(curBuf, gridList[i] -> getDataLength(), gridList[i] -> getDataPointer());
-            nullMap[i >> 3] |= 1 << (i & 7);
+            if (gridList[i] -> isNull()) {
+                nullMap[i >> 3] |= 1 << (i & 7);
+            }
         }
         writeArrayToByte(curBuf, ((fNCol + 7) >> 3), nullMap);
+        //写入变长部分
         writeNumberToByte(curBuf, 2, vNCol);
         int vOffset = 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2;
         for (int i = fNCol; i < fNCol + vNCol; i ++) {
@@ -256,7 +256,7 @@ public:
         int fNCol = readByteToNumber(slotData, 2);
         //列数纠错，记得把指针退回去
         if (fNCol != tableHeader -> getConstantLengthNCol()) {
-            std::cout << "TableRow.readFromByte(...) error" << std::endl;
+            std::cout << "TableRow.readFromByte(...) error 1" << std::endl;
             slotData = slotData_;
             return;
         }
@@ -273,7 +273,7 @@ public:
             if (nullMap[i >> 3] >> (i & 7) & 1) {
                 //是NULL，但不允许NULL，报错
                 if (!tableHeader -> getColumnById(i) -> allowNull()) {
-                    std::cout << "TableRow.readFromByte(...) error" << std::endl;
+                    std::cout << "TableRow.readFromByte(...) error 2" << std::endl;
                     slotData = slotData_;
                     return;
                 }
@@ -293,7 +293,7 @@ public:
         for (int i = fNCol; i < fNCol + vNCol; i ++) {
             vOffset[i] = readByteToNumber(slotData, 2);
         }
-        vOffset[fNCol + vNCol] = vSize;
+        vOffset[fNCol + vNCol] = slotLen;
         for (int i = fNCol + vNCol - 1; i >= fNCol; i --) {
             if (vOffset[i] == 0xffff) {
                 nullMap[i >> 3] |= 1 << (i & 7);
@@ -310,7 +310,7 @@ public:
         }
         //读完之后检查长度报错
         if (slotData - slotData_ != slotLen) {
-            std::cout << "TableRow.readFromByte(...) error" << std::endl;
+            std::cout << "TableRow.readFromByte(...) error 3" << std::endl;
             slotData = slotData_;
             return;
         }

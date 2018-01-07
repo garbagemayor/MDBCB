@@ -9,9 +9,9 @@
  *  筛选器树，支持形如“table1.column1 == table2.column2 AND ( table1.column3 < 5 OR table2.column3 < 10 )”这样的筛选条件
  *  大概就是这么个意思：
  *
- *  WhereClause =   WhereClause AND FilterItem
+ *  WhereClause =   WhereClause AND WhereItem
  *
- *  FilterItem  =   Col IS NNULL
+ *  WhereItem   =   Col IS NNULL
  *              |   Col NOT IS NNULL
  *              |   Col Op Expr
  *
