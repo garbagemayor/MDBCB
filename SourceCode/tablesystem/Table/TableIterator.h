@@ -5,7 +5,7 @@
 
 class TableIterator {
     
-public:
+private:
     //单文件管理器
     OneFileManager * oneFileManager;
     //表头
@@ -81,6 +81,22 @@ public:
     }
     
 public:
+    ///基本get函数
+    /*
+     *  @函数名:getPageId
+     */
+    int getPageId() {
+        return pageId;
+    }
+    
+    /*
+     *  @函数名:getSlotId
+     */
+    int getSlotId() {
+        return slotId;
+    }
+    
+public:
     ///重载负号
     /*
      *  @函数名:next
@@ -91,35 +107,31 @@ public:
         if (pageId == -1 || slotId == -1) {
             //std::cout << "TableIterator.next() flag 1" << std::endl;
             return;
-        } else if (slotId + 1 < page -> getPageHeader() -> getSlotCnt()) {
-            //std::cout << "TableIterator.next() flag 2" << std::endl;
-            delete tableRow;
-            tableRow = NULL;
-            slotId ++;
+        }
+        delete tableRow;
+        tableRow = NULL;
+        slotId = page -> getNextSlotId(slotId);
+        if (slotId != -1) {
             tableRow = new TableRow(tableHeader, page -> getSlot(slotId));
-            //std::cout << "TableIterator.next() flag 2'" << std::endl;
             return;
-        } else {
-            //std::cout << "TableIterator.next() flag 3" << std::endl;
-            delete tableRow;
-            tableRow = NULL;
-            while (true) {
-                //std::cout << "TableIterator.next() flag 4" << std::endl;
-                delete page;
-                page = NULL;
-                //std::cout << "TableIterator.next() flag 5" << std::endl;
-                pageId ++;
-                if (pageId == oneFileManager -> getPageCount()) {
-                    pageId = -1;
-                    slotId = -1;
-                    return;
-                }
-                page = new TablePage(oneFileManager, pageId);
-                if (page -> getPageHeader() -> getSlotCnt() > 0) {
-                    slotId = 0;
-                    tableRow = new TableRow(tableHeader, page -> getSlot(slotId));
-                    return;
-                }
+        }
+        while (true) {
+            delete page;
+            page = NULL;
+            pageId ++;
+            if (pageId >= oneFileManager -> getPageCount()) {
+                pageId = -1;
+                slotId = -1;
+                return;
+            }
+            page = new TablePage(oneFileManager, pageId);
+            if (page -> getPageHeader() -> getObjId() == 2) {
+                continue;
+            }
+            slotId = page -> getNextSlotId(-1);
+            if (slotId != -1) {
+                tableRow = new TableRow(tableHeader, page -> getSlot(slotId));
+                return;
             }
         }
     }

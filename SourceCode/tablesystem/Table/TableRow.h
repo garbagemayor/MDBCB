@@ -37,12 +37,12 @@ public:
     TableRow(TableHeader * tableHeader_) {
         //空指针报错
         if (tableHeader_ == NULL) {
-            std::cout << "TableRow(NULL) error" << std::endl;
+            std::cout << "TableRow(NULL) error 1" << std::endl;
             return;
         }
         //数据行仍然可以修改报错
         if (tableHeader_ -> isModifiable()) {
-            std::cout << "TableRow(...) error" << std::endl;
+            std::cout << "TableRow(...) error 2" << std::endl;
             tableHeader = NULL;
             return;
         }
@@ -63,13 +63,13 @@ public:
      */
     TableRow(TableHeader * tableHeader_, ByteBufType slotData_) {
         //空指针报错
-        if (tableHeader_ == NULL) {
-            std::cout << "TableRow(NULL) error" << std::endl;
+        if (tableHeader_ == NULL || slotData_ == NULL) {
+            std::cout << "TableRow(NULL) error 3" << std::endl;
             return;
         }
         //数据行仍然可以修改报错
         if (tableHeader_ -> isModifiable()) {
-            std::cout << "TableRow(...) error" << std::endl;
+            std::cout << "TableRow(...) error 4" << std::endl;
             tableHeader = NULL;
             return;
         }

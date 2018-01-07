@@ -40,7 +40,7 @@ public:
         tableName = tableName_;
         tableColumn = tableColumn_;
         //创建或打开文件
-        std::string fileName = tableName + "." + tableColumn -> getName() + ".index";
+        std::string fileName = getFileName();
         oneFileManager = new OneFileManager(bufPageManager_, fileName.c_str());
     }
     
@@ -50,6 +50,15 @@ public:
      */
     virtual ~BaseIndex() {
         delete oneFileManager;
+    }
+    
+public:
+    /*
+     *  @函数名:getFileName
+     *  功能:获取文件名
+     */
+    std::string getFileName() {
+        return tableName + "." + tableColumn -> getName() + ".index";
     }
 };
 

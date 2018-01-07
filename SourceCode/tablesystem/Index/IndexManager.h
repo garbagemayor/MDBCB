@@ -51,6 +51,7 @@ public:
     }
     
 public:
+    ///基本get函数
     /*
      *  @函数名:getIndexById
      *  功能:用编号获取列的索引
@@ -79,16 +80,42 @@ public:
         }
     }
     
+public:
+    ///普通函数
+    /*
+     *  @函数名:addIndex
+     *  功能:突然加一个索引
+     */
+    void addIndex(BaseIndex * index, std::string columnName) {
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+            TableColumn * tableColumn = tableHeader -> getColumnById(i);
+            if (tableColumn -> getName() == columnName) {
+                indexList[i] = index;
+                return;
+            }
+        }
+        if (true) {
+            std::cout << "IndexManager.addIndex(...) error" << std::endl;
+        }
+    }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    /*
+     *  @函数名:removeIndex
+     *  功能:突然删一个索引
+     */
+    void removeIndex(std::string columnName) {
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+            TableColumn * tableColumn = tableHeader -> getColumnById(i);
+            if (tableColumn -> getName() == columnName) {
+                delete indexList[i];
+                indexList[i] = NULL;
+                return;
+            }
+        }
+        if (true) {
+            std::cout << "IndexManager.removeIndex(...) error" << std::endl;
+        }
+    }
 };
 
 #endif // INDEX_MANAGER_H_

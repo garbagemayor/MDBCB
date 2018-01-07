@@ -151,7 +151,50 @@ public:
             return NULL;
         }
         int offset = footer -> slotOffset[slotId];
-        return pageData + offset;
+        if (offset < 0) {
+            return NULL;
+        } else {
+            return pageData + offset;
+        }
+    }
+    
+    /*
+     *  @函数名:getNextSlotId
+     *  功能:返回下一个没被删除的槽编号
+     */
+    int getNextSlotId(int slotId) {
+        while (true) {
+            slotId ++;
+            if (slotId >= header -> getSlotCnt()) {
+                return -1;
+            }
+            if (footer -> getSlotOffset(slotId) > 0) {
+                return slotId;
+            }
+        }
+        return -1;
+    }
+    
+    /*
+     *  @函数名:getSlotMaxLength
+     *  功能:查询一个槽的最大长度
+     */
+    int getSlotMaxLength(int slotId) {
+        if (slotId < (int) header -> getSlotCnt() - 1) {
+            //如果是中间的一个槽
+            int offset1 = footer -> getSlotOffset(slotId);
+            offset1 = offset1 > 0 ? offset1 : - offset1;
+            int offset2 = footer -> getSlotOffset(slotId + 1);
+            offset2 = offset2 > 0 ? offset2 : - offset2;
+            return offset2 - offset1;
+        } else {
+            //如果是这一页的最后一个槽
+            int offset1 = footer -> getSlotOffset(slotId);
+            offset1 = offset1 > 0 ? offset1 : - offset1;
+            int offset2 = header -> getFreeData();
+            int freeCnt = header -> getFreeCnt();
+            return freeCnt + (offset2 - offset1);
+        }
     }
     
 public:
@@ -208,6 +251,16 @@ public:
         header -> freeCnt -= slotLen + 2;
         header -> writeBackToBuffer();
         return header -> slotCnt - 1;
+    }
+    
+    /*
+     *  @函数名:eraseSlot
+     *  功能:删除一个槽，
+     */
+    void eraseSlot(int slotId) {
+        dirtyFlag = true;
+        footer -> removeSlot(slotId);
+        footer -> writeBackToBuffer();
     }
 };
 

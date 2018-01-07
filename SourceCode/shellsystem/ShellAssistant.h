@@ -362,6 +362,81 @@ bool checkTableNameList(StringList * & tbNameList, UnionWhereClause * whList, st
     return true;
 }
 
+bool checkSetClause(std::string * tbName, UnionSetClause * scList, std::string & errorMessage) {
+    std::stringstream ssbuf;
+    Table * table = cur.database -> getTableByName(* tbName);
+    //检查是否包含这些列
+    for (int i = 0; i < (int) scList -> size(); i ++) {
+        std::string * colName = scList -> at(i) -> col;
+        if (! table -> getTableHeader() -> hasColumn(* colName)) {
+            ssbuf << "在数据表" << * tbName << "没有数据列:" << * colName;
+            ssbuf >> errorMessage;
+            return false;
+        }
+    }
+    //检查重复的数据列
+    bool errorFlag = false;
+    for (int i = 0; i < (int) scList -> size(); i ++) {
+        std::string * colNameI = scList -> at(i) -> col;
+        int cnt = 0;
+        for (int j = 0; j < i; j ++) {
+            std::string * colNameJ = scList -> at(i) -> col;
+            if (* colNameI == * colNameJ) {
+                cnt ++;
+            }
+        }
+        if (cnt >= 1) {
+            errorFlag = true;
+            if (cnt == 1) {
+                ssbuf << * colNameI << ", ";
+            }
+        }
+    }
+    if (errorFlag) {
+        ssbuf >> errorMessage;
+        errorMessage = std::string("在SET语句中有重复的数据列:") + errorMessage;
+        return false;
+    }
+    //检查数据类型、NULL兼容性
+    for (int i = 0; i < (int) scList -> size(); i ++) {
+        std::string * colName = scList -> at(i) -> col;
+        UnionValue * uv = scList -> at(i) -> uv;
+        TableColumn * tbCol = table -> getTableHeader() -> getColumnByName(* colName);
+        TableDataType spTy = getSuperType(tbCol -> getDataType());
+        if (uv -> ty == 0) {
+            //右边是NULL常量
+            if (! tbCol -> allowNull()) {
+                ssbuf << "数据表" << * tbName << "的数据列" << * colName << "不允许NULL值";
+                ssbuf >> errorMessage;
+                return false;
+            }
+        } else if (uv -> ty == 1) {
+            //右边是整数常量
+            if (spTy != TableDataType::t_long &&
+                spTy != TableDataType::t_double) {
+                ssbuf << "数据表" << * tbName << "的数据列" << * colName << "是" << getTypeNameInSQL(tbCol -> getDataType()) << "类型，不能被赋值为整数";
+                ssbuf >> errorMessage;
+                return false;
+            }
+        } else if (uv -> ty == 2) {
+            //右边是浮点数常量
+            if (spTy != TableDataType::t_double) {
+                ssbuf << "数据表" << * tbName << "的数据列" << * colName << "是" << getTypeNameInSQL(tbCol -> getDataType()) << "类型，不能被赋值为浮点数";
+                ssbuf >> errorMessage;
+                return false;
+            }
+        } else if (uv -> ty == 3) {
+            //右边是字符串常量
+            if (spTy != TableDataType::t_string) {
+                ssbuf << "数据表" << * tbName << "的数据列" << * colName << "是" << getTypeNameInSQL(tbCol -> getDataType()) << "类型，不能被赋值为字符串";
+                ssbuf >> errorMessage;
+                return false;
+            }
+        } 
+    }
+    return true;
+}
+
 bool checkSelector(UnionColList * sColList, StringList * tbNameList, std::string & errorMessage) {
     std::stringstream ssbuf;
     //检查数据表都已经出现过
@@ -400,6 +475,7 @@ bool cmpUnionValue(UnionValue * uvL, UnionWhereItem::OpTag op, UnionValue * uvR)
         if (uvR -> ty == 1) {
             //右边是整数
             uint64 vr = uvR -> dt.u;
+            //std::cout << "vl = " << vl << ", vr = " << vr << ", op = " << (int) op << std::endl;
             switch (op) {
             case UnionWhereItem::OpTag::OP_EQ:
                 satisfy = (vl == vr);
@@ -534,6 +610,128 @@ bool cmpUnionValue(UnionValue * uvL, UnionWhereItem::OpTag op, UnionValue * uvR)
         }
     }
     return satisfy;
+}
+
+void runUpdate(std::string * tbName, UnionSetClause * scList, UnionWhereClause * whList) {
+    //涉及的数据行
+    std::vector < std::pair < int, int > > rowList;
+    //获取数据表和迭代器
+    Table * table = cur.database -> getTableByName(* tbName);
+    TableIterator * ite = table -> beginIte();
+    //用迭代器枚举每一行
+    while (!ite -> isEnd()) {
+        //依次检查每一条WHERE语句是否满足
+        bool satisfy = true;
+        int i1;
+        for (i1 = 0; i1 < (int) whList -> size() && satisfy; i1 ++) {
+            UnionWhereItem * wh = whList -> at(i1);
+            //左边的UnionValue
+            UnionValue uvL;
+            TableDataType suL = getSuperType(wh -> left -> tc -> getDataType());
+            if (ite -> getTableRow() -> getGridByName(* wh -> left -> col) -> isNull()) {
+                //左边是NULL
+                uvL.ty = 0;
+            } else {
+                switch (suL) {
+                case TableDataType::t_long:
+                    //左边是整数
+                    uvL.ty = 1;
+                    uvL.dt.u = ite -> getTableRow() -> getGridByName(* wh -> left -> col) -> getDataValueNumber();
+                    break;
+                case TableDataType::t_double:
+                    //左边是浮点数
+                    uvL.ty = 2;
+                    uvL.dt.d = ite -> getTableRow() -> getGridByName(* wh -> left -> col) -> getDataValueFloat();
+                    break;
+                case TableDataType::t_string:
+                    //左边是字符串
+                    uvL.ty = 3;
+                    ByteBufType dpL = ite -> getTableRow() -> getGridByName(* wh -> left -> col) -> getDataPointer();
+                    uvL.dt.s = new std::string((char *) dpL);
+                    break;
+                }
+            }
+            //右边的UnionValue
+            UnionValue uvR;
+            switch (wh -> ty) {
+            case 0:
+                //右边是NULL
+                uvR.ty = 0;
+                break;
+            case 1:
+                //右边是常量
+                uvR = * wh -> right.uv;
+                break;
+            case 2:
+                //右边是数据格
+                TableDataType suR = getSuperType(wh -> right.uc -> tc -> getDataType());
+                if (ite -> getTableRow() -> getGridByName(* wh -> right.uc -> col) -> isNull()) {
+                    //右边是NULL
+                    uvR.ty = 0;
+                } else {
+                    switch (suR) {
+                    case TableDataType::t_long:
+                        //右边是整数
+                        uvR.ty = 1;
+                        uvR.dt.u = ite -> getTableRow() -> getGridByName(* wh -> right.uc -> col) -> getDataValueNumber();
+                        break;
+                    case TableDataType::t_double:
+                        //右边是浮点数
+                        uvR.ty = 2;
+                        uvR.dt.d = ite -> getTableRow() -> getGridByName(* wh -> right.uc -> col) -> getDataValueFloat();
+                        break;
+                    case TableDataType::t_string:
+                        //右边是字符串
+                        uvR.ty = 3;
+                        ByteBufType dpR = ite -> getTableRow() -> getGridByName(* wh -> right.uc -> col) -> getDataPointer();
+                        uvR.dt.s = new std::string((char *) dpR);
+                        break;
+                    }
+                }
+                break;
+            }
+            //计算
+            satisfy = satisfy && cmpUnionValue(& uvL, wh -> op, & uvR);
+        }
+        //如果满足条件，就把这一行加入待删除列表，因为直接删除会影响迭代器
+        if (satisfy) {
+            rowList.push_back(make_pair(ite -> getPageId(), ite -> getSlotId()));
+        }
+        //下一行的迭代器
+        ite -> next();
+    }
+    //删除或者更新
+    std::cout << "共找到" << (int) rowList.size() << "条符合条件的记录" << std::endl;
+    for (int i = 0; i < (int) rowList.size(); i ++) {
+        int pageId = rowList[i].first;
+        int slotId = rowList[i].second;
+        if (scList == NULL) {
+            table -> eraseRow(pageId, slotId);
+        } else {
+            TableRow * row = table -> getRow(pageId, slotId);
+            for (int j = 0; j < (int) scList -> size(); j ++) {
+                UnionSetItem * sc = scList -> at(j);
+                TableGrid * grid = row -> getGridByName(* sc -> col);
+                if (sc -> uv -> ty == 0) {
+                    grid -> setNull();
+                } else if (sc -> uv -> ty == 1) {
+                    grid -> setDataValueNumber(sc -> uv -> dt.u, grid -> getDataLength());
+                } else if (sc -> uv -> ty == 2) {
+                    grid -> setDataValueFloat(sc -> uv -> dt.d, grid -> getDataLength());
+                } else if (sc -> uv -> ty == 3) {
+                    std::string * s = sc -> uv -> dt.s;
+                    grid -> setDataValueArray((ByteBufType) s -> c_str(), s -> length());
+                }
+            }
+            table -> updateRow(pageId, slotId, row);
+            delete row;
+        }
+    }
+    std::cout << "共" << (scList == NULL ? "删除" : "更新") << (int) rowList.size() << "条记录" << std::endl;
+}
+
+void runDelete(std::string * tbName, UnionWhereClause * whList) {
+    runUpdate(tbName, NULL, whList);
 }
 
 void runSelect(UnionColList * sColList, StringList * tbNameList, UnionWhereClause * whList) {
@@ -691,9 +889,58 @@ void runSelect(UnionColList * sColList, StringList * tbNameList, UnionWhereClaus
     }
 }
 
+bool createIndex(std::string * tbName, std::string * colName) {
+    std::stringstream ssbuf;
+    //检查是否存在这个数据列
+    Table * table = cur.database -> getTableByName(* tbName);
+    if (!table -> getTableHeader() -> hasColumn(* colName)) {
+        std::cout << "数据表" << * tbName << "中没有数据列:" << * colName << std::endl;
+        return false;
+    }
+    cur.table = table;
+    //检查这个数据列是否已经有索引
+    TableColumn * tc = table -> getTableHeader() -> getColumnByName(* colName);
+    if (tc -> hasTreeIndex() || tc -> hasHashIndex()) {
+        std::cout << "数据表" << * tbName << "的数据列" << * colName << "已经拥有索引" << std::endl;
+        return false;
+    }
+    //创建索引
+    tc -> setHasTreeIndex(true);
+    TreeIndex * trIdx = new TreeIndex(cur.bufPageManager, *tbName, tc);
+    TableIterator * ite = table -> beginIte();
+    while (!ite -> isEnd()) {
+        uint64 value = ite -> getTableRow() -> getGridByName(* colName) -> getDataValueNumber();
+        TreeNodeKeyCell keyCell(
+            ite -> getTableRow() -> getGridByName(* colName) -> getDataValueNumber(), 
+            ite -> getPageId(), 
+            ite -> getSlotId()
+        );
+        trIdx -> insertKey(& keyCell);
+    }
+    //真的添加索引
+    table -> getIndexManager() -> addIndex(trIdx, *colName);
+}
 
-
-
+bool removeIndex(std::string * tbName, std::string * colName) {
+    std::stringstream ssbuf;
+    //检查是否存在这个数据列
+    Table * table = cur.database -> getTableByName(* tbName);
+    if (!table -> getTableHeader() -> hasColumn(* colName)) {
+        std::cout << "数据表" << * tbName << "中没有数据列:" << * colName << std::endl;
+        return false;
+    }
+    cur.table = table;
+    //检查这个数据列是否还没有索引
+    TableColumn * tc = table -> getTableHeader() -> getColumnByName(* colName);
+    if (!tc -> hasTreeIndex() && !tc -> hasHashIndex()) {
+        std::cout << "数据表" << * tbName << "的数据列" << * colName << "尚未拥有索引" << std::endl;
+        return false;
+    }
+    //真的删除索引，并删除文件
+    std::string idxFileName = table -> getIndexManager() -> getIndexByName(* colName) -> getFileName();
+    table -> getIndexManager() -> removeIndex(* colName);
+    remove(idxFileName.c_str());
+}
 
 
 
