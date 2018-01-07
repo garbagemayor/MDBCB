@@ -1,0 +1,1 @@
+SELECT tab1.cola, tab1.col2, tab3.colaa, tab3.colbb, tab3.colcc, tab3.coldd FROM tab1, tab3 WHERE tab1.cola>tab3.colcc;

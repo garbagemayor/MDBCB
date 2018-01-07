@@ -82,6 +82,8 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="SourceCode/shellsystem/ShellAssistant.h" />
+		<Unit filename="SourceCode/shellsystem/ShellClass.h" />
+		<Unit filename="SourceCode/shellsystem/ShellLexerAssistant.h" />
 		<Unit filename="SourceCode/shellsystem/frontend/SQLLexer.l">
 			<Option compile="1" />
 			<Option target="&lt;{~None~}&gt;" />
@@ -179,6 +181,7 @@
 		<Unit filename="SourceCode/tablesystem/Table/TableHeader.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="SourceCode/tablesystem/Table/TableIterator.h" />
 		<Unit filename="SourceCode/tablesystem/Table/TableRow.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>

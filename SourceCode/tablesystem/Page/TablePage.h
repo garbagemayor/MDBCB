@@ -69,7 +69,7 @@ public:
         pageId = pageId_;
         //这一页是否存在
         if (pageId < 0 || pageId >= oneFileManager -> getPageCount()) {
-            std::cout << "TablePage() error" << std::endl;
+            std::cout << "TablePage() error pageId = " << pageId << std::endl;
             return;
         }
         //读取这一页的页头页脚
@@ -84,13 +84,17 @@ public:
      *  功能:写回到文件并释放
      */
     ~TablePage() {
+        //std::cout << "~TablePage() s" << std::endl;
         if (header != NULL) {
             delete header;
         }
+        //std::cout << "~TablePage() t" << std::endl;
         if (footer != NULL) {
             delete footer;
         }
+        //std::cout << "~TablePage() u" << std::endl;
         writeBackToFile();
+        //std::cout << "~TablePage() v" << std::endl;
     }
     
 public:

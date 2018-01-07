@@ -6,7 +6,7 @@
 
 /**
  *  数据格类，在内存中存储一个格子的数据，由TableRow来调用
- *  保持永远可修改，但要记录是否脏
+ *  变长数据的data要么是NULL，要么有MAX_STRING_LENGTH+4字节
  */
 class TableGrid {
 
@@ -98,6 +98,21 @@ public:
         return value;
     }
     
+    /*
+     *  @函数名:getDataValueFloat
+     *  功能:以double的形式获取数据格内的数据
+     */
+    double getDataValueFloat() {
+        uint64 value = getDataValueNumber();
+        if (tableColumn -> getDataType() == TableDataType::t_double) {
+            return * (double *) & value;
+        } else if (tableColumn -> getDataType() == TableDataType::t_float) {
+            return (double) * (float *) & value;
+        } else {
+            return (double) value;
+        }
+    }
+    
 public:
     ///基本set函数    
     /*
@@ -125,7 +140,6 @@ public:
         //数据长度报错
         if (tableColumn -> getDataLength() != length_) {
             std::cout << "TableGrid.setDataValueNumber(" << num << ", " << length_ << ") error 2" << std::endl;
-            std::cout << "TableGrid.setDataValueNumBer(...) getDataLength() = " << tableColumn -> getDataLength() << std::endl;
             return;
         }
         nullFlag = false;
@@ -189,9 +203,9 @@ public:
         nullFlag = false;
         length = length_;
         if (data == NULL) {
-            data = new Byte [MAX_STRING_LENGTH];
+            data = new Byte [MAX_STRING_LENGTH + 4];
         }
-        memset(data, 0, sizeof(Byte) * MAX_STRING_LENGTH);
+        memset(data, 0, sizeof(Byte) * (MAX_STRING_LENGTH + 4));
         ByteBufType data_ = data;
         writeArrayToByte(data_, length, string_, length_);
     }
@@ -230,9 +244,44 @@ public:
         nullFlag = false;
         length = length_;
         if (data == NULL) {
-            data = new Byte [length];
+            data = new Byte [MAX_STRING_LENGTH + 4];
         }
+        memset(data, 0, sizeof(Byte) * (MAX_STRING_LENGTH + 4));
         readByteToArray(buf, length, data, length);
+    }
+    
+    /*
+     *  @函数名:stdCout
+     *  功能:把数据输出到屏幕
+     */
+    void stdCout() {
+        TableDataType type = tableColumn -> getDataType();
+        TableDataType superType = getSuperType(type);
+        if (superType == TableDataType::t_long) {
+            uint64 value = getDataValueNumber();
+            if (type == TableDataType::t_bool) {
+                std::cout << (value == 0 ? "FALSE" : "TRUE");
+            } else if (type == TableDataType::t_char) {
+                std::cout << value << "'";
+                if (32 <= value && value <= 126) {
+                    std::cout << (char) value;
+                } else {
+                    std::cout << "\\" << (value >> 6 & 7) << (value >> 3 & 7) << (value & 7);
+                }
+                std::cout << "'";
+            } else {
+                std::cout << value;
+            }
+        } else if (superType == TableDataType::t_double) {
+            double value = getDataValueFloat();
+            std::cout << value;
+        } else if (superType == TableDataType::t_string) {
+            std::cout << "\"";
+            for (int i = 0; i < length; i ++) {
+                std::cout << (char) data[i];
+            }
+            std::cout << "\"";
+        }
     }
     
     /*

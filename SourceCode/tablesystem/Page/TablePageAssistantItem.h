@@ -65,6 +65,7 @@ public:
         //基本信息，从上一个助手页计算出来，并把两页在页头连接起来
         oneFileManager = lastAssistant -> oneFileManager;
         curPage = new TablePage(oneFileManager);
+        curPage -> getPageHeader() -> setObjId(2);
         lastAssistant -> curPage -> markDirty();
         curPage -> markDirty();
         lastAssistant -> curPage -> getPageHeader() -> setNextPageId(curPage -> getPageId());
@@ -96,6 +97,7 @@ public:
         //基本信息，从上一个助手页计算出来，并把两页在页头连接起来
         oneFileManager = oneFileManager_;
         curPage = new TablePage(oneFileManager, pageId_);
+        curPage -> getPageHeader() -> setObjId(2);
         if (pageId_ == 0 && curPage -> getPageHeader() -> getFreeCnt() > 6) {
             //第0页没有建立过表页助手，就在第0页新建助手
             curPage -> markDirty();

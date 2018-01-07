@@ -101,6 +101,11 @@ uint64 readByteToNumber(ByteBufType & buf, int length) {
 double readByteToFloat(ByteBufType & buf, int length) {
     static char tmp_buf[8 + 4];
     readByteToArray(buf, length, (ByteBufType) tmp_buf, length);
+    std::cout << "readByteToFloat(...) ";
+    for (int i = 0; i < 4; i ++) {
+        std::cout << (int) tmp_buf << " ";
+    }
+    std::cout << std::endl;
     if (length == 4) {
         return * (float *) tmp_buf;
     } else if (length == 8) {

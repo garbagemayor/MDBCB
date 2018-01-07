@@ -1,5 +1,6 @@
 %{
     #include "SQLParser.hpp"
+    #include "../ShellLexerAssistant.h"
     
     #include <cstdio>
     #include <cstring>
@@ -15,25 +16,16 @@ DATABASE                {   return DATABASE;    }
 DATABASES               {   return DATABASES;   }
 TABLE                   {   return TABLE;       }
 TABLES                  {   return TABLES;      }
-SHOW                    {   return SHOW;        }
-CREATE                  {   return CREATE;      }
-DROP                    {   return DROP;        }
-USE                     {   return USE;         }
 PRIMARY                 {   return PRIMARY;     }
 KEY                     {   return KEY;         }
 NOT                     {   return NOT;         }
 NULL                    {   return NNULL;       }
-INSERT                  {   return INSERT;      }
 INTO                    {   return INTO;        }
 VALUES                  {   return VALUES;      }
-DELETE                  {   return DELETEE;     }
 FROM                    {   return FROM;        }
 WHERE                   {   return WHERE;       }
-UPDATE                  {   return UPDATE;      }
 SET                     {   return SET;         }
-SELECT                  {   return SELECT;      }
 IS                      {   return IS;          }
-DESC                    {   return DESC;        }
 REFERENCES              {   return REFERENCES;  }
 INDEX                   {   return INDEX;       }
 AND                     {   return AND;         }
@@ -48,6 +40,15 @@ DOUBLE                  {   return DOUBLEE;     }
 VARCHAR                 {   return VARCHAR;     }
 LOB                     {   return LOB;         }
 DATE                    {   return DATEE;       }
+SHOW                    {   setCmdColor(0);     return SHOW;        }
+CREATE                  {   setCmdColor(0);     return CREATE;      }
+DROP                    {   setCmdColor(0);     return DROP;        }
+USE                     {   setCmdColor(0);     return USE;         }
+INSERT                  {   setCmdColor(0);     return INSERT;      }
+DELETE                  {   setCmdColor(0);     return DELETEE;     }
+UPDATE                  {   setCmdColor(0);     return UPDATE;      }
+SELECT                  {   setCmdColor(0);     return SELECT;      }
+DESC                    {   setCmdColor(0);     return DESC;        }
 
 [;,\(\)\.]              {   return *yytext;     }
 \=                      {   return *yytext;     }

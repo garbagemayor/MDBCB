@@ -9,6 +9,7 @@
 #include "../Filter/Calculator.h"
 #include "TableHeader.h"
 #include "TableRow.h"
+#include "TableIterator.h"
 
 #include <string>
 
@@ -159,10 +160,8 @@ public:
         //在这一页中获取槽的编号
         TablePage * page; 
         if (pageId < oneFileManager -> getPageCnt()) {
-            std::cout << "Table.insertRow(...) inOldPage" << std::endl;
             page = new TablePage(oneFileManager, pageId);   //在已有的页面上添加
         } else {
-            std::cout << "Table.insertRow(...) inNewPage" << std::endl;
             page = new TablePage(oneFileManager);           //在新开的页面上添加
         }
         //写进去
@@ -205,6 +204,31 @@ public:
         insertRow(tableRow, pageId, slotId);
     }
     
+    /*
+     *  @函数名:beginIte
+     *  功能:返回第一行数据的迭代器
+     */
+    TableIterator * beginIte() {
+        int pageId;
+        for (pageId = 1; pageId < oneFileManager -> getPageCount(); pageId ++) {
+            TablePage * page = new TablePage(oneFileManager, pageId);
+            int objId = page -> getPageHeader() -> getObjId();
+            int slotCnt = page -> getPageHeader() -> getSlotCnt();
+            delete page;
+            if (objId == 2 || slotCnt > 0) {
+                break;
+            }
+        }
+        if (pageId == oneFileManager -> getPageCount()) {
+            return new TableIterator();
+        } else {
+            return new TableIterator(oneFileManager, tableHeader, pageId, 0);
+        }
+    }
+    
+    TableIterator * endIte() {
+        return new TableIterator();
+    }
     
 };
 

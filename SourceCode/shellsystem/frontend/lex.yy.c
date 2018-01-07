@@ -292,21 +292,21 @@ static yyconst short int yy_accept[202] =
        46,   46,   46,   46,   46,   51,   52,    0,   50,    0,
        47,   47,    0,   47,    0,   41,   40,   42,   46,   46,
        46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
-       46,   46,   46,   22,   46,   46,   46,   46,   46,   46,
+       46,   46,   46,   14,   46,   46,   46,   46,   46,   46,
        46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
-       46,   49,   47,   48,   48,   26,   46,   46,   46,   46,
+       46,   49,   47,   48,   48,   17,   46,   46,   46,   46,
        46,   46,   46,   46,   46,   46,   46,   46,   46,   46,
 
-       46,   31,   10,   36,   46,   11,   46,   46,   46,   46,
-       20,   46,   46,   46,   46,   46,    8,   46,   46,   46,
-       46,   46,    0,    0,   48,   28,   29,   46,   46,   37,
-       46,   23,   46,    7,   46,   46,   46,   17,   46,   46,
-       46,   14,   32,   12,   46,   46,   46,   46,    5,   46,
+       46,   22,    6,   27,   46,    7,   46,   46,   46,   46,
+       13,   46,   46,   46,   46,   46,   32,   46,   46,   46,
+       46,   46,    0,    0,   48,   19,   20,   46,   46,   28,
+       46,   37,   46,   31,   46,   46,   46,   11,   46,   46,
+       46,    9,   23,    8,   46,   46,   46,   46,   29,   46,
        45,   46,   46,   46,   46,   46,    0,   49,   49,   48,
-       46,   46,   46,   46,   33,   46,   25,   46,   46,   46,
-       46,   30,    3,   46,   46,   46,   18,    6,   46,   16,
-       34,   46,   13,   46,   46,   21,    4,   19,   15,   46,
-       46,   27,    9,   46,   35,    1,   46,    2,   46,   24,
+       46,   46,   46,   46,   24,   46,   16,   46,   46,   46,
+       46,   21,    3,   46,   46,   46,   12,   30,   46,   34,
+       25,   46,   33,   46,   46,   36,    4,   35,   10,   46,
+       46,   18,    5,   46,   26,    1,   46,    2,   46,   15,
 
         0
     } ;
@@ -499,6 +499,7 @@ char *yytext;
 #define INITIAL 0
 #line 2 "SQLLexer.l"
     #include "SQLParser.hpp"
+    #include "../ShellLexerAssistant.h"
     
     #include <cstdio>
     #include <cstring>
@@ -507,7 +508,7 @@ char *yytext;
     #include <string>
     
     extern int yyerror(const char *);
-#line 511 "lex.yy.c"
+#line 512 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -658,9 +659,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 13 "SQLLexer.l"
+#line 14 "SQLLexer.l"
 
-#line 664 "lex.yy.c"
+#line 665 "lex.yy.c"
 
 	if ( yy_init )
 		{
@@ -745,227 +746,227 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 14 "SQLLexer.l"
+#line 15 "SQLLexer.l"
 {   return DATABASE;    }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 15 "SQLLexer.l"
+#line 16 "SQLLexer.l"
 {   return DATABASES;   }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 16 "SQLLexer.l"
+#line 17 "SQLLexer.l"
 {   return TABLE;       }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 17 "SQLLexer.l"
+#line 18 "SQLLexer.l"
 {   return TABLES;      }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 18 "SQLLexer.l"
-{   return SHOW;        }
+#line 19 "SQLLexer.l"
+{   return PRIMARY;     }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 19 "SQLLexer.l"
-{   return CREATE;      }
+#line 20 "SQLLexer.l"
+{   return KEY;         }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 20 "SQLLexer.l"
-{   return DROP;        }
+#line 21 "SQLLexer.l"
+{   return NOT;         }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 21 "SQLLexer.l"
-{   return USE;         }
+#line 22 "SQLLexer.l"
+{   return NNULL;       }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 22 "SQLLexer.l"
-{   return PRIMARY;     }
+#line 23 "SQLLexer.l"
+{   return INTO;        }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 23 "SQLLexer.l"
-{   return KEY;         }
+#line 24 "SQLLexer.l"
+{   return VALUES;      }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 24 "SQLLexer.l"
-{   return NOT;         }
+#line 25 "SQLLexer.l"
+{   return FROM;        }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 25 "SQLLexer.l"
-{   return NNULL;       }
+#line 26 "SQLLexer.l"
+{   return WHERE;       }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 26 "SQLLexer.l"
-{   return INSERT;      }
+#line 27 "SQLLexer.l"
+{   return SET;         }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 27 "SQLLexer.l"
-{   return INTO;        }
+#line 28 "SQLLexer.l"
+{   return IS;          }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 28 "SQLLexer.l"
-{   return VALUES;      }
+#line 29 "SQLLexer.l"
+{   return REFERENCES;  }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 29 "SQLLexer.l"
-{   return DELETEE;     }
+#line 30 "SQLLexer.l"
+{   return INDEX;       }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 30 "SQLLexer.l"
-{   return FROM;        }
+#line 31 "SQLLexer.l"
+{   return AND;         }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 31 "SQLLexer.l"
-{   return WHERE;       }
+#line 32 "SQLLexer.l"
+{   return FOREIGN;     }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 32 "SQLLexer.l"
-{   return UPDATE;      }
+#line 33 "SQLLexer.l"
+{   return BOOLL;       }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 33 "SQLLexer.l"
-{   return SET;         }
+#line 34 "SQLLexer.l"
+{   return CHARR;       }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 34 "SQLLexer.l"
-{   return SELECT;      }
+#line 35 "SQLLexer.l"
+{   return SHORTT;      }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 35 "SQLLexer.l"
-{   return IS;          }
+#line 36 "SQLLexer.l"
+{   return INTEGER;     }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 36 "SQLLexer.l"
-{   return DESC;        }
+#line 37 "SQLLexer.l"
+{   return LONGG;       }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 37 "SQLLexer.l"
-{   return REFERENCES;  }
+#line 38 "SQLLexer.l"
+{   return FLOATT;      }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 38 "SQLLexer.l"
-{   return INDEX;       }
+#line 39 "SQLLexer.l"
+{   return DOUBLEE;     }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 39 "SQLLexer.l"
-{   return AND;         }
+#line 40 "SQLLexer.l"
+{   return VARCHAR;     }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 40 "SQLLexer.l"
-{   return FOREIGN;     }
+#line 41 "SQLLexer.l"
+{   return LOB;         }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 41 "SQLLexer.l"
-{   return BOOLL;       }
+#line 42 "SQLLexer.l"
+{   return DATEE;       }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 42 "SQLLexer.l"
-{   return CHARR;       }
+#line 43 "SQLLexer.l"
+{   setCmdColor(0);     return SHOW;        }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 43 "SQLLexer.l"
-{   return SHORTT;      }
+#line 44 "SQLLexer.l"
+{   setCmdColor(0);     return CREATE;      }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 44 "SQLLexer.l"
-{   return INTEGER;     }
+#line 45 "SQLLexer.l"
+{   setCmdColor(0);     return DROP;        }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 45 "SQLLexer.l"
-{   return LONGG;       }
+#line 46 "SQLLexer.l"
+{   setCmdColor(0);     return USE;         }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 46 "SQLLexer.l"
-{   return FLOATT;      }
+#line 47 "SQLLexer.l"
+{   setCmdColor(0);     return INSERT;      }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 47 "SQLLexer.l"
-{   return DOUBLEE;     }
+#line 48 "SQLLexer.l"
+{   setCmdColor(0);     return DELETEE;     }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 48 "SQLLexer.l"
-{   return VARCHAR;     }
+#line 49 "SQLLexer.l"
+{   setCmdColor(0);     return UPDATE;      }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 49 "SQLLexer.l"
-{   return LOB;         }
+#line 50 "SQLLexer.l"
+{   setCmdColor(0);     return SELECT;      }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 50 "SQLLexer.l"
-{   return DATEE;       }
+#line 51 "SQLLexer.l"
+{   setCmdColor(0);     return DESC;        }
 	YY_BREAK
 case 38:
-YY_RULE_SETUP
-#line 52 "SQLLexer.l"
-{   return *yytext;     }
-	YY_BREAK
-case 39:
 YY_RULE_SETUP
 #line 53 "SQLLexer.l"
 {   return *yytext;     }
 	YY_BREAK
-case 40:
+case 39:
 YY_RULE_SETUP
 #line 54 "SQLLexer.l"
 {   return *yytext;     }
 	YY_BREAK
-case 41:
+case 40:
 YY_RULE_SETUP
 #line 55 "SQLLexer.l"
 {   return *yytext;     }
 	YY_BREAK
-case 42:
+case 41:
 YY_RULE_SETUP
 #line 56 "SQLLexer.l"
 {   return *yytext;     }
 	YY_BREAK
-case 43:
+case 42:
 YY_RULE_SETUP
 #line 57 "SQLLexer.l"
 {   return *yytext;     }
 	YY_BREAK
-case 44:
+case 43:
 YY_RULE_SETUP
 #line 58 "SQLLexer.l"
 {   return *yytext;     }
 	YY_BREAK
+case 44:
+YY_RULE_SETUP
+#line 59 "SQLLexer.l"
+{   return *yytext;     }
+	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 61 "SQLLexer.l"
+#line 62 "SQLLexer.l"
 {
     //布尔类型，在这一步中就当成整数0或1
     bool val = (yytext[0] == 't' || yytext[0] == 'T');
@@ -975,7 +976,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 68 "SQLLexer.l"
+#line 69 "SQLLexer.l"
 {
     //名称(库名, 表名, 列名)
     std::stringstream buf;
@@ -989,7 +990,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 79 "SQLLexer.l"
+#line 80 "SQLLexer.l"
 {
     //十进制整数，支持前缀正负号
     std::stringstream buf;
@@ -1001,7 +1002,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 88 "SQLLexer.l"
+#line 89 "SQLLexer.l"
 {
     //十六进制整数，支持大小写混用，支持前缀正负号
     std::stringstream buf;
@@ -1013,7 +1014,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 97 "SQLLexer.l"
+#line 98 "SQLLexer.l"
 {
     //浮点数，支持前缀正负号，支持科学计数法
     std::stringstream buf;
@@ -1025,7 +1026,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 106 "SQLLexer.l"
+#line 107 "SQLLexer.l"
 {
     //字符串，支持单引号和双引号
     std::string str = yytext;
@@ -1037,7 +1038,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 115 "SQLLexer.l"
+#line 116 "SQLLexer.l"
 {
     //空格和制表符
     //std::cout << "Lexer.WHITE_SPACE" << std::endl;
@@ -1045,7 +1046,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 120 "SQLLexer.l"
+#line 121 "SQLLexer.l"
 {
     //直接返回换行符作为符号给bison
     //std::cout << "Lexer.END_LINE" << std::endl;
@@ -1055,10 +1056,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 126 "SQLLexer.l"
+#line 127 "SQLLexer.l"
 ECHO;
 	YY_BREAK
-#line 1062 "lex.yy.c"
+#line 1063 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1944,7 +1945,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 126 "SQLLexer.l"
+#line 127 "SQLLexer.l"
 
 
 int yywrap() {

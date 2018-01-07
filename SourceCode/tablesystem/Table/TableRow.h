@@ -100,6 +100,14 @@ public:
     }
     
     /*
+     *  @函数名:getNCol
+     *  功能:获取列数
+     */
+    int getNCol() {
+        return gridList.size();
+    }
+    
+    /*
      *  @函数名:getFlagAB
      *  功能:返回状态位
      */
@@ -126,7 +134,7 @@ public:
      *  功能:用数据列的名称获取数据格信息，如果不存在就报错
      */
     TableGrid * getGridByName(std::string columnName) {
-        for (int i = 0; i < (int) gridList.size(); i ++) {
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
             if (tableHeader -> getColumnById(i) -> getName() == columnName) {
                 return gridList[i];
             }
@@ -248,7 +256,7 @@ public:
         int fNCol = readByteToNumber(slotData, 2);
         //列数纠错，记得把指针退回去
         if (fNCol != tableHeader -> getConstantLengthNCol()) {
-            std::cout << "TableRow.readFromByte(...) error" << std::endl;
+            std::cout << "TableRow.readFromByte(...) error 1" << std::endl;
             slotData = slotData_;
             return;
         }
@@ -265,7 +273,7 @@ public:
             if (nullMap[i >> 3] >> (i & 7) & 1) {
                 //是NULL，但不允许NULL，报错
                 if (!tableHeader -> getColumnById(i) -> allowNull()) {
-                    std::cout << "TableRow.readFromByte(...) error" << std::endl;
+                    std::cout << "TableRow.readFromByte(...) error 2" << std::endl;
                     slotData = slotData_;
                     return;
                 }
@@ -285,7 +293,7 @@ public:
         for (int i = fNCol; i < fNCol + vNCol; i ++) {
             vOffset[i] = readByteToNumber(slotData, 2);
         }
-        vOffset[fNCol + vNCol] = vSize;
+        vOffset[fNCol + vNCol] = slotLen;
         for (int i = fNCol + vNCol - 1; i >= fNCol; i --) {
             if (vOffset[i] == 0xffff) {
                 nullMap[i >> 3] |= 1 << (i & 7);
@@ -302,7 +310,7 @@ public:
         }
         //读完之后检查长度报错
         if (slotData - slotData_ != slotLen) {
-            std::cout << "TableRow.readFromByte(...) error" << std::endl;
+            std::cout << "TableRow.readFromByte(...) error 3" << std::endl;
             slotData = slotData_;
             return;
         }

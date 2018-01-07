@@ -90,7 +90,7 @@ public:
      */
     int getConstantLengthNCol() {
         int i = 0;
-        for (int i = 0; i < (int) colList.size(); i ++) {
+        for (i = 0; i < (int) colList.size(); i ++) {
             if (colList[i] -> hasVariableLength()) {
                 break;
             }
