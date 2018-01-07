@@ -937,32 +937,32 @@ YY_RULE_SETUP
 case 39:
 YY_RULE_SETUP
 #line 54 "SQLLexer.l"
-{   return *yytext;     }
+{   return OP_EQ;       }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 55 "SQLLexer.l"
-{   return *yytext;     }
+{   return OP_NE;       }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 56 "SQLLexer.l"
-{   return *yytext;     }
+{   return OP_LE;       }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 57 "SQLLexer.l"
-{   return *yytext;     }
+{   return OP_GE;       }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 58 "SQLLexer.l"
-{   return *yytext;     }
+{   return OP_LT;       }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 59 "SQLLexer.l"
-{   return *yytext;     }
+{   return OP_GT;       }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP

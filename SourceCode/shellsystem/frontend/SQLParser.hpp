@@ -76,10 +76,16 @@
      DOUBLEE = 292,
      VARCHAR = 293,
      LOB = 294,
-     VALUE_UINT64 = 295,
-     VALUE_STRING = 296,
-     VALUE_DOUBLE = 297,
-     IDENTIFIER = 298
+     OP_EQ = 295,
+     OP_NE = 296,
+     OP_LE = 297,
+     OP_GE = 298,
+     OP_LT = 299,
+     OP_GT = 300,
+     VALUE_UINT64 = 301,
+     VALUE_STRING = 302,
+     VALUE_DOUBLE = 303,
+     IDENTIFIER = 304
    };
 #endif
 
@@ -90,7 +96,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 72 "SQLParser.y"
+#line 85 "SQLParser.y"
 
     
     UnionFieldList * u_fl;
@@ -104,6 +110,9 @@ typedef union YYSTYPE
     UnionWhereClause * u_wc;
     UnionWhereItem * u_wi;
     
+    UnionSetItem * u_si;
+    UnionSetClause * u_sc;
+    
     UnionColList * u_cl;
     UnionCol * u_co;
     
@@ -116,7 +125,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 120 "SQLParser.hpp"
+#line 129 "SQLParser.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

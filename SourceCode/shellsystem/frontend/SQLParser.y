@@ -43,12 +43,21 @@
 %token  DOUBLEE
 %token  VARCHAR
 %token  LOB
+%token  OP_EQ
+%token  OP_NE
+%token  OP_LE
+%token  OP_GE
+%token  OP_LT
+%token  OP_GT
 
-%token  ';' ',' '(' ')' '.' '=' '<' '>' //'<>' '<=' '>='
+%token  ';' ',' '(' ')' '.' 
 %token <v_u> VALUE_UINT64
 %token <v_s> VALUE_STRING
 %token <v_d> VALUE_DOUBLE
 %token <v_s> IDENTIFIER
+
+%type <v_s> deleteFromTb
+%type <v_s> updateTb
 
 %type <u_fl> fieldList
 %type <u_fd> field
@@ -60,6 +69,10 @@
 
 %type <u_cl> selector
 %type <u_co> col
+
+%type <u_si> setItem
+%type <u_sc> setList
+%type <u_sc> setClause
 
 %type <u_vt> valueLists
 %type <u_vr> valueList
@@ -81,6 +94,9 @@
     
     UnionWhereClause * u_wc;
     UnionWhereItem * u_wi;
+    
+    UnionSetItem * u_si;
+    UnionSetClause * u_sc;
     
     UnionColList * u_cl;
     UnionCol * u_co;
@@ -457,14 +473,55 @@ tbStmt:
             }
         }
         |
-        DELETEE FROM ident WHERE whereClause  ';' endLine
+        deleteFromTb WHERE whereClause ';' endLine
         {
-            std::string * tbName = $3;
+            //删除一些数据行
+            //把数据表放到vector里面，可以调用SELECT操作的检查函数
+            std::string * tbName = $1;
+            StringList * tbNameList = new StringList();
+            tbNameList -> push_back(tbName);
+            UnionWhereClause * whList = $3;
+            std::string errMsg;
+            //如果没有打开数据库，报错
+            if (cur.database == NULL) {
+                std::cout << "Parser.<tbStmt := DELETEE FROM ident WHERE whereClause ';' endLine>: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!checkTableNameList(tbNameList, whList, errMsg)) {
+                //检查whList和tbNameList的数据表是同一个集合
+                std::cout << "Parser.<tbStmt := DELETEE FROM ident WHERE whereClause ';' endLine>: error" << std::endl;
+                std::cout << errMsg << std::endl;
+            } else {
+                cur.table = cur.database -> getTableByName(* tbName);
+                runDelete(tbName, whList);
+            }
         }
         |
-        UPDATE ident SET setClause WHERE whereClause ';' endLine
+        updateTb SET setClause WHERE whereClause ';' endLine
         {
-            std::string * tbName = $2;
+            //更新一些数据行
+            //把数据表放到vector里面，可以调用SELECT操作的检查函数
+            std::string * tbName = $1;
+            StringList * tbNameList = new StringList();
+            tbNameList -> push_back(tbName);
+            UnionSetClause * scList = $3;
+            UnionWhereClause * whList = $5;
+            std::string errMsg;
+            //如果没有打开数据库，报错
+            if (cur.database == NULL) {
+                std::cout << "Parser.<tbStmt := UPDATE ident SET setClause WHERE whereClause ';' endLine>: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!checkTableNameList(tbNameList, whList, errMsg)) {
+                //检查whList和tbNameList的数据表是同一个集合
+                std::cout << "Parser.<tbStmt := UPDATE ident SET setClause WHERE whereClause ';' endLine>: error" << std::endl;
+                std::cout << errMsg << std::endl;
+            } else if (!checkSetClause(tbName, scList, errMsg)) {
+                //检查setClause的数据列都是这个表中数据列，以及数据类型的兼容性
+                std::cout << "Parser.<tbStmt := UPDATE ident SET setClause WHERE whereClause ';' endLine>: error" << std::endl;
+                std::cout << errMsg << std::endl;
+            } else {
+                cur.table = cur.database -> getTableByName(* tbName);
+                runUpdate(tbName, scList, whList);
+            }
         }
         |
         SELECT selector FROM identList WHERE whereClause ';' endLine
@@ -492,13 +549,70 @@ tbStmt:
         }
 ;
 
+deleteFromTb:
+        DELETEE FROM ident
+        {
+            $$ = $3;
+            //如果没有打开数据库，报错
+            if (cur.database == NULL) {
+                std::cout << "Parser.<tbStmt := SELECT selector FROM identList WHERE whereClause ';' endLine>: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else {
+                cur.table = cur.database -> getTableByName(* $3);
+            }
+        }
+;
+
+updateTb:
+        UPDATE ident
+        {
+            $$ = $2;
+            //如果没有打开数据库，报错
+            if (cur.database == NULL) {
+                std::cout << "Parser.<tbStmt := SELECT selector FROM identList WHERE whereClause ';' endLine>: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else {
+                cur.table = cur.database -> getTableByName(* $2);
+            }
+        }
+;
+
 idxStmt:
         CREATE INDEX ident '(' ident ')' ';' endLine
         {
+            //给某列添加索引
+            std::string * tbName = $3;
+            std::string * colName = $5;
+            //如果没有打开数据库，报错
+            if (cur.database == NULL) {
+                std::cout << "Parser.<idxStmt := CREATE INDEX ident '(' ident ')' ';' endLine>: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!cur.database -> hasOpenedTable(* tbName)) {
+                //如果没有这个数据表，报错
+                std::cout << "Parser.<idxStmt := CREATE INDEX ident '(' ident ')' ';' endLine>: error" << std::endl;
+                std::cout << "没有数据表:" << * tbName << std::endl;
+            } else {
+                createIndex(tbName, colName);
+                
+            }
         }
         |
         DROP INDEX ident '(' ident ')' ';' endLine
         {
+            //删除某列的索引
+            std::string * tbName = $3;
+            std::string * colName = $5;
+            //如果没有打开数据库，报错
+            if (cur.database == NULL) {
+                std::cout << "Parser.<idxStmt := DROP INDEX ident '(' ident ')' ';' endLine>: error" << std::endl;
+                std::cout << "没有已经打开的数据库" << std::endl;
+            } else if (!cur.database -> hasOpenedTable(* tbName)) {
+                //如果没有这个数据表，报错
+                std::cout << "Parser.<idxStmt := DROP INDEX ident '(' ident ')' ';' endLine>: error" << std::endl;
+                std::cout << "没有数据表:" << * tbName << std::endl;
+            } else {
+                removeIndex(tbName, colName);
+            }
         }
 ;
 
@@ -766,14 +880,40 @@ col:
 ;
 
 setClause:
-        ident '=' value
+        setList
         {
+            $$ = $1;
         }
         |
-        setClause ',' ident '=' value
+        /* empty */
         {
+            $$ = new UnionSetClause();
         }
 ;
+
+
+setList:
+        setItem
+        {
+            $$ = new UnionSetClause();
+            $$ -> push_back($1);
+        }
+        |
+        setList ',' setItem
+        {
+            $$ = $1;
+            $$ -> push_back($3);
+        }
+;
+
+setItem:
+        ident OP_EQ value
+        {
+            $$ = new UnionSetItem();
+            $$ -> col = $1;
+            $$ -> uv = $3; 
+        }
+;    
 
 identList:
         ident        
@@ -877,32 +1017,32 @@ ident:
 ;
 
 op:
-        '='
+        OP_EQ
         {
             $$ = UnionWhereItem::OpTag::OP_EQ;
         }
         |
-        '<' '>'
+        OP_NE
         {
             $$ = UnionWhereItem::OpTag::OP_NE;
         }
         |
-        '<'
+        OP_LT
         {
             $$ = UnionWhereItem::OpTag::OP_LT;
         }
         |
-        '>'
+        OP_GT
         {
             $$ = UnionWhereItem::OpTag::OP_GT;
         }
         |
-        '<' '='
+        OP_LE
         {
             $$ = UnionWhereItem::OpTag::OP_LE;
         }
         |
-        '>' '='
+        OP_GE
         {
             $$ = UnionWhereItem::OpTag::OP_GE;
         }

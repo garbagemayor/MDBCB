@@ -31,7 +31,7 @@ private:
 private:
     ///页脚内存储的信息
     //行偏移数组
-    std::vector<short> slotOffset;
+    std::vector < short > slotOffset;
     
 public:
     /*
@@ -91,6 +91,14 @@ public:
     }
     
     /*
+     *  @函数名:getSlotOffset
+     *  功能:获取槽的偏移量
+     */
+    int getSlotOffset(int slotId) {
+        return slotOffset[slotId];
+    }
+    
+    /*
      *  @函数名:getSizeInSlot
      *  功能:获取页脚在存储文件中占的大小，单位字节
      */
@@ -128,6 +136,24 @@ public:
         slotOffset.push_back(offset);
     }
     
+    /*
+     *  @函数名:removeSlot
+     *  功能:删除一个行
+     */
+    void removeSlot(int slotId) {
+        //不存在这个槽报错
+        if (slotId < 0 || slotId >= (int) slotOffset.size()) {
+            std::cout << "TablePageFooter.removeSlot(" << slotId << ") error 1" << std::endl;
+            return;
+        }
+        //已删除报错
+        if (slotOffset[slotId] < 0) {
+            std::cout << "TablePageFooter.removeSlot(" << slotId << ") error 2" << std::endl;
+            return;
+        }
+        dirtyFlag = true;
+        slotOffset[slotId] = - slotOffset[slotId];
+    }
     
 public:
     ///普通函数

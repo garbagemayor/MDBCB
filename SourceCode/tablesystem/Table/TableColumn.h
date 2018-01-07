@@ -360,11 +360,6 @@ public:
      *  功能:设置为有B+树索引
      */
     void setHasTreeIndex(bool f) {
-        //不可修改报错
-        if (!modifiable) {
-            std::cout << "TableColumn.setHasTreeIndex(" << f << ") error" << std::endl;
-            return;
-        }
         //变长数据报错
         if (hasVariableLength()) {
             std::cout << "TableColumn.setHasTreeIndex(" << f << ") error" << std::endl;
@@ -382,11 +377,6 @@ public:
      *  功能:设置为有Hash索引
      */
     void setHasHashIndex(bool f) {
-        //不可修改报错
-        if (!modifiable) {
-            std::cout << "TableColumn.setHasHashIndex(" << f << ") error" << std::endl;
-            return;
-        }
         if (f) {
             flag |= f_hasHashIndex;
         } else {

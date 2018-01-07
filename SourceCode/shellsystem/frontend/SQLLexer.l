@@ -51,12 +51,12 @@ SELECT                  {   setCmdColor(0);     return SELECT;      }
 DESC                    {   setCmdColor(0);     return DESC;        }
 
 [;,\(\)\.]              {   return *yytext;     }
-\=                      {   return *yytext;     }
-\<\>                    {   return *yytext;     }
-\<\=                    {   return *yytext;     }
-\>\=                    {   return *yytext;     }
-\<                      {   return *yytext;     }
-\>                      {   return *yytext;     }
+\=                      {   return OP_EQ;       }
+\<\>                    {   return OP_NE;       }
+\<\=                    {   return OP_LE;       }
+\>\=                    {   return OP_GE;       }
+\<                      {   return OP_LT;       }
+\>                      {   return OP_GT;       }
 
 
 (true)|(True)|(TRUE)|(false)|(False)|(FALSE) {

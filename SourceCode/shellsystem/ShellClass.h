@@ -84,6 +84,31 @@ typedef std::vector < UnionValue * > UnionValueList;
 typedef std::vector < UnionValueList * > UnionValueLists;
 
 /*
+ *  setItem:更新值
+ */
+class UnionSetItem {
+    
+public:
+    std::string * col;
+    UnionValue * uv;
+    
+    UnionSetItem() {
+        col = NULL;
+        uv = NULL;
+    }
+    
+    ~UnionSetItem() {
+        delete col;
+        delete uv;
+    }
+};
+
+/*
+ *  setList, setClause:更新值数组
+ */
+typedef std::vector < UnionSetItem * > UnionSetClause;
+
+/*
  *  col:列
  */
 class UnionCol {

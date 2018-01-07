@@ -138,6 +138,17 @@ public:
         return indexManager;
     }
     
+    /*
+     *  @函数名:getRow
+     *  功能:获取一个数据行
+     */
+    TableRow * getRow(int pageId, int slotId) {
+        TablePage * page = new TablePage(oneFileManager, pageId);
+        TableRow * row = new TableRow(tableHeader, page -> getSlot(slotId));
+        delete page;
+        return row;
+    }
+    
 public:
     ///普通函数
     /*
@@ -204,25 +215,122 @@ public:
         insertRow(tableRow, pageId, slotId);
     }
     
+    
+    /*
+     *  @函数名:eraseRow
+     *  功能:删除一行
+     */
+    void eraseRow(int pageId, int slotId) {
+        TablePage * page = new TablePage(oneFileManager, pageId);
+        TableRow * tableRow = new TableRow(tableHeader, page -> getSlot(slotId));
+        page -> eraseSlot(slotId);
+        delete page;
+        //在索引中修改
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+            if (tableHeader -> getColumnById(i) -> hasTreeIndex() ||
+                tableHeader -> getColumnById(i) -> hasHashIndex()) {
+                //B+树索引
+                uint64 gridValue = tableRow -> getGridById(i) -> getDataValueNumber();
+                TreeNodeKeyCell * keyCell = new TreeNodeKeyCell(gridValue, pageId, slotId);
+                ((TreeIndex *) indexManager -> getIndexById(i)) -> eraseKey(keyCell);
+                delete keyCell;
+            }
+            /*
+             else if (tableHeader -> getColumnById(i) -> hasHashIndex()) {
+                //Hash索引
+            }
+            */
+        }
+        delete tableRow;
+    }
+    
+    /*
+     *  @函数名:updateRow
+     *  功能:更新一行
+     */
+    void updateRow(int pageId, int slotId, TableRow * newRow) {
+        //检查原槽的空间，能否原地更新
+        TablePage * page = new TablePage(oneFileManager, pageId);
+        TableRow * oldRow = new TableRow(tableHeader, page -> getSlot(slotId));
+        int slotMaxLen = page -> getSlotMaxLength(slotId);
+        int slotLen = newRow -> getSizeInSlot();
+        if (slotLen <= slotMaxLen) {
+            //如果是这一页的最后一个槽，而且还变大了
+            int offset = page -> getPageFooter() -> getSlotOffset(slotId);
+            int freeData = page -> getPageHeader() -> getFreeData();
+            if (freeData < offset + slotLen) {
+                page -> getPageHeader() -> markDirty();
+                int freeCnt = PAGE_SIZE - (offset + slotLen) - page -> getPageFooter() -> getSizeInSlot();
+                page -> getPageHeader() -> setFreeCnt(freeCnt);
+                page -> getPageHeader() -> setFreeData(offset + slotLen);
+                tablePageAssistant -> setFreeCnt(pageId, freeCnt);
+            }
+            //原地更新
+            page -> markDirty();
+            ByteBufType slotData = page -> getSlot(slotId);
+            newRow -> writeAsByte(slotData);
+            delete page;
+        } else {
+            //先删除再添加
+            page -> eraseSlot(slotId);
+            delete page;
+            insertRow(newRow, pageId, slotId);
+        }
+        //在索引中修改
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+            if (tableHeader -> getColumnById(i) -> hasTreeIndex() ||
+                tableHeader -> getColumnById(i) -> hasHashIndex()) {
+                //B+树索引
+                uint64 gridValue = oldRow -> getGridById(i) -> getDataValueNumber();
+                TreeNodeKeyCell * oldKeyCell = new TreeNodeKeyCell(gridValue, pageId, slotId);
+                ((TreeIndex *) indexManager -> getIndexById(i)) -> eraseKey(oldKeyCell);
+                delete oldKeyCell;
+                gridValue = newRow -> getGridById(i) -> getDataValueNumber();
+                TreeNodeKeyCell * newKeyCell = new TreeNodeKeyCell(gridValue, pageId, slotId);
+                ((TreeIndex *) indexManager -> getIndexById(i)) -> insertKey(newKeyCell);
+                delete newKeyCell;
+            }
+            /*
+             else if (tableHeader -> getColumnById(i) -> hasHashIndex()) {
+                //Hash索引
+            }
+            */
+        }
+        delete oldRow;
+    }
+    
     /*
      *  @函数名:beginIte
      *  功能:返回第一行数据的迭代器
      */
     TableIterator * beginIte() {
-        int pageId;
-        for (pageId = 1; pageId < oneFileManager -> getPageCount(); pageId ++) {
-            TablePage * page = new TablePage(oneFileManager, pageId);
-            int objId = page -> getPageHeader() -> getObjId();
-            int slotCnt = page -> getPageHeader() -> getSlotCnt();
+        int pageId = 1;
+        TablePage * page = new TablePage(oneFileManager, pageId);
+        int slotId = page -> getNextSlotId(-1);
+        if (slotId != -1) {
             delete page;
-            if (objId == 2 || slotCnt > 0) {
-                break;
-            }
+            page = NULL;
+            return new TableIterator(oneFileManager, tableHeader, pageId, slotId);
         }
-        if (pageId == oneFileManager -> getPageCount()) {
-            return new TableIterator();
-        } else {
-            return new TableIterator(oneFileManager, tableHeader, pageId, 0);
+        while (true) {
+            delete page;
+            page = NULL;
+            pageId ++;
+            if (pageId >= oneFileManager -> getPageCount()) {
+                pageId = -1;
+                slotId = -1;
+                return new TableIterator();
+            }
+            page = new TablePage(oneFileManager, pageId);
+            if (page -> getPageHeader() -> getObjId() == 2) {
+                continue;
+            }
+            slotId = page -> getNextSlotId(-1);
+            if (slotId != -1) {
+                delete page;
+                page = NULL;
+                return new TableIterator(oneFileManager, tableHeader, pageId, slotId);
+            }
         }
     }
     
