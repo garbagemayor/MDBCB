@@ -209,16 +209,16 @@ TableRow * genTableRow(UnionValueList * sqlRow, Table * table, std::string & err
             tableGrid -> setDataValueArray((ByteBufType) s -> c_str(), s -> length());
         }
         //数据不允许重复的列检查
-        std::cout << "genTableRow flag 1 " << std::endl;
+        //std::cout << "genTableRow flag 1 " << std::endl;
         if (tableColumn -> isUnique()) {
             if (tableColumn -> hasTreeIndex() ||
                 tableColumn -> hasHashIndex()) {
                 //B+树索引
-                std::cout << "genTableRow flag 2 " << std::endl;
+                //std::cout << "genTableRow flag 2 " << std::endl;
                 TreeIndex * treeIndex = (TreeIndex *) indexManager -> getIndexById(i);
-                std::cout << "genTableRow flag 4 " << std::endl;
+                //std::cout << "genTableRow flag 4 " << std::endl;
                 if (treeIndex -> containKey(tableGrid -> getDataValueNumber())) {
-                    std::cout << "genTableRow flag 3 " << std::endl;
+                    //std::cout << "genTableRow flag 3 " << std::endl;
                     ssbuf << "输入的第" << i << "个数据格" << "在数据表中重复出现，但该列不允许重复数据";
                     ssbuf >> errorMessage;
                     delete tableRow;
@@ -914,10 +914,10 @@ bool runCreateIndex(std::string * tbName, std::string * colName) {
     tc -> setHasTreeIndex(true);
     table -> writeBackTableHeader();
     //创建索引
-    std::cout << "runCreateIndex(...) flag 1" << std::endl;
+    //std::cout << "runCreateIndex(...) flag 1" << std::endl;
     TreeIndex * trIdx = new TreeIndex(cur.bufPageManager, *tbName, tc);
     return false;
-    std::cout << "runCreateIndex(...) flag 2" << std::endl;
+    //std::cout << "runCreateIndex(...) flag 2" << std::endl;
     TableIterator * ite = table -> beginIte();
     while (!ite -> isEnd()) {
         uint64 value = ite -> getTableRow() -> getGridByName(* colName) -> getDataValueNumber();
@@ -928,10 +928,10 @@ bool runCreateIndex(std::string * tbName, std::string * colName) {
         );
         trIdx -> insertKey(& keyCell);
     }
-    std::cout << "runCreateIndex(...) flag 3" << std::endl;
+    //std::cout << "runCreateIndex(...) flag 3" << std::endl;
     //真的添加索引
     table -> getIndexManager() -> addIndex(trIdx, *colName);
-    std::cout << "runCreateIndex(...) flag 4" << std::endl;
+    //std::cout << "runCreateIndex(...) flag 4" << std::endl;
 }
 
 bool runRemoveIndex(std::string * tbName, std::string * colName) {

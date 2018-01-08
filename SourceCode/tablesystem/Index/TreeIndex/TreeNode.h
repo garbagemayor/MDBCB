@@ -37,7 +37,7 @@ public:
      *  功能:创建一个新的节点，没有数据
      */
     TreeNode(OneFileManager * oneFileManager_) {
-        std::cout << "TreeNode(...) begin" << std::endl;
+        //std::cout << "TreeNode(...) begin" << std::endl;
         //空指针报错
         if (oneFileManager_ == NULL) {
             std::cout << "TreeNode(...) error" << std::endl;
@@ -53,7 +53,7 @@ public:
         pageHeader -> writeBackToBuffer();
         //子树、子节点的信息
         keyList.clear();
-        std::cout << "TreeNode(...) end" << std::endl;
+        //std::cout << "TreeNode(...) end" << std::endl;
     }
     
     /*
@@ -120,7 +120,7 @@ public:
      *  功能:插入一个键值，不复制直接插入
      */
     void insertKey(TreeNodeKeyCell * keyCell, bool (* cmpKeyValue) (uint64, uint64)) {
-        std::cout << "TreeNode.insertKey() curPageID = " << curPageId << ", key = " << keyCell -> key << ", size = " << keyList.size() << std::endl;
+        //std::cout << "TreeNode.insertKey() curPageID = " << curPageId << ", key = " << keyCell -> key << ", size = " << keyList.size() << std::endl;
         //检查子节点数量报错
         if ((int) keyList.size() == MAX_SON_NUM) {
             std::cout << "TreeNode.insertKey(..., ...) error" << std::endl;
@@ -135,7 +135,7 @@ public:
             }
         }
         keyList[s + 1] = keyCell;
-        std::cout << "TreeNode.insertKey() s = " << s << std::endl;
+        //std::cout << "TreeNode.insertKey() s = " << s << std::endl;
     }
     
     /*
@@ -234,12 +234,12 @@ public:
      *  功能:把页头和子节点列表的信息写回到单文件管理器
      */
     void writeBackToFile() {
-        std::cout << "TreeNode.writeBackToFile() begin curPageId = " << curPageId << std::endl;
+        //std::cout << "TreeNode.writeBackToFile() begin curPageId = " << curPageId << std::endl;
         //写回页头
         pageHeader -> writeBackToBuffer();
         //写回子节点列表
         ByteBufType curBuf = curPageData + PAGE_HEADER_SIZE;
-        std::cout << "TreeNode.writeBackToFile() curBuf = " << (int) curBuf << std::endl;
+        //std::cout << "TreeNode.writeBackToFile() curBuf = " << (int) curBuf << std::endl;
         int keyCnt = keyList.size();
         int slotLen = 4 + 20 * keyCnt;
         writeNumberToByte(curBuf, 2, slotLen);
@@ -249,7 +249,7 @@ public:
         }
         oneFileManager -> markDirty(curPageId);
         oneFileManager -> writeBack(curPageId);
-        std::cout << "TreeNode.writeBackToFile() end" << std::endl;
+        //std::cout << "TreeNode.writeBackToFile() end" << std::endl;
     }
     
     /*
@@ -266,7 +266,7 @@ public:
         pageHeader = new TablePageHeader(oneFileManager, curPageData);
         //读取子节点列表
         ByteBufType curBuf = curPageData + PAGE_HEADER_SIZE;
-        std::cout << "TreeNode.readFromByte() begin curPageId = " << curPageId << "curBuf = " << (int) curBuf << std::endl;
+        //std::cout << "TreeNode.readFromByte() begin curPageId = " << curPageId << "curBuf = " << (int) curBuf << std::endl;
         int slotLen = readByteToNumber(curBuf, 2);
         int keyCnt = readByteToNumber(curBuf, 2);
         keyList.clear();
@@ -280,7 +280,7 @@ public:
             std::cout << "TreeNode.readFromByte() error 2" << std::endl;
             return;
         }
-        std::cout << "TreeNode.readFromByte() end" << std::endl;
+        //std::cout << "TreeNode.readFromByte() end" << std::endl;
     }
     
     friend class TreeIndex;

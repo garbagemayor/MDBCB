@@ -445,7 +445,7 @@ tbStmt:
             //在数据表中插入若干行
             std::string * tbName = $3;
             UnionValueLists * rowList = $5;
-            std::cout << "INSERT flag 1 " << std::endl;
+            //std::cout << "INSERT flag 1 " << std::endl;
             //如果没有打开数据库，报错
             if (cur.database == NULL) {
                 std::cout << "Parser.INSERT INTO: error" << std::endl;
@@ -461,7 +461,7 @@ tbStmt:
                 int insertCnt = 0;
                 for (int i = 0; i < (int) rowList -> size(); i ++) {
                     //创建数据库中的数据行
-                    std::cout << "INSERT flag 2 " << std::endl;
+                    //std::cout << "INSERT flag 2 " << std::endl;
                     UnionValueList * sqlRow = rowList -> at(i);
                     std::string errMsg;
                     TableRow * tableRow = genTableRow(sqlRow, table, errMsg);
@@ -471,7 +471,7 @@ tbStmt:
                         std::cout << errMsg << std::endl;
                         continue;
                     }
-                    std::cout << "INSERT flag 3 " << std::endl;
+                    //std::cout << "INSERT flag 3 " << std::endl;
                     table -> insertRow(tableRow);
                     insertCnt += 1;
                 }

@@ -54,7 +54,7 @@ public:
         TablePage * page0 = new TablePage(oneFileManager);
         int headerSlotId = page0 -> createSlot(tableHeader -> getSizeInSlot());
         ByteBufType headerSlot = page0 -> getSlot(headerSlotId);
-        std::cout << "Table(...) headerSlot = " << (int) headerSlot << std::endl;
+        //std::cout << "Table(...) headerSlot = " << (int) headerSlot << std::endl;
         tableHeader -> writeAsByte(headerSlot);
         delete page0;
         //创建表页助手，写入内容
@@ -86,11 +86,11 @@ public:
      *  功能:写回并关掉文件
      */
     ~Table() {
-        std::cout << "~Table() begin" << std::endl;
+        //std::cout << "~Table() begin" << std::endl;
         delete indexManager;
         delete tablePageAssistant;
         delete oneFileManager;
-        std::cout << "~Table() end" << std::endl;
+        //std::cout << "~Table() end" << std::endl;
     }
     
 public:
@@ -177,16 +177,16 @@ public:
      *       被添加的行已经确保：表头相同，满足NULL限制，满足互不相同限制
      */
     void insertRow(TableRow * tableRow, int & pageId, int & slotId) {
-        std::cout << "Table.insertRow() flag1" << std::endl;
+        //std::cout << "Table.insertRow() flag1" << std::endl;
         //表头不同报错
         if (!tableHeader -> isEqualTo(tableRow -> getTableHeader())) {
-            std::cout << "Table.insertRow(...) error 1" << std::endl;
+            //std::cout << "Table.insertRow(...) error 1" << std::endl;
             return;
         }
         //在表页助手里面找一个合适的页
         int slotLen = tableRow -> getSizeInSlot();
         pageId = tablePageAssistant -> findPageForSlot(slotLen);
-        std::cout << "Table.insertRow() flag2" << std::endl;
+        //std::cout << "Table.insertRow() flag2" << std::endl;
         //在这一页中获取槽的编号
         TablePage * page; 
         if (pageId < oneFileManager -> getPageCnt()) {
@@ -201,13 +201,13 @@ public:
         //改表页助手
         tablePageAssistant -> setFreeCnt(pageId, page -> getPageHeader() -> getFreeCnt());
         //改索引
-        std::cout << "Table.insertRow() flag3" << std::endl;
+        //std::cout << "Table.insertRow() flag3" << std::endl;
         for (int i = 0; i < tableHeader -> getNCol(); i ++) {
             if (tableHeader -> getColumnById(i) -> hasTreeIndex() ||
                 tableHeader -> getColumnById(i) -> hasHashIndex()) {
                 //B+树索引
                 uint64 gridValue = tableRow -> getGridById(i) -> getDataValueNumber();
-                std::cout << "Table.insertRow() gridValue = " << gridValue << std::endl;
+                //std::cout << "Table.insertRow() gridValue = " << gridValue << std::endl;
                 TreeNodeKeyCell * keyCell = new TreeNodeKeyCell(gridValue, pageId, slotId);
                 ((TreeIndex *) indexManager -> getIndexById(i)) -> insertKey(keyCell);
                 delete keyCell;

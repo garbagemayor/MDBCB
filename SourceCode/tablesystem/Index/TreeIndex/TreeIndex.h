@@ -219,14 +219,14 @@ protected:
      *       利用一个节点栈，先向下到达叶子节点，再逐层向上分三种情况处理
      */
     void __insertKey(TreeNodeKeyCell * keyCell) {
-        std::cout << "TreeIndex.__insertKey() flag 1" << std::endl;
+        //std::cout << "TreeIndex.__insertKey() flag 1" << std::endl;
         //节点栈
         std::vector<TreeNode *> myStack;
         myStack.clear();
         //向下直达叶子节点
         TreeNode * nodeCur = new TreeNode(oneFileManager, rootPageId);
         while (!nodeCur -> isLeaf()) {
-            std::cout << "TreeIndex.__insertKey() flag 2" << std::endl;
+            //std::cout << "TreeIndex.__insertKey() flag 2" << std::endl;
             int s;
             for (s = (int) nodeCur -> keyList.size() - 1; s >= 0; s --) {
                 if (s == 0 || nodeCur -> keyList[s] -> isLessThan(keyCell, cmpKeyValue)) {
@@ -236,11 +236,11 @@ protected:
             myStack.push_back(nodeCur);
             nodeCur = new TreeNode(oneFileManager, nodeCur -> keyList[s] -> sonPageId);
         }
-        std::cout << "TreeIndex.__insertKey() flag 2" << std::endl;
+        //std::cout << "TreeIndex.__insertKey() flag 2" << std::endl;
         //自底向上添加
         while (true) {
             if (nodeCur -> keyList.size() < MAX_SON_NUM) {
-                std::cout << "TreeIndex.__insertKey() flag 3" << std::endl;
+                //std::cout << "TreeIndex.__insertKey() flag 3" << std::endl;
                 //添加之后不会溢出
                 //直接添加然后退出循环
                 nodeCur -> insertKey(keyCell, cmpKeyValue);
@@ -282,7 +282,7 @@ protected:
                 nodeCur = nodePar;
                 myStack.pop_back();
             } else {
-                std::cout << "TreeIndex.__insertKey() flag 4" << std::endl;
+                //std::cout << "TreeIndex.__insertKey() flag 4" << std::endl;
                 //根节点且会溢出
                 //先分裂两个新节点，把数据搬进去
                 TreeNode * nodeA = new TreeNode(oneFileManager);
@@ -524,28 +524,28 @@ protected:
      *  功能:非递归的查询“不小于keyCell的第一个键值”，返回一个迭代器，指向这个数据在叶节点中所在的位置
      */
     TreeIterator * __lowerBoundKey(TreeNodeKeyCell * keyCell) {
-        std::cout << "TreeIterator.__lowerBound(...)" << std::endl;
+        //std::cout << "TreeIterator.__lowerBound(...)" << std::endl;
         TreeNode * nodeCur = new TreeNode(oneFileManager, rootPageId);
-        std::cout << "TreeIterator.__lowerBound(...) flag 1" << std::endl;
+        //std::cout << "TreeIterator.__lowerBound(...) flag 1" << std::endl;
         TreeNode * nodeTmp;
         int s;
         //向下逐层查询
         while (true) {
-            std::cout << "TreeIterator.__lowerBound(...) flag 2" << std::endl;
+            //std::cout << "TreeIterator.__lowerBound(...) flag 2" << std::endl;
             for (s = 0; s < (int) nodeCur -> keyList.size(); s ++) {
-                std::cout << "TreeIterator.__lowerBound(...) keyCell.key = " << keyCell -> key << ", [s].key = " << nodeCur -> keyList[s] -> key << std::endl;
-                std::cout << "(" << keyCell -> key << ", " << keyCell ->keyPageId << ", " << keyCell -> keySlotId << std::endl;
-                std::cout << "(" << nodeCur -> keyList[s] -> key << ", " << nodeCur -> keyList[s] ->keyPageId << ", " << nodeCur -> keyList[s] -> keySlotId << std::endl;
+                //std::cout << "TreeIterator.__lowerBound(...) keyCell.key = " << keyCell -> key << ", [s].key = " << nodeCur -> keyList[s] -> key << std::endl;
+                //std::cout << "(" << keyCell -> key << ", " << keyCell ->keyPageId << ", " << keyCell -> keySlotId << std::endl;
+                //std::cout << "(" << nodeCur -> keyList[s] -> key << ", " << nodeCur -> keyList[s] ->keyPageId << ", " << nodeCur -> keyList[s] -> keySlotId << std::endl;
                 if (!keyCell -> isGreaterThan(nodeCur -> keyList[s], cmpKeyValue)) {
                     break;
                 }
             }
             if (nodeCur -> isLeaf()) {
-                std::cout << "TreeIterator.__lowerBound(...) flag break" << std::endl;
+                //std::cout << "TreeIterator.__lowerBound(...) flag break" << std::endl;
                 break;
             }
             //向下一层
-            std::cout << "TreeIterator.__lowerBound(...) flag 3" << std::endl;
+            //std::cout << "TreeIterator.__lowerBound(...) flag 3" << std::endl;
             if (s == (int) nodeCur -> keyList.size() ||
                 nodeCur -> keyList[s] -> isLessThan(keyCell, cmpKeyValue)) {
                 s --;
@@ -554,7 +554,7 @@ protected:
             delete nodeCur;
             nodeCur = nodeTmp;
         }
-        std::cout << "TreeIterator.__lowerBound(...) flag 4 nodCur.pageId = " << nodeCur -> curPageId << ", s = " << s << std::endl;
+        //std::cout << "TreeIterator.__lowerBound(...) flag 4 nodCur.pageId = " << nodeCur -> curPageId << ", s = " << s << std::endl;
         //叶子节点，返回一个迭代器
         if (s == (int) nodeCur -> keyList.size()) {
             if (nodeCur -> pageHeader -> getNextPageId() == -1) {
@@ -565,7 +565,8 @@ protected:
                 nodeCur = nodeTmp;
                 s = 0;
             }
-        }std::cout << "TreeIterator.__lowerBound(...) flag 5" << std::endl;
+        }
+        //std::cout << "TreeIterator.__lowerBound(...) flag 5" << std::endl;
         return new TreeIterator(oneFileManager, nodeCur -> curPageId, s);
     }
 };

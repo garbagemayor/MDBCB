@@ -30,7 +30,7 @@ public:
      *  功能:读取或创建一个索引基类
      */
     BaseIndex(BufPageManager * bufPageManager_, std::string tableName_, TableColumn * tableColumn_) {
-        std::cout << "BaseIndex(...) begin" << std::endl;
+        //std::cout << "BaseIndex(...) begin" << std::endl;
         //空指针报错
         if (bufPageManager_ == NULL || tableColumn_ == NULL) {
             std::cout << "BaseIndex(..., " << tableName_ << ", ...) error" << std::endl;
@@ -43,7 +43,7 @@ public:
         //创建或打开文件
         std::string fileName = getFileName();
         oneFileManager = new OneFileManager(bufPageManager_, fileName.c_str());
-        std::cout << "BaseIndex(...) end" << std::endl;
+        //std::cout << "BaseIndex(...) end" << std::endl;
     }
     
     /*
