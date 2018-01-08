@@ -230,12 +230,10 @@ public:
             }
         }
         //写完之后检查长度报错
-        /*
         if (curBuf - buf != slotLen) {
             std::cout << "TableRow.writeAsByte(...) error 2" << std::endl;
             return;
         }
-        */
         buf = curBuf;
     }
     
