@@ -96,8 +96,15 @@ public:
         return slotId;
     }
     
+    /*
+     *  @函数名:getTableRow
+     */
+    TableRow * getTableRow() {
+        return tableRow;
+    }
+    
 public:
-    ///重载负号
+    ///普通函数
     /*
      *  @函数名:next
      */
@@ -134,13 +141,6 @@ public:
                 return;
             }
         }
-    }
-    
-    /*
-     *  @函数名:getTableRow
-     */
-    TableRow * getTableRow() {
-        return tableRow;
     }
     
     /*

@@ -11,6 +11,7 @@
 #include "TableRow.h"
 #include "TableIterator.h"
 
+#include <cstdlib>
 #include <string>
 
 /**
@@ -53,6 +54,7 @@ public:
         TablePage * page0 = new TablePage(oneFileManager);
         int headerSlotId = page0 -> createSlot(tableHeader -> getSizeInSlot());
         ByteBufType headerSlot = page0 -> getSlot(headerSlotId);
+        std::cout << "Table(...) headerSlot = " << (int) headerSlot << std::endl;
         tableHeader -> writeAsByte(headerSlot);
         delete page0;
         //创建表页助手，写入内容
@@ -84,8 +86,11 @@ public:
      *  功能:写回并关掉文件
      */
     ~Table() {
+        std::cout << "~Table() begin" << std::endl;
+        delete indexManager;
         delete tablePageAssistant;
         delete oneFileManager;
+        std::cout << "~Table() end" << std::endl;
     }
     
 public:
@@ -152,6 +157,18 @@ public:
 public:
     ///普通函数
     /*
+     *  @函数名:writeBackTableHeader
+     *  功能:当表头发生变化时写回文件的第0页第0个槽中
+     */
+    void writeBackTableHeader() {
+        TablePage * page0 = new TablePage(oneFileManager, 0);
+        ByteBufType headerSlotData = page0 -> getSlot(0);
+        page0 -> markDirty();
+        tableHeader -> writeAsByte(headerSlotData);
+        delete page0;
+    }
+    
+    /*
      *  @函数名:insertRow
      *  @参数tableRow:要加入的行，它会被复制之后加入，所以在哪里定义的就在哪里释放内存
      *  @参数pageId:用于返回插入位置的页编号
@@ -160,6 +177,7 @@ public:
      *       被添加的行已经确保：表头相同，满足NULL限制，满足互不相同限制
      */
     void insertRow(TableRow * tableRow, int & pageId, int & slotId) {
+        std::cout << "Table.insertRow() flag1" << std::endl;
         //表头不同报错
         if (!tableHeader -> isEqualTo(tableRow -> getTableHeader())) {
             std::cout << "Table.insertRow(...) error 1" << std::endl;
@@ -168,6 +186,7 @@ public:
         //在表页助手里面找一个合适的页
         int slotLen = tableRow -> getSizeInSlot();
         pageId = tablePageAssistant -> findPageForSlot(slotLen);
+        std::cout << "Table.insertRow() flag2" << std::endl;
         //在这一页中获取槽的编号
         TablePage * page; 
         if (pageId < oneFileManager -> getPageCnt()) {
@@ -182,11 +201,13 @@ public:
         //改表页助手
         tablePageAssistant -> setFreeCnt(pageId, page -> getPageHeader() -> getFreeCnt());
         //改索引
+        std::cout << "Table.insertRow() flag3" << std::endl;
         for (int i = 0; i < tableHeader -> getNCol(); i ++) {
             if (tableHeader -> getColumnById(i) -> hasTreeIndex() ||
                 tableHeader -> getColumnById(i) -> hasHashIndex()) {
                 //B+树索引
                 uint64 gridValue = tableRow -> getGridById(i) -> getDataValueNumber();
+                std::cout << "Table.insertRow() gridValue = " << gridValue << std::endl;
                 TreeNodeKeyCell * keyCell = new TreeNodeKeyCell(gridValue, pageId, slotId);
                 ((TreeIndex *) indexManager -> getIndexById(i)) -> insertKey(keyCell);
                 delete keyCell;
@@ -304,6 +325,9 @@ public:
      *  功能:返回第一行数据的迭代器
      */
     TableIterator * beginIte() {
+        if (oneFileManager -> getPageCount() == 1) {
+            return new TableIterator();
+        }
         int pageId = 1;
         TablePage * page = new TablePage(oneFileManager, pageId);
         int slotId = page -> getNextSlotId(-1);

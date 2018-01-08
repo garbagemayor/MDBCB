@@ -50,6 +50,25 @@ public:
         }
     }
     
+    /*
+     *  @析构函数
+     */
+    ~IndexManager() {
+        std::cout << "~IndexManager() begin" << std::endl;
+        for (int i = 0; i < tableHeader -> getNCol(); i ++) {
+            TableColumn * tableColumn = tableHeader -> getColumnById(i);
+            if (tableColumn -> hasTreeIndex() || tableColumn -> hasHashIndex()) {
+                delete (TreeIndex *) indexList[i];
+            }
+            /*
+             else if (tableColumn -> hasHashIndex()) {
+                delete (HashIndex *) indexList[i];
+            }
+            */
+        }
+        std::cout << "~IndexManager() end" << std::endl;
+    }
+    
 public:
     ///基本get函数
     /*

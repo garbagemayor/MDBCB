@@ -39,10 +39,17 @@ private:
     }
     
     /*
-     *  @构造函数
-     *  功能:拷贝
+     *  @拷贝构造函数
      */
     TreeIterator(const TreeIterator & ite) {
+        * this = ite;
+    }
+    
+    /*
+     *  @重载等号赋值
+     */
+    TreeIterator & operator = (const TreeIterator & ite) {
+        oneFileManager = ite.oneFileManager;
         nodeId = ite.nodeId;
         listId = ite.listId;
         node = new TreeNode(oneFileManager, nodeId);
@@ -61,44 +68,68 @@ private:
 public:
     ///重载符号
     /*
-     *  ++ ite
+     *  @函数名:getNodeId
      */
-    TreeIterator & operator ++ () {
+    int getNodeId() {
+        return nodeId;
+    }
+    
+    /*
+     *  @函数名:getListId
+     */
+    int getListId() {
+        return listId;
+    }
+    
+    /*
+     *  @函数名:getTreeNode
+     */
+    TreeNode * getTreeNode() {
+        return node;
+    }
+    
+    /*
+     *  @函数名:getKeyCell
+     */
+    TreeNodeKeyCell * getKeyCell() {
+        if (node == NULL) {
+            return NULL;
+        }
+        return node -> keyList[listId];
+    }
+    
+public:
+    ///普通函数
+    /*
+     *  @函数名:next
+     */
+    void next() {
         if (nodeId == -1 || listId == -1) {
-            return *this;
-        } else if (listId < (int) node -> keyList.size() - 1) {
+            return;
+        }
+        if (listId < (int) node -> keyList.size() - 1) {
             listId ++;
-            return *this;
+            return;
+        } 
+        nodeId = node -> pageHeader -> getNextPageId();
+        if (nodeId == -1) {
+            listId = -1;
+            delete node;
+            node = NULL;
+            return;
         } else {
-            nodeId = node -> pageHeader -> getNextPageId();
-            if (nodeId == -1) {
-                listId = -1;
-                node = NULL;
-            } else {
-                listId = 0;
-                TreeNode * nodeTmp = new TreeNode(oneFileManager, nodeId);
-                delete node;
-                node = nodeTmp;
-            }
+            listId = 0;
+            delete node;
+            node = new TreeNode(oneFileManager, nodeId);
         }
     }
     
     /*
-     *  ite ++
+     *  @函数名:isEnd()
+     *  功能:返回迭代器是否指向空
      */
-    TreeIterator operator ++ (int) {
-        TreeIterator iteTmp(* this);
-        ++ (* this);
-        return iteTmp;
-        
-    }
-    
-    /*
-     *  * ite
-     */
-    TreeNodeKeyCell * operator * () {
-        return node -> keyList[listId];
-        
+    bool isEnd() {
+        return nodeId == -1 || listId == -1;
     }
     
     friend class TreeIndex;

@@ -135,7 +135,7 @@ public:
     bool isLessThan(TreeNodeKeyCell * keyCell, bool (* cmpKeyCell) (uint64, uint64)) {
         //先比数值大小
         if (key != keyCell -> key) {
-            if (cmpKeyCell == NULL) {
+            if (cmpKeyCell == NULL || true) {
                 return key < keyCell -> key;
             } else {
                 return (* cmpKeyCell) (key, keyCell -> key);
