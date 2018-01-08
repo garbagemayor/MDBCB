@@ -257,7 +257,9 @@ public:
     void stdCout() {
         TableDataType type = tableColumn -> getDataType();
         TableDataType superType = getSuperType(type);
-        if (superType == TableDataType::t_long) {
+        if (isNull()) {
+            std::cout << "NULL";
+        } else if (superType == TableDataType::t_long) {
             uint64 value = getDataValueNumber();
             if (type == TableDataType::t_bool) {
                 std::cout << (value == 0 ? "FALSE" : "TRUE");

@@ -194,7 +194,7 @@ TableRow * genTableRow(UnionValueList * sqlRow, Table * table, std::string & err
                 delete tableRow;
                 return NULL;
             }
-            std::cout << "sqlValue -> dt.d = " << sqlValue -> dt.d << std::endl;
+            //std::cout << "sqlValue -> dt.d = " << sqlValue -> dt.d << std::endl;
             tableGrid -> setDataValueFloat(sqlValue -> dt.d, typeLen);
         } else if (sqlValue -> ty == 3) {
             //SQL遇到STRING
@@ -441,8 +441,24 @@ bool checkSetClause(std::string * tbName, UnionSetClause * scList, std::string &
     return true;
 }
 
-bool checkSelector(UnionColList * sColList, StringList * tbNameList, std::string & errorMessage) {
+bool checkSelector(UnionColList * & sColList, StringList * tbNameList, std::string & errorMessage) {
     std::stringstream ssbuf;
+    //SELECT * FROM语句
+    if (sColList == NULL) {
+        sColList = new UnionColList();
+        for (int i = 0; i < (int) tbNameList -> size(); i ++) {
+            Table * tb = cur.database -> getTableByName(* tbNameList -> at(i));
+            for (int j = 0; j < tb -> getNCol(); j ++) {
+                TableColumn * tc = tb -> getTableHeader() -> getColumnById(j);
+                UnionCol * uc = new UnionCol();
+                uc -> tb = tbNameList -> at(i);
+                uc -> col = new std::string(tc -> getName());
+                uc -> tc = tc;
+                sColList -> push_back(uc);
+            }
+        }
+        return true;
+    }
     //检查数据表都已经出现过
     //std::cout << "whList -> size() = " << whList -> size() << std::endl;
     for (int i = 0; i < (int) sColList -> size(); i ++) {

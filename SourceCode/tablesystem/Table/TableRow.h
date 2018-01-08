@@ -194,7 +194,7 @@ public:
         //总长度超标报错
         int slotLen = 8 + fSize + ((fNCol + 7) >> 3) + 2 + vNCol * 2 + vSize;
         if (slotLen > PAGE_SIZE - PAGE_HEADER_SIZE) {
-            std::cout << "TableRow.writeAsByte(...) error" << std::endl;
+            std::cout << "TableRow.writeAsByte(...) error 1" << std::endl;
             return;
         }
         //定义一堆临时使用的东西
@@ -230,10 +230,12 @@ public:
             }
         }
         //写完之后检查长度报错
+        /*
         if (curBuf - buf != slotLen) {
-            std::cout << "TableRow.writeAsByte(...) error" << std::endl;
+            std::cout << "TableRow.writeAsByte(...) error 2" << std::endl;
             return;
         }
+        */
         buf = curBuf;
     }
     

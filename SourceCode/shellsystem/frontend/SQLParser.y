@@ -50,7 +50,7 @@
 %token  OP_LT
 %token  OP_GT
 
-%token  ';' ',' '(' ')' '.' 
+%token  ';' ',' '(' ')' '.' '*'
 %token <v_u> VALUE_UINT64
 %token <v_s> VALUE_STRING
 %token <v_d> VALUE_DOUBLE
@@ -343,7 +343,7 @@ tbStmt:
         {
             //在已经打开的数据库中删除一个数据表
             std::string * tbName = $3;
-            std::cout << "DropTable flag 1" << std::endl;
+            //std::cout << "DropTable flag 1" << std::endl;
             //如果没有打开数据库，报错
             if (cur.database == NULL) {
                 std::cout << "Parser.DROP TABLE: error" << std::endl;
@@ -357,9 +357,9 @@ tbStmt:
                     cur.table = NULL;
                 }
                 //删除数据表
-                std::cout << "DropTable flag 2" << std::endl;
+                //std::cout << "DropTable flag 2" << std::endl;
                 cur.database -> eraseTable(* tbName);
-                std::cout << "DropTable flag 3" << std::endl;
+                //std::cout << "DropTable flag 3" << std::endl;
                 //从文件夹中删除
                 std::string fileName = * tbName + ".table";
                 remove(fileName.c_str());
@@ -826,6 +826,11 @@ selector:
             if ($3 != NULL) {
                 $$ -> push_back($3);
             }
+        }
+        |
+        '*'
+        {
+            $$ = NULL;
         }
 ;
 

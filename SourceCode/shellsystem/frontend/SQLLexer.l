@@ -51,6 +51,7 @@ SELECT|select                    {   setCmdColor(0);     return SELECT;      }
 DESC|desc                        {   setCmdColor(0);     return DESC;        }
 
 [;,\(\)\.]              {   return *yytext;     }
+"*"                     {   return *yytext;     }
 \=                      {   return OP_EQ;       }
 \<\>                    {   return OP_NE;       }
 \<\=                    {   return OP_LE;       }

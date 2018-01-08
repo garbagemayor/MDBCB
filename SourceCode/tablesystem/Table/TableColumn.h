@@ -167,6 +167,7 @@ public:
      *  功能:返回是否拥有B+树索引
      */
     bool hasTreeIndex() {
+        return false;
         return (flag & f_hasTreeIndex) != 0;
     }
     
@@ -175,6 +176,7 @@ public:
      *  功能:返回是否拥有Hash索引
      */
     bool hasHashIndex() {
+        return false;
         return (flag & f_hasHashIndex) != 0;
     }
     
@@ -217,6 +219,7 @@ public:
             return;
         }
         //主键 = 主键标记 + 非NULL + 互不相同 + B+树索引 的逻辑错误
+        /*
         if (isPrimaryKey() && (allowNull() || !isUnique() || !hasTreeIndex())) {
             std::cout << "TableColumn.setConstant() error" << std::endl;
             return;
@@ -226,6 +229,7 @@ public:
             std::cout << "TableColumn.setConstant() error" << std::endl;
             return;
         }
+        */
         //设为常量
         modifiable = false;
     }

@@ -54,7 +54,7 @@ public:
      *  @析构函数
      */
     ~IndexManager() {
-        std::cout << "~IndexManager() begin" << std::endl;
+        //std::cout << "~IndexManager() begin" << std::endl;
         for (int i = 0; i < tableHeader -> getNCol(); i ++) {
             TableColumn * tableColumn = tableHeader -> getColumnById(i);
             if (tableColumn -> hasTreeIndex() || tableColumn -> hasHashIndex()) {
@@ -66,7 +66,7 @@ public:
             }
             */
         }
-        std::cout << "~IndexManager() end" << std::endl;
+        //std::cout << "~IndexManager() end" << std::endl;
     }
     
 public:
