@@ -36,6 +36,7 @@ public:
      *  功能:创建一个单文件管理器，指定文件名
      */
     OneFileManager(BufPageManager * bufPageManager_, std::string fileName_) {
+        //std::cout << "OneFileManager(...) begin fileName = " << fileName_ << std::endl;
         fileName = fileName_;
         bufPageManager = bufPageManager_;
         if (!bufPageManager -> fileManager -> hasFile(fileName.c_str())) {
@@ -46,6 +47,7 @@ public:
             return;
         }
         pageCnt = bufPageManager -> fileManager -> getFileSize(fileId) / PAGE_SIZE;
+        //std::cout << "OneFileManager(...) end" << std::endl;
     }
     
     /*
@@ -83,6 +85,7 @@ public:
         int index;
         BufType data = bufPageManager -> getPage(fileId, pageId, index);
         indexMap[pageId] = index;
+        //std::cout << "OneFileManager.getPage(" << pageId << ") fileId = " << fileId << ", index = " << index << ", data = " << (int) data << std::endl;
         return (ByteBufType) data;
     }
     
@@ -96,6 +99,7 @@ public:
         int index;
         BufType data = bufPageManager -> getPage(fileId, pageId, index);
         indexMap[pageId] = index;
+        //std::cout << "OneFileManager.getNewPage(" << pageId << ") fileId = " << fileId << ", index = " << index << ", data = " << (int) data << std::endl;
         return (ByteBufType) data;
     }
     
@@ -180,7 +184,8 @@ protected:
     int getPageIndex(int pageId) {
         int index = -1;
         if (indexMap.find(pageId) == indexMap.end()) {
-            index = bufPageManager -> hash -> findIndex(fileId, pageId);
+            //index = bufPageManager -> hash -> findIndex(fileId, pageId);
+            index = bufPageManager -> getIndex(fileId, pageId);
         } else {
             index = indexMap[pageId];
         }

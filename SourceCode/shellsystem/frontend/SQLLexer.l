@@ -12,45 +12,46 @@
 %}
 
 %%
-DATABASE                {   return DATABASE;    }
-DATABASES               {   return DATABASES;   }
-TABLE                   {   return TABLE;       }
-TABLES                  {   return TABLES;      }
-PRIMARY                 {   return PRIMARY;     }
-KEY                     {   return KEY;         }
-NOT                     {   return NOT;         }
-NULL                    {   return NNULL;       }
-INTO                    {   return INTO;        }
-VALUES                  {   return VALUES;      }
-FROM                    {   return FROM;        }
-WHERE                   {   return WHERE;       }
-SET                     {   return SET;         }
-IS                      {   return IS;          }
-REFERENCES              {   return REFERENCES;  }
-INDEX                   {   return INDEX;       }
-AND                     {   return AND;         }
-FOREIGN                 {   return FOREIGN;     }
-BOOL                    {   return BOOLL;       }
-CHAR                    {   return CHARR;       }
-SHORT                   {   return SHORTT;      }
-INT                     {   return INTEGER;     }
-LONG                    {   return LONGG;       }
-FLOAT                   {   return FLOATT;      }
-DOUBLE                  {   return DOUBLEE;     }
-VARCHAR                 {   return VARCHAR;     }
-LOB                     {   return LOB;         }
-DATE                    {   return DATEE;       }
-SHOW                    {   setCmdColor(0);     return SHOW;        }
-CREATE                  {   setCmdColor(0);     return CREATE;      }
-DROP                    {   setCmdColor(0);     return DROP;        }
-USE                     {   setCmdColor(0);     return USE;         }
-INSERT                  {   setCmdColor(0);     return INSERT;      }
-DELETE                  {   setCmdColor(0);     return DELETEE;     }
-UPDATE                  {   setCmdColor(0);     return UPDATE;      }
-SELECT                  {   setCmdColor(0);     return SELECT;      }
-DESC                    {   setCmdColor(0);     return DESC;        }
+DATABASE|DATABASE                {   return DATABASE;    }
+DATABASES|DATABASES              {   return DATABASES;   }
+TABLE|table                      {   return TABLE;       }
+TABLES|tables                    {   return TABLES;      }
+PRIMARY|primary                  {   return PRIMARY;     }
+KEY|key                          {   return KEY;         }
+NOT|not                          {   return NOT;         }
+NULL|null                        {   return NNULL;       }
+INTO|into                        {   return INTO;        }
+VALUES|values                    {   return VALUES;      }
+FROM|from                        {   return FROM;        }
+WHERE|where                      {   return WHERE;       }
+SET|set                          {   return SET;         }
+IS|is                            {   return IS;          }
+REFERENCES|references            {   return REFERENCES;  }
+INDEX|index                      {   return INDEX;       }
+AND|and                          {   return AND;         }
+FOREIGN|foreign                  {   return FOREIGN;     }
+BOOL|bool                        {   return BOOLL;       }
+CHAR|char                        {   return CHARR;       }
+SHORT|short                      {   return SHORTT;      }
+INT|int                          {   return INTEGER;     }
+LONG|long                        {   return LONGG;       }
+FLOAT|float                      {   return FLOATT;      }
+DOUBLE|double                    {   return DOUBLEE;     }
+VARCHAR|varchar                  {   return VARCHAR;     }
+LOB|lob                          {   return LOB;         }
+DATE|date                        {   return DATEE;       }
+SHOW|show                        {   setCmdColor(0);     return SHOW;        }
+CREATE|create                    {   setCmdColor(0);     return CREATE;      }
+DROP|drop                        {   setCmdColor(0);     return DROP;        }
+USE|usr                          {   setCmdColor(0);     return USE;         }
+INSERT|insert                    {   setCmdColor(0);     return INSERT;      }
+DELETE|delete                    {   setCmdColor(0);     return DELETEE;     }
+UPDATE|update                    {   setCmdColor(0);     return UPDATE;      }
+SELECT|select                    {   setCmdColor(0);     return SELECT;      }
+DESC|desc                        {   setCmdColor(0);     return DESC;        }
 
 [;,\(\)\.]              {   return *yytext;     }
+"*"                     {   return *yytext;     }
 \=                      {   return OP_EQ;       }
 \<\>                    {   return OP_NE;       }
 \<\=                    {   return OP_LE;       }

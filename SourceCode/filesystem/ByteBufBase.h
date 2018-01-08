@@ -4,11 +4,12 @@
 #include "utils/pagedef.h"
 #include <iostream>
 
+///把数据以二进制的方式写入ByteBufType中，并把指针前移
+
 typedef unsigned char Byte;
 typedef unsigned char * ByteBufType;
 typedef unsigned long long uint64;
 
-///把数据以二进制的方式写入ByteBufType中，并把指针前移
 /*
  *  @函数名:writeArrayToByte
  *  @参数buf:写入的地方

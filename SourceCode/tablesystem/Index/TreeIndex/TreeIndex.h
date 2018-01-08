@@ -33,6 +33,7 @@ public:
      */
     TreeIndex(BufPageManager * bufPageManager_, std::string tableName_, TableColumn * tableColumn_)
         : BaseIndex(bufPageManager_, tableName_, tableColumn_) {
+        //std::cout << "TreeIndex(...) begin" << std::endl;
         //空指针报错
         if (bufPageManager_ == NULL || tableColumn_ == NULL) {
             std::cout << "TreeIndex(..., " << tableName_ << ", ...) error" << std::endl;
@@ -52,15 +53,17 @@ public:
             node0 -> pageHeader -> setNextPageId(-1);
             node0 -> pageHeader -> setFreeCnt(0);
             node0 -> pageHeader -> setLevel(0);
-            node0 -> writeBackToFile();
+            //node0 -> writeBackToFile();
             delete node0;
         }
+        //std::cout << "TreeIndex(...) end" << std::endl;
     }
     
     /*
      *  @析构函数
      */
     ~TreeIndex() {
+        //std::cout << "~TreeIndex()" << std::endl;
     }
     
 public:
@@ -81,11 +84,13 @@ public:
      *       如果表中有同一个键值，且来源于数据表的同一页同一个槽，就不添加
      */
     void insertKey(TreeNodeKeyCell * keyCell) {
+        //std::cout << "TreeIndex.insertKey(key = " << keyCell -> key << ", pageId = " << keyCell -> keyPageId << ", slotId = " << keyCell -> keySlotId << std::endl;
         if (!containKey(keyCell)) {
             TreeNodeKeyCell * keyCell_ = new TreeNodeKeyCell();
             keyCell_ -> replaceKey(keyCell);
             __insertKey(keyCell_);
         }
+        //std::cout << "TreeIndex.insertKey(...) end" << std::endl;
     }
     
     /*
@@ -111,13 +116,19 @@ public:
      *  功能:查询表中是否包含这个数值，找到返回true和页编号槽编号，找不到返回false和-1,-1
      */
     bool containKey(uint64 key, int & pageId, int & slotId) {
+        //std::cout << "TreeIndex.containKey(" << key << ",...) flag 1" << std::endl;
         TreeNodeKeyCell * keyCell = new TreeNodeKeyCell(key, -1, -1);
-        TreeIterator ite = __lowerBoundKey(keyCell);
-        if (keyCell -> key == (* ite) -> key) {
-            pageId = (* ite) -> keyPageId;
-            slotId = (* ite) -> keySlotId;
+        //std::cout << "TreeIndex.containKey(" << key << ",...) flag 2" << std::endl;
+        TreeIterator * ite = __lowerBoundKey(keyCell);
+        //std::cout << "TreeIndex.containKey(" << key << ",...) flag 3   ite -> nodeId = " << ite -> getNodeId() << std::endl;
+        if (!ite -> isEnd() && 
+            keyCell -> key == ite -> getKeyCell() -> key) {
+        //std::cout << "TreeIndex.containKey(" << key << ",...) flag 4" << std::endl;
+            pageId = ite -> getKeyCell() -> keyPageId;
+            slotId = ite -> getKeyCell() -> keySlotId;
             return true;
         } else {
+        //std::cout << "TreeIndex.containKey(" << key << ",...) flag 5" << std::endl;
             pageId = -1;
             slotId = -1;
             return false;
@@ -130,6 +141,7 @@ public:
      *  功能:查询表中是否包含这个数值，找到返回true，找不到返回false
      */
     bool containKey(uint64 key) {
+        //std::cout << "TreeIndex.containKey(" << key << ") " << std::endl;
         int pageId = -1;
         int slotId = -1;
         return containKey(key, pageId, slotId);
@@ -141,8 +153,10 @@ public:
      *  功能:查询表中是否包含这个键值，
      */
     bool containKey(TreeNodeKeyCell * keyCell) {
-        TreeIterator ite = __lowerBoundKey(keyCell);
-        if (keyCell -> isEqualTo(* ite)) {
+        //std::cout << "TreeIndex.containKey(...) " << std::endl;
+        TreeIterator * ite = __lowerBoundKey(keyCell);
+        if (!ite -> isEnd() && 
+            keyCell -> isEqualTo(ite -> getKeyCell())) {
             return true;
         } else {
             return false;
@@ -154,12 +168,12 @@ public:
      *  @参数keyCell:要查询的键值
      *  功能:查询表中是否包含这个键值，返回一个迭代器
      */
-    TreeIterator findKey(TreeNodeKeyCell * keyCell) {
-        TreeIterator ite = __lowerBoundKey(keyCell);
-        if (keyCell -> isEqualTo(* ite)) {
+    TreeIterator * findKey(TreeNodeKeyCell * keyCell) {
+        TreeIterator * ite = __lowerBoundKey(keyCell);
+        if (keyCell -> isEqualTo(ite -> getKeyCell())) {
             return ite;
         } else {
-            return TreeIterator();
+            return new TreeIterator();
         }
     }
     
@@ -168,7 +182,7 @@ public:
      *  @参数keyCell:要查询的键值
      *  功能:查询表中不小于这个键值的第一个键值，返回一个迭代器
      */
-    TreeIterator lowerBoundKey(TreeNodeKeyCell * keyCell) {
+    TreeIterator * lowerBoundKey(TreeNodeKeyCell * keyCell) {
         return __lowerBoundKey(keyCell);
     }
     
@@ -176,13 +190,13 @@ public:
      *  @函数名:begin
      *  功能:返回叶节点链表第一个节点的第一个键值的迭代器
      */
-    TreeIterator beginIte() {
+    TreeIterator * beginIte() {
         TreeNode * node0 = new TreeNode(oneFileManager, rootPageId);
-        TreeIterator ite;
+        TreeIterator * ite;
         if (node0 -> isLeaf() && node0 -> keyList.size() == 0) {
-            ite = TreeIterator(oneFileManager, -1, -1);
+            ite = new TreeIterator(oneFileManager, -1, -1);
         } else {
-            ite = TreeIterator(oneFileManager, node0 -> pageHeader -> getFreeCnt(), 0);
+            ite = new TreeIterator(oneFileManager, node0 -> pageHeader -> getFreeCnt(), 0);
         }
         delete node0;
         return ite;
@@ -192,8 +206,8 @@ public:
      *  @函数名:end
      *  功能:返回一个指向空的迭代器
      */
-    TreeIterator endIte() {
-        return TreeIterator(oneFileManager, -1, -1);
+    TreeIterator * endIte() {
+        return new TreeIterator(oneFileManager, -1, -1);
     }
     
 protected:
@@ -205,12 +219,14 @@ protected:
      *       利用一个节点栈，先向下到达叶子节点，再逐层向上分三种情况处理
      */
     void __insertKey(TreeNodeKeyCell * keyCell) {
+        //std::cout << "TreeIndex.__insertKey() flag 1" << std::endl;
         //节点栈
         std::vector<TreeNode *> myStack;
         myStack.clear();
         //向下直达叶子节点
         TreeNode * nodeCur = new TreeNode(oneFileManager, rootPageId);
         while (!nodeCur -> isLeaf()) {
+            //std::cout << "TreeIndex.__insertKey() flag 2" << std::endl;
             int s;
             for (s = (int) nodeCur -> keyList.size() - 1; s >= 0; s --) {
                 if (s == 0 || nodeCur -> keyList[s] -> isLessThan(keyCell, cmpKeyValue)) {
@@ -220,12 +236,15 @@ protected:
             myStack.push_back(nodeCur);
             nodeCur = new TreeNode(oneFileManager, nodeCur -> keyList[s] -> sonPageId);
         }
+        //std::cout << "TreeIndex.__insertKey() flag 2" << std::endl;
         //自底向上添加
         while (true) {
             if (nodeCur -> keyList.size() < MAX_SON_NUM) {
+                //std::cout << "TreeIndex.__insertKey() flag 3" << std::endl;
                 //添加之后不会溢出
                 //直接添加然后退出循环
                 nodeCur -> insertKey(keyCell, cmpKeyValue);
+                delete nodeCur;
                 break;
             } else if (!nodeCur -> isRoot()) {
                 //直接插入后会溢出且不是根节点
@@ -263,6 +282,7 @@ protected:
                 nodeCur = nodePar;
                 myStack.pop_back();
             } else {
+                //std::cout << "TreeIndex.__insertKey() flag 4" << std::endl;
                 //根节点且会溢出
                 //先分裂两个新节点，把数据搬进去
                 TreeNode * nodeA = new TreeNode(oneFileManager);
@@ -342,6 +362,8 @@ protected:
                         }
                     }
                 }
+                delete nodeCur;
+                break;
             } else if (!nodeCur -> isRoot()) {
                 //不是根节点，且删除之后会萎靡
                 //获取右兄弟
@@ -501,21 +523,29 @@ protected:
      *  @参数keyCell:查询的键值
      *  功能:非递归的查询“不小于keyCell的第一个键值”，返回一个迭代器，指向这个数据在叶节点中所在的位置
      */
-    TreeIterator __lowerBoundKey(TreeNodeKeyCell * keyCell) {
+    TreeIterator * __lowerBoundKey(TreeNodeKeyCell * keyCell) {
+        //std::cout << "TreeIterator.__lowerBound(...)" << std::endl;
         TreeNode * nodeCur = new TreeNode(oneFileManager, rootPageId);
+        //std::cout << "TreeIterator.__lowerBound(...) flag 1" << std::endl;
         TreeNode * nodeTmp;
         int s;
         //向下逐层查询
         while (true) {
+            //std::cout << "TreeIterator.__lowerBound(...) flag 2" << std::endl;
             for (s = 0; s < (int) nodeCur -> keyList.size(); s ++) {
-                if (!keyCell -> isLessThan(nodeCur -> keyList[s], cmpKeyValue)) {
+                //std::cout << "TreeIterator.__lowerBound(...) keyCell.key = " << keyCell -> key << ", [s].key = " << nodeCur -> keyList[s] -> key << std::endl;
+                //std::cout << "(" << keyCell -> key << ", " << keyCell ->keyPageId << ", " << keyCell -> keySlotId << std::endl;
+                //std::cout << "(" << nodeCur -> keyList[s] -> key << ", " << nodeCur -> keyList[s] ->keyPageId << ", " << nodeCur -> keyList[s] -> keySlotId << std::endl;
+                if (!keyCell -> isGreaterThan(nodeCur -> keyList[s], cmpKeyValue)) {
                     break;
                 }
             }
             if (nodeCur -> isLeaf()) {
+                //std::cout << "TreeIterator.__lowerBound(...) flag break" << std::endl;
                 break;
             }
             //向下一层
+            //std::cout << "TreeIterator.__lowerBound(...) flag 3" << std::endl;
             if (s == (int) nodeCur -> keyList.size() ||
                 nodeCur -> keyList[s] -> isLessThan(keyCell, cmpKeyValue)) {
                 s --;
@@ -524,10 +554,11 @@ protected:
             delete nodeCur;
             nodeCur = nodeTmp;
         }
+        //std::cout << "TreeIterator.__lowerBound(...) flag 4 nodCur.pageId = " << nodeCur -> curPageId << ", s = " << s << std::endl;
         //叶子节点，返回一个迭代器
         if (s == (int) nodeCur -> keyList.size()) {
             if (nodeCur -> pageHeader -> getNextPageId() == -1) {
-                return TreeIterator();
+                return new TreeIterator();
             } else {
                 nodeTmp = new TreeNode(oneFileManager, nodeCur -> pageHeader -> getNextPageId());
                 delete nodeCur;
@@ -535,7 +566,8 @@ protected:
                 s = 0;
             }
         }
-        return TreeIterator(oneFileManager, nodeCur -> curPageId, s);
+        //std::cout << "TreeIterator.__lowerBound(...) flag 5" << std::endl;
+        return new TreeIterator(oneFileManager, nodeCur -> curPageId, s);
     }
 };
 

@@ -50,7 +50,7 @@
 %token  OP_LT
 %token  OP_GT
 
-%token  ';' ',' '(' ')' '.' 
+%token  ';' ',' '(' ')' '.' '*'
 %token <v_u> VALUE_UINT64
 %token <v_s> VALUE_STRING
 %token <v_d> VALUE_DOUBLE
@@ -343,6 +343,7 @@ tbStmt:
         {
             //在已经打开的数据库中删除一个数据表
             std::string * tbName = $3;
+            //std::cout << "DropTable flag 1" << std::endl;
             //如果没有打开数据库，报错
             if (cur.database == NULL) {
                 std::cout << "Parser.DROP TABLE: error" << std::endl;
@@ -352,11 +353,13 @@ tbStmt:
                 std::cout << "Parser.DESC: error" << std::endl;
                 std::cout << "没有数据表:" << * tbName << std::endl;
             } else {
-                if (cur.table -> getName() == * tbName) {
+                if (cur.table != NULL && cur.table -> getName() == * tbName) {
                     cur.table = NULL;
                 }
                 //删除数据表
+                //std::cout << "DropTable flag 2" << std::endl;
                 cur.database -> eraseTable(* tbName);
+                //std::cout << "DropTable flag 3" << std::endl;
                 //从文件夹中删除
                 std::string fileName = * tbName + ".table";
                 remove(fileName.c_str());
@@ -442,6 +445,7 @@ tbStmt:
             //在数据表中插入若干行
             std::string * tbName = $3;
             UnionValueLists * rowList = $5;
+            //std::cout << "INSERT flag 1 " << std::endl;
             //如果没有打开数据库，报错
             if (cur.database == NULL) {
                 std::cout << "Parser.INSERT INTO: error" << std::endl;
@@ -457,6 +461,7 @@ tbStmt:
                 int insertCnt = 0;
                 for (int i = 0; i < (int) rowList -> size(); i ++) {
                     //创建数据库中的数据行
+                    //std::cout << "INSERT flag 2 " << std::endl;
                     UnionValueList * sqlRow = rowList -> at(i);
                     std::string errMsg;
                     TableRow * tableRow = genTableRow(sqlRow, table, errMsg);
@@ -466,6 +471,7 @@ tbStmt:
                         std::cout << errMsg << std::endl;
                         continue;
                     }
+                    //std::cout << "INSERT flag 3 " << std::endl;
                     table -> insertRow(tableRow);
                     insertCnt += 1;
                 }
@@ -592,8 +598,7 @@ idxStmt:
                 std::cout << "Parser.<idxStmt := CREATE INDEX ident '(' ident ')' ';' endLine>: error" << std::endl;
                 std::cout << "没有数据表:" << * tbName << std::endl;
             } else {
-                createIndex(tbName, colName);
-                
+                runCreateIndex(tbName, colName);
             }
         }
         |
@@ -611,7 +616,7 @@ idxStmt:
                 std::cout << "Parser.<idxStmt := DROP INDEX ident '(' ident ')' ';' endLine>: error" << std::endl;
                 std::cout << "没有数据表:" << * tbName << std::endl;
             } else {
-                removeIndex(tbName, colName);
+                runRemoveIndex(tbName, colName);
             }
         }
 ;
@@ -822,6 +827,11 @@ selector:
                 $$ -> push_back($3);
             }
         }
+        |
+        '*'
+        {
+            $$ = NULL;
+        }
 ;
 
 col:
@@ -1006,6 +1016,37 @@ type:
         LOB
         {
             $$ = TableDataType::t_lob;
+        }
+        |
+        INTEGER '(' VALUE_UINT64 ')'
+        {
+            if (1 <= $3 && $3 <= 4) {
+                $$ = TableDataType::t_short;
+            } else if (5 <= $3 && $3 <= 9) {
+                $$ = TableDataType::t_int;
+            } else if (10 <= $3 && $3 <= 19) {
+                $$ = TableDataType::t_long;
+            } else {
+                yyerror("INT类型长度出错");
+            }
+        }
+        |
+        VARCHAR '(' VALUE_UINT64 ')'
+        {
+            if (1 <= $3 && $3 < MAX_STRING_LENGTH) {
+                $$ = TableDataType::t_string;
+            } else {
+                yyerror("VARCHAR类型长度出错");
+            }
+        }
+        |
+        CHARR '(' VALUE_UINT64 ')'
+        {
+            if (1 <= $3 && $3 < MAX_STRING_LENGTH) {
+                $$ = TableDataType::t_string;
+            } else {
+                yyerror("CHAR类型长度出错");
+            }
         }
 ;
 

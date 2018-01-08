@@ -194,7 +194,7 @@ TableRow * genTableRow(UnionValueList * sqlRow, Table * table, std::string & err
                 delete tableRow;
                 return NULL;
             }
-            std::cout << "sqlValue -> dt.d = " << sqlValue -> dt.d << std::endl;
+            //std::cout << "sqlValue -> dt.d = " << sqlValue -> dt.d << std::endl;
             tableGrid -> setDataValueFloat(sqlValue -> dt.d, typeLen);
         } else if (sqlValue -> ty == 3) {
             //SQL遇到STRING
@@ -209,12 +209,16 @@ TableRow * genTableRow(UnionValueList * sqlRow, Table * table, std::string & err
             tableGrid -> setDataValueArray((ByteBufType) s -> c_str(), s -> length());
         }
         //数据不允许重复的列检查
+        //std::cout << "genTableRow flag 1 " << std::endl;
         if (tableColumn -> isUnique()) {
             if (tableColumn -> hasTreeIndex() ||
                 tableColumn -> hasHashIndex()) {
                 //B+树索引
+                //std::cout << "genTableRow flag 2 " << std::endl;
                 TreeIndex * treeIndex = (TreeIndex *) indexManager -> getIndexById(i);
+                //std::cout << "genTableRow flag 4 " << std::endl;
                 if (treeIndex -> containKey(tableGrid -> getDataValueNumber())) {
+                    //std::cout << "genTableRow flag 3 " << std::endl;
                     ssbuf << "输入的第" << i << "个数据格" << "在数据表中重复出现，但该列不允许重复数据";
                     ssbuf >> errorMessage;
                     delete tableRow;
@@ -437,8 +441,24 @@ bool checkSetClause(std::string * tbName, UnionSetClause * scList, std::string &
     return true;
 }
 
-bool checkSelector(UnionColList * sColList, StringList * tbNameList, std::string & errorMessage) {
+bool checkSelector(UnionColList * & sColList, StringList * tbNameList, std::string & errorMessage) {
     std::stringstream ssbuf;
+    //SELECT * FROM语句
+    if (sColList == NULL) {
+        sColList = new UnionColList();
+        for (int i = 0; i < (int) tbNameList -> size(); i ++) {
+            Table * tb = cur.database -> getTableByName(* tbNameList -> at(i));
+            for (int j = 0; j < tb -> getNCol(); j ++) {
+                TableColumn * tc = tb -> getTableHeader() -> getColumnById(j);
+                UnionCol * uc = new UnionCol();
+                uc -> tb = tbNameList -> at(i);
+                uc -> col = new std::string(tc -> getName());
+                uc -> tc = tc;
+                sColList -> push_back(uc);
+            }
+        }
+        return true;
+    }
     //检查数据表都已经出现过
     //std::cout << "whList -> size() = " << whList -> size() << std::endl;
     for (int i = 0; i < (int) sColList -> size(); i ++) {
@@ -745,7 +765,9 @@ void runSelect(UnionColList * sColList, StringList * tbNameList, UnionWhereClaus
         std::string * tbName = tbNameList -> at(i);
         Table * table = cur.database -> getTableByName(* tbName);
         tbList.push_back(table);
+        //std::cout << "runSelect() flag 1-2" << std::endl;
         iteList.push_back(table -> beginIte());
+        //std::cout << "runSelect() flag 1-3" << std::endl;
         if (iteList.back() -> isEnd()) {
             iteFlag = false;
         }
@@ -889,7 +911,7 @@ void runSelect(UnionColList * sColList, StringList * tbNameList, UnionWhereClaus
     }
 }
 
-bool createIndex(std::string * tbName, std::string * colName) {
+bool runCreateIndex(std::string * tbName, std::string * colName) {
     std::stringstream ssbuf;
     //检查是否存在这个数据列
     Table * table = cur.database -> getTableByName(* tbName);
@@ -904,9 +926,14 @@ bool createIndex(std::string * tbName, std::string * colName) {
         std::cout << "数据表" << * tbName << "的数据列" << * colName << "已经拥有索引" << std::endl;
         return false;
     }
-    //创建索引
+    //在数据表中标记这一列已有索引
     tc -> setHasTreeIndex(true);
+    table -> writeBackTableHeader();
+    //创建索引
+    //std::cout << "runCreateIndex(...) flag 1" << std::endl;
     TreeIndex * trIdx = new TreeIndex(cur.bufPageManager, *tbName, tc);
+    return false;
+    //std::cout << "runCreateIndex(...) flag 2" << std::endl;
     TableIterator * ite = table -> beginIte();
     while (!ite -> isEnd()) {
         uint64 value = ite -> getTableRow() -> getGridByName(* colName) -> getDataValueNumber();
@@ -917,11 +944,13 @@ bool createIndex(std::string * tbName, std::string * colName) {
         );
         trIdx -> insertKey(& keyCell);
     }
+    //std::cout << "runCreateIndex(...) flag 3" << std::endl;
     //真的添加索引
     table -> getIndexManager() -> addIndex(trIdx, *colName);
+    //std::cout << "runCreateIndex(...) flag 4" << std::endl;
 }
 
-bool removeIndex(std::string * tbName, std::string * colName) {
+bool runRemoveIndex(std::string * tbName, std::string * colName) {
     std::stringstream ssbuf;
     //检查是否存在这个数据列
     Table * table = cur.database -> getTableByName(* tbName);

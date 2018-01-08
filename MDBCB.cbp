@@ -54,9 +54,8 @@
 		<Unit filename="SourceCode/filesystem/TestFileSystem.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="SourceCode/filesystem/bufmanager/BufPageManager.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="SourceCode/filesystem/bufmanager/BufPageManager.h" />
+		<Unit filename="SourceCode/filesystem/bufmanager/BufPageManager.old.h" />
 		<Unit filename="SourceCode/filesystem/bufmanager/FindReplace.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
